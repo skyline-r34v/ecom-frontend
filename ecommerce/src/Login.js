@@ -12,16 +12,24 @@ const Login = () => {
     try {
       const data = {email,password}
       const res = await axios.post(
-        "https://s657g66h-7045.inc1.devtunnels.ms/api/users/login",data
+        "http://localhost:7045/api/users/login",data
       );
 
       alert("Login Successful!");
-      console.log(res.data);
+      console.log(res.data.data);
 
       // Store token if backend sends one
-      if (res.data.token) {
-        localStorage.setItem("token", res.data.token);
-    
+      if (res.data.data.token) {
+        const userToken = localStorage.setItem("token", res.data.data.token);
+      }
+      if (res.data.data.user.role) {
+        localStorage.setItem("role", res.data.data.user.role);
+      }
+      if (res.data.data.user.name) {
+        localStorage.setItem("userName", res.data.data.user.name);
+      }
+      if (res.data.data.user.email) {
+        localStorage.setItem("userEmail", res.data.data.user.email);
       }
     } catch (error) {
       alert("Invalid Credentials!");
