@@ -1,26 +1,29 @@
 import React, { useState } from "react";
 import axios from "axios";
-import "./style/login.css";   // <-- Correct CSS import
+import "./style/login.css"; 
+import { useNavigate } from "react-router-dom";   // ✅ Added
 
 const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
+  const navigate = useNavigate();   // ✅ Added
+
   const handleLogin = async (e) => {
     e.preventDefault();
 
     try {
-      const data = {email,password}
+      const data = { email, password };
       const res = await axios.post(
-        "http://localhost:7045/api/users/login",data
+        "https://s657g66h-7045.inc1.devtunnels.ms/api/users/login", 
+        data
       );
 
       alert("Login Successful!");
       console.log(res.data.data);
 
-      // Store token if backend sends one
       if (res.data.data.token) {
-        const userToken = localStorage.setItem("token", res.data.data.token);
+        localStorage.setItem("token", res.data.data.token);
       }
       if (res.data.data.user.role) {
         localStorage.setItem("role", res.data.data.user.role);
@@ -31,6 +34,10 @@ const Login = () => {
       if (res.data.data.user.email) {
         localStorage.setItem("userEmail", res.data.data.user.email);
       }
+
+      // ✅ Redirect to NEW PAGE after login success
+      navigate("/Category");
+
     } catch (error) {
       alert("Invalid Credentials!");
       console.log(error);
