@@ -1,27 +1,34 @@
 import React from "react";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import Signup from "./register";
+
 import Login from "./Login";
-import Category from "./Category"; 
-
-
+import Register from "./register";
+import Dashboard from "./pages/Dashboard";
+import CategoryList from "./pages/CategoryList";
 
 function App() {
   return (
     <BrowserRouter>
       <Routes>
-      <Route path="/" element={<Signup />} />
-        <Route path="/" element={<Login />} />
-       
-        <Route path="/login" element={<Login />} />
-        <Route path="/register" element={<Signup />} />
-        <Route path="/Category" element={<Category />} />
 
-       
+        {/* Default page → Registration */}
+        <Route path="/" element={<Register />} />
+
+        {/* Registration page */}
+        <Route path="/register" element={<Register />} />
+
+        {/* Login page */}
+        <Route path="/login" element={<Login />} />
+
+        {/* After Login → Dashboard */}
+        <Route path="/dashboard" element={<Dashboard />} />
+
+        {/* Category List Page */}
+        <Route path="/categories" element={<CategoryList />} />
 
       </Routes>
     </BrowserRouter>
   );
 }
 
-export default App; 
+export default App;

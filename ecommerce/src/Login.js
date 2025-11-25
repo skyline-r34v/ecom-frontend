@@ -1,13 +1,13 @@
-import React, { useState } from "react";
 import axios from "axios";
-import "./style/login.css"; 
-import { useNavigate } from "react-router-dom";   // ✅ Added
+import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import "./style/login.css";
 
 const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
-  const navigate = useNavigate();   // ✅ Added
+  const navigate = useNavigate();
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -15,7 +15,7 @@ const Login = () => {
     try {
       const data = { email, password };
       const res = await axios.post(
-        "https://s657g66h-7045.inc1.devtunnels.ms/api/users/login", 
+        "http://10.254.92.201:7045/api/users/login",
         data
       );
 
@@ -35,8 +35,8 @@ const Login = () => {
         localStorage.setItem("userEmail", res.data.data.user.email);
       }
 
-      // ✅ Redirect to NEW PAGE after login success
-      navigate("/Category");
+      // ✅ Redirect correctly to Category List page
+      navigate("/dashboard");
 
     } catch (error) {
       alert("Invalid Credentials!");

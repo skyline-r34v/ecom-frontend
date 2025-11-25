@@ -1,111 +1,110 @@
 /* 🔵 Background for eCommerce Look */
 body {
-  background: linear-gradient(135deg, #eef2f3, #dfe9f3);
-  font-family: "Poppins", Arial, sans-serif;
-}
-
-/* 🟣 Main container card */
-.register-container {
-  width: 380px;
-  margin: 80px auto;
-  padding: 40px;
-  border-radius: 16px;
-  background: #ffffff;
-  box-shadow: 0 10px 35px rgba(0, 0, 0, 0.12);
-  text-align: center;
-  animation: fadeSlide 0.5s ease-in-out;
-}
-
-/* ✨ Smooth fade animation */
-@keyframes fadeSlide {
-  from {
-    opacity: 0;
-    transform: translateY(20px);
+    background: linear-gradient(135deg, #eef2f3, #dfe9f3);
+    font-family: "Poppins", Arial, sans-serif;
   }
-  to {
-    opacity: 1;
-    transform: translateY(0);
+  
+  /* 🟣 Main container card */
+  .register-container {
+    width: 380px;
+    margin: 80px auto;
+    padding: 40px;
+    border-radius: 16px;
+    background: #ffffff;
+    box-shadow: 0 10px 35px rgba(0, 0, 0, 0.12);
+    text-align: center;
+    animation: fadeSlide 0.5s ease-in-out;
   }
-}
-
-/* 🔥 Heading with gradient */
-.register-container h2 {
-  margin-bottom: 20px;
-  font-size: 30px;
-  font-weight: bold;
-  background: linear-gradient(90deg, #4f46e5, #7c3aed);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-}
-
-/* 📋 Form layout */
-.register-form {
-  display: flex;
-  flex-direction: column;
-  gap: 18px;
-}
-
-/* 🎯 Input fields */
-.register-form input {
-  padding: 14px;
-  border: 1px solid #cdd4e0;
-  border-radius: 10px;
-  font-size: 15px;
-  background: #f5f7fa;
-  transition: 0.3s ease;
-}
-
-.register-form input:focus {
-  border-color: #6d5dfc;
-  background: #ffffff;
-  box-shadow: 0 0 8px rgba(109, 93, 252, 0.4);
-}
-
-/* 🔘 Button */
-.register-form button {
-  padding: 14px;
-  background: linear-gradient(90deg, #6d5dfc, #4f46e5);
-  border: none;
-  color: white;
-  font-size: 18px;
-  border-radius: 10px;
-  cursor: pointer;
-  transition: transform 0.2s, background 0.3s;
-  box-shadow: 0 5px 15px rgba(109, 93, 252, 0.3);
-}
-
-.register-form button:hover {
-  background: linear-gradient(90deg, #4f46e5, #3b32c9);
-  transform: translateY(-2px);
-}
-
-/* 👇 Link to Login page (optional enhancement) */
-.register-container p {
-  margin-top: 18px;
-  font-size: 14px;
-  color: #555;
-}
-
-.register-container a {
-  color: #4f46e5;
-  text-decoration: none;
-  font-weight: 600;
-}
-
-.register-container a:hover {
-  text-decoration: underline;
-}
-.login-link-btn {
-  background: none;
-  color: #4f46e5;
-  font-size: 15px;
-  border: none;
-  cursor: pointer;
-  font-weight: 600;
-  padding: 0;
-}
-
-.login-link-btn:hover {
-  text-decoration: underline;
-}
-
+  
+  /* ✨ Smooth fade animation */
+  @keyframes fadeSlide {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  
+  /* 🔥 Heading with gradient */
+  .register-container h2 {
+    margin-bottom: 20px;
+    font-size: 30px;
+    font-weight: bold;
+    background: linear-gradient(90deg, #4f46e5, #7c3aed);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  
+  /* 📋 Form layout */
+  .register-form {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+  }
+  
+  /* 🎯 Input fields */
+  .register-form input {
+    padding: 14px;
+    border: 1px solid #cdd4e0;
+    border-radius: 10px;
+    font-size: 15px;
+    background: #f5f7fa;
+    transition: 0.3s ease;
+  }
+  
+  .register-form input:focus {
+    border-color: #6d5dfc;
+    background: #ffffff;
+    box-shadow: 0 0 8px rgba(109, 93, 252, 0.4);
+  }
+  
+  /* 🔘 Button */
+  .register-form button {
+    padding: 14px;
+    background: linear-gradient(90deg, #6d5dfc, #4f46e5);
+    border: none;
+    color: white;
+    font-size: 18px;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: transform 0.2s, background 0.3s;
+    box-shadow: 0 5px 15px rgba(109, 93, 252, 0.3);
+  }
+  
+  .register-form button:hover {
+    background: linear-gradient(90deg, #4f46e5, #3b32c9);
+    transform: translateY(-2px);
+  }
+  
+  /* 👇 Link to Login page (optional enhancement) */
+  .register-container p {
+    margin-top: 18px;
+    font-size: 14px;
+    color: #555;
+  }
+  
+  .register-container a {
+    color: #4f46e5;
+    text-decoration: none;
+    font-weight: 600;
+  }
+  
+  .register-container a:hover {
+    text-decoration: underline;
+  }
+  .login-link-btn {
+    background: none;
+    color: #4f46e5;
+    font-size: 15px;
+    border: none;
+    cursor: pointer;
+    font-weight: 600;
+    padding: 0;
+  }
+  
+  .login-link-btn:hover {
+    text-decoration: underline;
+  }
