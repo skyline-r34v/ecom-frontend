@@ -1,31 +1,24 @@
-import React from "react";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
+import Login from "./ pages/Login.js";
+import Register from "./ pages/Register.js";
 
-import Login from "./Login";
-import Register from "./register";
-import Dashboard from "./pages/Dashboard";
-import CategoryList from "./pages/CategoryList";
+import Product from "./ pages/Products.js"
+import Category from "./ pages/Categories.js"
 
 function App() {
   return (
     <BrowserRouter>
       <Routes>
+        {/* First Page */}
+        <Route path="/" element={<Login />} />
 
-        {/* Default page → Registration */}
-        <Route path="/" element={<Register />} />
-
-        {/* Registration page */}
+        {/* Registration */}
         <Route path="/register" element={<Register />} />
 
-        {/* Login page */}
-        <Route path="/login" element={<Login />} />
-
-        {/* After Login → Dashboard */}
-        <Route path="/dashboard" element={<Dashboard />} />
-
-        {/* Category List Page */}
-        <Route path="/categories" element={<CategoryList />} />
-
+        {/* Dashboard Home */}
+        
+        <Route path="/product" element={<Product  />} />
+        <Route path="/category" element={<Category  />} />
       </Routes>
     </BrowserRouter>
   );
