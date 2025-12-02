@@ -1,8 +1,7 @@
-import React from "react";
+import React, { useState } from "react";
 import Sidebar from "../components/Sidebar";
 import "../styles/categories.css";
 
-// Import images
 // Import images
 import electronicsImg from "../assets/electronicsImg .jpeg";
 import clothingImg from "../assets/clothingImg .jpeg";
@@ -16,6 +15,8 @@ import jewelryImg from "../assets/jewelry.jpeg";
 import musicImg from "../assets/musicImg .jpeg";
 
 export default function CategoryPage() {
+  const [searchTerm, setSearchTerm] = useState("");
+
   const categories = [
     { name: "Electronics", image: electronicsImg },
     { name: "Clothing", image: clothingImg },
@@ -29,6 +30,10 @@ export default function CategoryPage() {
     { name: "Music & Instruments", image: musicImg },
   ];
 
+  const filteredCategories = categories.filter(cat =>
+    cat.name.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
   return (
     <div className="category-page-row-container">
       <aside className="category-sidebar">
@@ -36,13 +41,25 @@ export default function CategoryPage() {
       </aside>
 
       <main className="category-row-content">
-        <h1>All Categories</h1>
+        <div className="category-header">
+          <h1>Explore All Categories</h1>
+          <p>{filteredCategories.length} Categories Available</p>
+        </div>
 
-        <div className="category-row-list">
-          {categories.map((cat, index) => (
-            <div className="category-row-item" key={index}>
-              <img src={cat.image} alt={cat.name} className="category-row-image" />
-              <span className="category-row-name">{cat.name}</span>
+        <input
+          type="text"
+          className="category-search"
+          placeholder="Search category..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+        />
+
+        {/* Grid View */}
+        <div className="category-grid">
+          {filteredCategories.map((cat, index) => (
+            <div className="category-card" key={index}>
+              <img src={cat.image} alt={cat.name} className="category-card-image" />
+              <h3>{cat.name}</h3>
             </div>
           ))}
         </div>
