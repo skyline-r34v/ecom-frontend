@@ -1,0 +1,96 @@
+/* ---- Login Page Container ---- */
+.login-container {
+  width: 350px;
+  margin: 80px auto;
+  padding: 28px;
+  background: #ffffff;
+  border-radius: 14px;
+  box-shadow: 0 6px 20px rgba(120, 80, 200, 0.25);
+  text-align: center;
+  animation: fadeIn 0.4s ease-in-out;
+  border-top: 5px solid #a06cf4;
+}
+
+/* Title */
+.login-container h2 {
+  font-size: 28px;
+  margin-bottom: 15px;
+  font-weight: 700;
+  color: #6a11cb; /* Purple text */
+}
+
+/* Form Labels */
+.ant-form-item-label label {
+  font-weight: 600 !important;
+  color: #7a1ad9 !important;
+  font-size: 14px;
+}
+
+/* Inputs */
+.ant-input,
+.ant-input-password {
+  padding: 11px;
+  border-radius: 10px !important;
+  border: 1px solid #c9a7ff !important;
+  transition: 0.25s ease-in-out;
+}
+
+.ant-input:focus,
+.ant-input-password input:focus {
+  border-color: #9b5bff !important;
+  box-shadow: 0 0 6px rgba(155, 91, 255, 0.4) !important;
+}
+
+/* Login Button */
+.ant-btn-primary {
+  height: 42px;
+  border-radius: 10px;
+  font-size: 16px;
+  font-weight: 600;
+  background: linear-gradient(145deg, #7f3de6, #9f58ff);
+  border: none;
+  box-shadow: 0px 3px 12px rgba(140, 74, 255, 0.4);
+  transition: 0.2s;
+}
+
+.ant-btn-primary:hover {
+  background: linear-gradient(145deg, #6e2ed6, #8f4cff) !important;
+  box-shadow: 0px 4px 14px rgba(120, 52, 240, 0.5);
+}
+
+/* Register Text */
+.login-register-text {
+  margin-top: 15px;
+  font-size: 14px;
+  color: #5a2da8;
+}
+
+.login-register-text a {
+  color: #7b3de9;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.login-register-text a:hover {
+  text-decoration: underline;
+}
+
+/* Subtle Fade Animation */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Responsive */
+@media (max-width: 450px) {
+  .login-container {
+    width: 90%;
+    margin-top: 50px;
+  }
+}
