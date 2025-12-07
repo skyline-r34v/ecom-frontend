@@ -1,48 +1,43 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Sidebar from "../components/Sidebar";
 import "../styles/products.css";
-
-// Product Images
-import smartphone from "../assets/smartphone.jpeg";
-import shoes from "../assets/Running_Shoes-removebg-preview.png";
-import laptop from "../assets/Laptop.jpeg";
-import headphones from "../assets/Headphones.jpeg";
-import watch from "../assets/Wrist Watch.jpeg";
-import backpack from "../assets/Backpack.jpeg";
-import camera from "../assets/Camera.jpeg";
-import sunglasses from "../assets/Sunglasses.jpeg";
-import console from "../assets/Gaming Console.jpeg";
-import bookshelf from "../assets/Bookshelf.jpeg";
-import tablet from "../assets/Tablet.jpeg";
-import tracker from "../assets/Fitness Tracker.jpeg";
+import api from "../api";
+import { useLocation } from "react-router-dom";
 
 export default function Product() {
-  const allProducts = [
-    { name: "Smartphone", price: "$499", category: "Electronics", image: smartphone, desc: "High-performance smartphone with fast processing and HD camera.", rating: "4.5 ★" },
-    { name: "Running Shoes", price: "$79", category: "Fashion", image: shoes, desc: "Lightweight and durable shoes perfect for all terrains.", rating: "4.2 ★" },
-    { name: "Laptop", price: "$999", category: "Electronics", image: laptop, desc: "High-speed laptop ideal for work, study, and gaming.", rating: "4.7 ★" },
-    { name: "Headphones", price: "$149", category: "Electronics", image: headphones, desc: "Noise-cancellation headphones with deep bass.", rating: "4.6 ★" },
-    { name: "Wrist Watch", price: "$199", category: "Fashion", image: watch, desc: "Premium wrist watch with stainless steel body.", rating: "4.3 ★" },
-    { name: "Backpack", price: "$59", category: "Accessories", image: backpack, desc: "Waterproof backpack with multi-pocket storage.", rating: "4.1 ★" },
-    { name: "Camera", price: "$599", category: "Electronics", image: camera, desc: "Professional DSLR with 24MP lens quality.", rating: "4.8 ★" },
-    { name: "Sunglasses", price: "$89", category: "Fashion", image: sunglasses, desc: "UV-protected sunglasses with stylish frames.", rating: "4.4 ★" },
-    { name: "Gaming Console", price: "$399", category: "Electronics", image: console, desc: "Next-gen console with ultra-fast loading.", rating: "4.9 ★" },
-    { name: "Bookshelf", price: "$120", category: "Furniture", image: bookshelf, desc: "Modern wooden bookshelf with premium finish.", rating: "4.2 ★" },
-    { name: "Tablet", price: "$299", category: "Electronics", image: tablet, desc: "Lightweight tablet with smooth performance.", rating: "4.5 ★" },
-    { name: "Fitness Tracker", price: "$129", category: "Health", image: tracker, desc: "Track your steps, sleep, and heart rate easily.", rating: "4.4 ★" },
-  ];
+  const [products, setProducts] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-  const categories = ["All", "Electronics", "Fashion", "Accessories", "Furniture", "Health"];
-  const [selectedCategory, setSelectedCategory] = useState("All");
+  const location = useLocation();
+  const params = new URLSearchParams(location.search);
+  const categoryId = params.get("category"); 
 
-  // Modal state
+  // Modal
   const [showModal, setShowModal] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState(null);
 
-  const filteredProducts =
-    selectedCategory === "All"
-      ? allProducts
-      : allProducts.filter((p) => p.category === selectedCategory);
+  const fetchProducts = async () => {
+    try {
+      const data = {
+        size: 10,
+        page: 1,
+        category: categoryId || "" // send category ID to backend
+      };
+
+      const res = await api.post("/products/list", data);
+      setProducts(res.data.data || []);
+      setLoading(false);
+
+    } catch (err) {
+      console.log("Error fetching products:", err);
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchProducts();
+  }, [categoryId]); // refetch when category changes
+
 
   const openModal = (product) => {
     setSelectedProduct(product);
@@ -50,75 +45,91 @@ export default function Product() {
   };
 
   const closeModal = () => {
-    setSelectedProduct(null);
     setShowModal(false);
+    setSelectedProduct(null);
   };
+
+
+  if (loading) {
+    return (
+      <div className="product-page-container">
+        <h2 style={{ textAlign: "center", marginTop: "40px" }}>Loading Products...</h2>
+      </div>
+    );
+  }
 
   return (
     <div className="product-page-container">
-      {/* Sidebar */}
       <div className="product-sidebar">
         <Sidebar />
       </div>
 
-      {/* Content */}
       <div className="product-content">
-        <h2 className="page-title">Products</h2>
-
-        {/* Category Filter */}
-        <div className="category-filter">
-          {categories.map((cat, index) => (
-            <button
-              key={index}
-              className={`filter-btn ${selectedCategory === cat ? "active" : ""}`}
-              onClick={() => setSelectedCategory(cat)}
-            >
-              {cat}
-            </button>
-          ))}
-        </div>
+        <h2 className="page-title">
+          {categoryId ? "Products in Selected Category" : "All Products"}
+        </h2>
 
         {/* Product Grid */}
-        <div className="product-grid">
-          {filteredProducts.map((product, index) => (
-            <div className="product-item" key={index}>
-              <div className="product-card">
+        <div className="product-grid modern-grid">
+          {products.length > 0 ? (
+            products.map((product, index) => (
+              <div className="product-item modern-card" key={index}>
+                <div className="product-card">
 
-                <img
-                  src={product.image}
-                  alt={product.name}
-                  className="product-image"
-                  onClick={() => openModal(product)}
-                  style={{ cursor: "pointer" }}
-                />
+                  <div className="img-container">
+                    <img
+                      src={product.thumbnail}
+                      alt={product.title}
+                      className="product-image"
+                      onClick={() => openModal(product)}
+                    />
+                  </div>
 
-                <div className="product-info">
-                  <p className="product-rating">{product.rating}</p>
-                  <h3 className="product-name">{product.name}</h3>
-                  <p className="product-description">{product.desc}</p>
-                  <p className="product-price">{product.price}</p>
+                  <div className="product-info">
+                    <p className="product-rating">⭐ 4.5</p>
+                    <h3 className="product-name">{product.title}</h3>
 
-                  <button className="add-cart-btn">
-                    Add to Cart
-                  </button>
+                    <p className="product-price">
+                      ₹{product.discountPrice}
+                      <small>
+                        <del>{product.price && <span> ₹{product.price}</span>}</del>
+                      </small>
+                    </p>
+
+                    <button className="add-cart-btn modern-add-cart">Add to Cart</button>
+                  </div>
+
                 </div>
               </div>
-            </div>
-          ))}
+            ))
+          ) : (
+            <p style={{ marginTop: 20 }}>No products found for this category</p>
+          )}
         </div>
       </div>
 
-      {/* Modal */}
       {showModal && selectedProduct && (
         <div className="modal-overlay" onClick={closeModal}>
-          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-            <img src={selectedProduct.image} alt={selectedProduct.name} className="modal-image" />
-            <h2>{selectedProduct.name}</h2>
-            <p>{selectedProduct.desc}</p>
-            <p className="product-price">{selectedProduct.price}</p>
-            <p className="product-rating">{selectedProduct.rating}</p>
-            <button className="add-cart-btn">Add to Cart</button>
-            <button className="close-btn" onClick={closeModal}>Close</button>
+          <div className="modal-content modern-modal" onClick={(e) => e.stopPropagation()}>
+            <img src={selectedProduct.thumbnail} alt={selectedProduct.title} className="modal-image" />
+
+            <div className="modal-details">
+              <h2>{selectedProduct.title}</h2>
+
+              <p className="product-price-modal">
+                ₹{selectedProduct.discountPrice}
+                <span className="old-price-modal"> ₹{selectedProduct.price}</span>
+              </p>
+
+              <div className="modal-images">
+                {selectedProduct.images?.map((img, idx) => (
+                  <img key={idx} src={img} className="modal-small-img" />
+                ))}
+              </div>
+
+              <button className="add-cart-btn modal-cart-btn">Add to Cart</button>
+              <button className="close-btn" onClick={closeModal}>Close</button>
+            </div>
           </div>
         </div>
       )}

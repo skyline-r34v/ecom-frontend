@@ -1,16 +1,13 @@
 import React, { useState, useEffect } from "react";
-import Sidebar from "../components/Sidebar";
-import Navbar from "../components/Navbar";
-import "../styles/categories.css";
-import api from "../api"; // 2. IMPORT API CONFIGURATION
+import Sidebar from "../../components/Sidebar";
+import Navbar from "../../components/Navbar";
+import "../../styles/categories.css";
+import api from "../../api";
+import { useNavigate } from "react-router-dom";
 
 export const fetchAllCategories = async (searchTerm = "", page = 1, size = 10) => {
   try {
-    const data = {
-      page,
-      size: size,
-      search: searchTerm
-    };
+    const data = { page, size, search: searchTerm };
     const response = await api.post("/categories/list", data);
     return response.data;
   } catch (error) {
@@ -19,31 +16,27 @@ export const fetchAllCategories = async (searchTerm = "", page = 1, size = 10) =
   }
 };
 
-// 4. REACT COMPONENT
 export default function CategoryPage() {
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
 
-  // ✅ Refetch categories whenever searchTerm changes
+  const navigate = useNavigate();
+
+  const openCategoryProducts = (categoryId) => {
+    navigate(`/products?category=${categoryId}`);
+  };
+
   useEffect(() => {
     const loadCategories = async () => {
       try {
         setLoading(true);
-
-        // Always load 10 categories with search filtering
         const data = await fetchAllCategories(searchTerm, 1, 10);
-
-        // Extract categories correctly
         setCategories(data.data?.categories || []);
-
       } catch (err) {
-        const errorMessage =
-          err.response?.data?.message ||
-          "Failed to load categories. Please check the network.";
-        setError(errorMessage);
-        console.error("API Fetch Error:", err);
+        const msg = err.response?.data?.message || "Failed to load categories";
+        setError(msg);
       } finally {
         setLoading(false);
       }
@@ -53,25 +46,9 @@ export default function CategoryPage() {
   }, [searchTerm]);
 
 
-  // --- Rendering Logic: Loading, Error, and Success States ---
-  if (loading) {
-    return (
-      <div className="loading-state-container">
-        <p>Loading categories...</p>
-      </div>
-    );
-  }
+  if (loading) return <p className="loading-state-container">Loading categories...</p>;
+  if (error) return <p className="error-state-container">{error}</p>;
 
-  if (error) {
-    return (
-      <div className="error-state-container">
-        <h1>Error</h1>
-        <p style={{ color: 'red' }}>{error}</p>
-      </div>
-    );
-  }
-
-  // --- Main Render (Success State) ---
   return (
     <div>
       <Navbar />
@@ -82,10 +59,7 @@ export default function CategoryPage() {
         </aside>
 
         <main className="category-row-content">
-          <div className="category-header">
-            <h1>Explore All Categories</h1>
-            <p>{categories.length} Categories Available</p>
-          </div>
+          <h1>Explore All Categories</h1>
 
           <input
             type="text"
@@ -98,13 +72,18 @@ export default function CategoryPage() {
           <div className="category-grid">
             {categories.length > 0 ? (
               categories.map((cat, index) => (
-                <div className="category-card" key={index}>
+                <div
+                  className="category-card"
+                  key={index}
+                  onClick={() => openCategoryProducts(cat._id)}
+                  style={{ cursor: "pointer" }}
+                >
                   <img src={cat.image} alt={cat.name} className="category-card-image" />
                   <h3>{cat.name}</h3>
                 </div>
               ))
             ) : (
-              <p>No categories found matching "{searchTerm}".</p>
+              <p>No categories found</p>
             )}
           </div>
         </main>

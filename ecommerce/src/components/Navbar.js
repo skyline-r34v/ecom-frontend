@@ -1,5 +1,5 @@
 import React from "react";
-import { Layout, Avatar, Dropdown, Menu } from "antd";
+import { Layout, Avatar, Dropdown } from "antd";
 import { UserOutlined } from "@ant-design/icons";
 import { useNavigate } from "react-router-dom";
 

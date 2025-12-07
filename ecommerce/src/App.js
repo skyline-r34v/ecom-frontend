@@ -3,7 +3,7 @@ import Login from "./pages/Login.js";
 import Register from "./pages/Register.js";
 
 import Product from "./pages/Products.js"
-import Category from "./pages/Categories.js"
+import Category from "./pages/Categories/Categories.js"
 
 function App() {
   return (
@@ -14,10 +14,7 @@ function App() {
 
         {/* Registration */}
         <Route path="/register" element={<Register />} />
-
-        {/* Dashboard Home */}
-        
-        <Route path="/product" element={<Product  />} />
+        <Route path="/products" element={<Product  />} />
         <Route path="/category" element={<Category  />} />
       </Routes>
     </BrowserRouter>
