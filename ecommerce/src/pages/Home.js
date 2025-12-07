@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from "react";
 import Sidebar from "../components/Sidebar";
-import CreateCategory from "./CreateCategory";
+import CreateCategory from "../pages/Categories/CreateCategory";
 import { Button } from "antd";
-import "../styles/ home.css";
+import "../styles/home.css";
 
 export default function Home() {
   const [openModal, setOpenModal] = useState(false);
@@ -26,36 +26,45 @@ export default function Home() {
     <div className="home-container">
       {/* Sidebar */}
       <div className="home-sidebar">
-        <Sidebar onCategoryClick={() => setOpenModal(true)} />
+        <Sidebar />
       </div>
 
-      {/* Right Content */}
+      {/* Main Content */}
       <div className="home-content">
-        <h2>All Categories</h2>
+        <div className="home-header">
+          <h1>Home</h1>
+          <h3 className="explore-heading">Explore All Categories</h3>
+        </div>
 
+        {/* Category Grid */}
         {categories.length === 0 ? (
-          <p className="no-category">
-            No categories yet. Click "Categories" from sidebar to add.
-          </p>
+          <p className="no-category">No categories available. Add one.</p>
         ) : (
-          <ul className="category-list">
+          <ul className="category-grid">
             {categories.map((cat, index) => (
-              <li key={index}>{cat.name}</li>
+              <li key={index} className="category-card">
+                <img
+                  src={cat.image || "https://via.placeholder.com/200"}
+                  alt={cat.name}
+                  className="category-image"
+                />
+                <p className="category-name">{cat.name}</p>
+              </li>
             ))}
           </ul>
         )}
 
-        {/* Create Category Button */}
+        {/* Create category button */}
         <Button
           type="primary"
           onClick={() => setOpenModal(true)}
-          style={{ marginTop: 20 }}
+          className="create-btn"
         >
           + Create Category
         </Button>
       </div>
 
-      {/* Category Modal */}
+      {/* Create Category Modal */}
       <CreateCategory
         open={openModal}
         onClose={() => setOpenModal(false)}

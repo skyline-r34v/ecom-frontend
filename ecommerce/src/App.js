@@ -4,6 +4,8 @@ import Register from "./pages/Register.js";
 
 import Product from "./pages/Products.js"
 import Category from "./pages/Categories/Categories.js"
+import Profile from "./pages/Profile/Profile.js"
+import Createcategory from "/Users/govind/eventfronted/event/ecomm fi/ecom-frontend/ecommerce/src/pages/Categories/CreateProduct.js"
 
 function App() {
   return (
@@ -16,6 +18,9 @@ function App() {
         <Route path="/register" element={<Register />} />
         <Route path="/products" element={<Product  />} />
         <Route path="/category" element={<Category  />} />
+        <Route path="/profile" element={<Profile />} />
+
+        <Route path="/create-category" element={<Createcategory />} />
       </Routes>
     </BrowserRouter>
   );

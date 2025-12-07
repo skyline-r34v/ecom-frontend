@@ -28,6 +28,10 @@ export default function CategoryPage() {
     navigate(`/products?category=${categoryId}`);
   };
 
+  const goToCreateCategory = () => {
+    navigate("/create-category"); // new page
+  };
+
   useEffect(() => {
     const loadCategories = async () => {
       try {
@@ -45,7 +49,6 @@ export default function CategoryPage() {
     loadCategories();
   }, [searchTerm]);
 
-
   if (loading) return <p className="loading-state-container">Loading categories...</p>;
   if (error) return <p className="error-state-container">{error}</p>;
 
@@ -59,8 +62,15 @@ export default function CategoryPage() {
         </aside>
 
         <main className="category-row-content">
-          <h1>Explore All Categories</h1>
+          {/* Header with Button Inline */}
+          <div className="category-header-row">
+            <h1>Explore All Categories</h1>
+            <button className="create-category-btn" onClick={goToCreateCategory}>
+              + Create Category
+            </button>
+          </div>
 
+          {/* Search */}
           <input
             type="text"
             className="category-search"
@@ -69,6 +79,7 @@ export default function CategoryPage() {
             onChange={(e) => setSearchTerm(e.target.value)}
           />
 
+          {/* Categories Grid */}
           <div className="category-grid">
             {categories.length > 0 ? (
               categories.map((cat, index) => (

@@ -2,7 +2,7 @@
 import axios from "axios";
 
 const api = axios.create({
-  baseURL: "http://localhost:7045/api",
+  baseURL: "https://s657g66h-7045.inc1.devtunnels.ms/api",
 });
 
 // Attach token automatically

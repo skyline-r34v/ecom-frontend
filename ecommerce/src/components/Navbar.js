@@ -8,36 +8,37 @@ const { Header } = Layout;
 export default function Navbar() {
   const navigate = useNavigate();
 
-  // 1. Retrieve user data from localStorage
+  // User data
   const user = {
     name: localStorage.getItem("name") || "User",
     email: localStorage.getItem("email") || "user@example.com",
   };
 
-  const handleMenuClick = ({ key }) => {
-    if (key === "profile") navigate("/profile");
-    if (key === "logout") {
-      localStorage.clear(); // clears ALL localStorage entries (be mindful if you have other keys)
+  // Handle dropdown clicks
+  const handleMenuClick = (info) => {
+    if (info.key === "profile") {
+      navigate("/profile");
+    }
+
+    if (info.key === "logout") {
+      localStorage.clear();
       navigate("/");
     }
   };
 
-  // 2. Create a custom header item for the user info
-  const userInfoItem = {
-    key: "userInfo",
-    label: (
-      <div style={{ padding: "8px 12px" }}>
-        <p style={{ margin: 0, fontWeight: "bold" }}>{user.name}</p>
-        <p style={{ margin: 0, fontSize: "12px", color: "gray" }}>{user.email}</p>
-      </div>
-    ),
-    type: 'group', // Use 'group' to make it non-clickable
-  };
-
-  // 3. Define the menu items, including a separator and the user actions
+  // Dropdown menu items
   const items = [
-    userInfoItem,
-    { type: 'divider' }, // Visual separator
+    {
+      key: "userInfo",
+      label: (
+        <div style={{ padding: "8px 12px" }}>
+          <p style={{ margin: 0, fontWeight: "bold" }}>{user.name}</p>
+          <p style={{ margin: 0, fontSize: "12px", color: "gray" }}>{user.email}</p>
+        </div>
+      ),
+      disabled: true,
+    },
+    { type: "divider" },
     { label: "My Profile", key: "profile" },
     { label: "Logout", key: "logout" },
   ];
@@ -51,22 +52,16 @@ export default function Navbar() {
         paddingRight: "20px",
         background: "#fff",
         boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
+        zIndex: 100,
       }}
     >
       <Dropdown
         menu={{ items, onClick: handleMenuClick }}
         placement="bottomRight"
-        trigger={['click']} // Good practice to use click for dropdown menus
+        trigger={["click"]}
       >
-        {/* Container for the avatar and name/email if you wanted them visible outside the dropdown */}
-        <div style={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }}>
-          <Avatar
-            size="large"
-            icon={<UserOutlined />}
-            style={{ marginRight: '10px' }} // Added a small margin for spacing
-          />
-          {/* Optionally show the name next to the avatar (uncomment below if desired) */}
-          {/* <span style={{ fontWeight: '500' }}>{user.name}</span> */}
+        <div style={{ display: "flex", alignItems: "center", cursor: "pointer" }}>
+          <Avatar size="large" icon={<UserOutlined />} style={{ marginRight: "10px" }} />
         </div>
       </Dropdown>
     </Header>
