@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import api from "../../api";
-import "/Users/govind/eventfronted/event/ecomm fi/ecom-frontend/ecommerce/src/styles/craetecategory.css";
+import "../../styles/craetecategory.css";
 import { useNavigate } from "react-router-dom";
 
 export default function CategoryPage() {

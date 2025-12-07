@@ -5,7 +5,7 @@ import Register from "./pages/Register.js";
 import Product from "./pages/Products.js"
 import Category from "./pages/Categories/Categories.js"
 import Profile from "./pages/Profile/Profile.js"
-import Createcategory from "/Users/govind/eventfronted/event/ecomm fi/ecom-frontend/ecommerce/src/pages/Categories/CreateProduct.js"
+import Createcategory from "./pages/Categories/CreateCategory.js"
 
 function App() {
   return (

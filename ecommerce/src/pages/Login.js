@@ -23,7 +23,7 @@ export default function Login() {
       localStorage.setItem("name", res.data.data.user.name);
       localStorage.setItem("role", res.data.data.user.role);
       localStorage.setItem("email", res.data.data.user.email);
-
+      localStorage.setItem("userId", res.data.data.user._id);
       // Redirect
       navigate("/category");
 
