@@ -2,7 +2,7 @@
 import axios from "axios";
 
 const api = axios.create({
-  baseURL: "https://s657g66h-7045.inc1.devtunnels.ms/api",
+  baseURL: "https://unconcurrent-tomi-mopishly.ngrok-free.dev/api",
 });
 
 // Attach token automatically

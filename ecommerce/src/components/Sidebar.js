@@ -66,7 +66,7 @@ export default function Sidebar() {
 
       <div
         style={{ ...itemBaseStyle, color: colors.products }}
-        onClick={() => navigate("/product")}
+        onClick={() => navigate("/products")}
         onMouseOver={handleHover}
         onMouseOut={handleLeave}
       >

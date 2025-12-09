@@ -21,7 +21,7 @@ export default function Product() {
       const data = {
         size: 10,
         page: 1,
-        category: categoryId || "" // send category ID to backend
+        category: categoryId || "all" // send category ID to backend
       };
 
       const res = await api.post("/products/list", data);
