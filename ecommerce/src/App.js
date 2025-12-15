@@ -6,6 +6,8 @@ import Product from "./pages/Products.js"
 import Category from "./pages/Categories/Categories.js"
 import Profile from "./pages/Profile/Profile.js"
 import Createcategory from "./pages/Categories/CreateCategory.js"
+import ProductDetails from "./pages/ProductDetails";
+import Createpoduct from "./pages/CreateProduct.js";
 
 function App() {
   return (
@@ -21,6 +23,8 @@ function App() {
         <Route path="/profile" element={<Profile />} />
 
         <Route path="/create-category" element={<Createcategory />} />
+        <Route path="/products/:id" element={<ProductDetails />} />
+        <Route path="/products/add" element={<Createpoduct />} />
       </Routes>
     </BrowserRouter>
   );

@@ -1,12 +1,29 @@
 import React from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { Form, Input, Button } from "antd";
+import { message, Form, Input, Button } from "antd";
+import axios from "axios";
 
 export default function Register() {
   const navigate = useNavigate();
 
-  const handleRegister = () => {
-    navigate("/"); // back to login
+  const handleRegister = async (values) => {
+    try {
+      const res = await axios.post(
+        "http://localhost:7045/api/users/create",
+        {
+          name: values.name,
+          email: values.email,
+          password: values.password
+        }
+      );
+
+      message.success("Registration successful. Please login.");
+      navigate("/");
+
+    } catch (err) {
+      console.error(err);
+      message.error(err.response?.data?.message || "Registration failed");
+    }
   };
 
   return (
@@ -25,7 +42,10 @@ export default function Register() {
         <Form.Item
           name="email"
           label="Email"
-          rules={[{ required: true, message: "Enter email" }]}
+          rules={[
+            { required: true, message: "Enter email" },
+            { type: "email", message: "Enter valid email" }
+          ]}
         >
           <Input placeholder="Enter email" />
         </Form.Item>

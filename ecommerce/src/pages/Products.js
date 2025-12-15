@@ -2,58 +2,57 @@ import React, { useState, useEffect } from "react";
 import Sidebar from "../components/Sidebar";
 import "../styles/products.css";
 import api from "../api";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 
 export default function Product() {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
 
   const location = useLocation();
-  const params = new URLSearchParams(location.search);
-  const categoryId = params.get("category"); 
+  const navigate = useNavigate();
 
-  // Modal
-  const [showModal, setShowModal] = useState(false);
-  const [selectedProduct, setSelectedProduct] = useState(null);
+  const params = new URLSearchParams(location.search);
+  const categoryId = params.get("category");
+
+  // Show Add Product button only on product list page
+  const isProductListPage =
+    location.pathname === "/products" || location.pathname === "/products/";
 
   const fetchProducts = async () => {
     try {
       const data = {
         size: 10,
         page: 1,
-        category: categoryId || "all" // send category ID to backend
+        category: categoryId || "all",
       };
 
       const res = await api.post("/products/list", data);
       setProducts(res.data.data || []);
-      setLoading(false);
-
     } catch (err) {
-      console.log("Error fetching products:", err);
+      console.error("Error fetching products:", err);
+    } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
     fetchProducts();
-  }, [categoryId]); // refetch when category changes
+  }, [categoryId]);
 
-
-  const openModal = (product) => {
-    setSelectedProduct(product);
-    setShowModal(true);
+  const goToProductPage = (productId) => {
+    navigate(`/products/${productId}`);
   };
 
-  const closeModal = () => {
-    setShowModal(false);
-    setSelectedProduct(null);
+  const goToAddProduct = () => {
+    navigate("/products/add"); // Navigate to Add Product page
   };
-
 
   if (loading) {
     return (
       <div className="product-page-container">
-        <h2 style={{ textAlign: "center", marginTop: "40px" }}>Loading Products...</h2>
+        <h2 style={{ textAlign: "center", marginTop: "40px" }}>
+          Loading Products...
+        </h2>
       </div>
     );
   }
@@ -65,23 +64,30 @@ export default function Product() {
       </div>
 
       <div className="product-content">
-        <h2 className="page-title">
-          {categoryId ? "Products in Selected Category" : "All Products"}
-        </h2>
+        <div className="page-header">
+          <h2 className="page-title">
+            {categoryId ? "Products in Selected Category" : "All Products"}
+          </h2>
+          {isProductListPage && (
+            <button className="add-product-btn" onClick={goToAddProduct}>
+              + Add Product
+            </button>
+          )}
+        </div>
 
-        {/* Product Grid */}
         <div className="product-grid modern-grid">
           {products.length > 0 ? (
-            products.map((product, index) => (
-              <div className="product-item modern-card" key={index}>
+            products.map((product) => (
+              <div className="product-item modern-card" key={product._id}>
                 <div className="product-card">
-
-                  <div className="img-container">
+                  <div
+                    className="img-container"
+                    onClick={() => goToProductPage(product._id)}
+                  >
                     <img
                       src={product.thumbnail}
                       alt={product.title}
                       className="product-image"
-                      onClick={() => openModal(product)}
                     />
                   </div>
 
@@ -92,47 +98,27 @@ export default function Product() {
                     <p className="product-price">
                       ₹{product.discountPrice}
                       <small>
-                        <del>{product.price && <span> ₹{product.price}</span>}</del>
+                        <del> ₹{product.price}</del>
                       </small>
                     </p>
 
-                    <button className="add-cart-btn modern-add-cart">Add to Cart</button>
+                    <button
+                      className="add-cart-btn modern-add-cart"
+                      onClick={() => goToProductPage(product._id)}
+                    >
+                      View Product
+                    </button>
                   </div>
-
                 </div>
               </div>
             ))
           ) : (
-            <p style={{ marginTop: 20 }}>No products found for this category</p>
+            <p style={{ marginTop: 20 }}>
+              No products found for this category
+            </p>
           )}
         </div>
       </div>
-
-      {showModal && selectedProduct && (
-        <div className="modal-overlay" onClick={closeModal}>
-          <div className="modal-content modern-modal" onClick={(e) => e.stopPropagation()}>
-            <img src={selectedProduct.thumbnail} alt={selectedProduct.title} className="modal-image" />
-
-            <div className="modal-details">
-              <h2>{selectedProduct.title}</h2>
-
-              <p className="product-price-modal">
-                ₹{selectedProduct.discountPrice}
-                <span className="old-price-modal"> ₹{selectedProduct.price}</span>
-              </p>
-
-              <div className="modal-images">
-                {selectedProduct.images?.map((img, idx) => (
-                  <img key={idx} src={img} className="modal-small-img" />
-                ))}
-              </div>
-
-              <button className="add-cart-btn modal-cart-btn">Add to Cart</button>
-              <button className="close-btn" onClick={closeModal}>Close</button>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 }
