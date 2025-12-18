@@ -5,6 +5,8 @@ import { useNavigate } from "react-router-dom";
 
 export default function CategoryPage() {
   const [categories, setCategories] = useState([]);
+  const navigate = useNavigate();
+
   const [form, setForm] = useState({
     name: "",
     slug: "",
@@ -14,21 +16,17 @@ export default function CategoryPage() {
     sortOrder: 0,
     isActive: true,
   });
-  const navigate = useNavigate();
 
-
-   
-
-
-  // Fetch all categories
-const fetchAllCategories = async (searchTerm = "", page = 1, size = 10) => {
+  // ✅ FETCH ALL CATEGORIES
+  const fetchAllCategories = async () => {
     try {
-      const data = { page, size, search: searchTerm };
-      const response = await api.post("/categories/list", data);
-      return response.data;
-    } catch (error) {
-      console.error("Error fetching categories:", error);
-      throw error;
+      const res = await api.post("/categories/list", {
+        page: 1,
+        size: 50,
+      });
+      setCategories(res.data.data || []);
+    } catch (err) {
+      alert("Failed to load categories");
     }
   };
 
@@ -36,18 +34,14 @@ const fetchAllCategories = async (searchTerm = "", page = 1, size = 10) => {
     fetchAllCategories();
   }, []);
 
-  // Handle form submit
+  // ✅ CREATE CATEGORY
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const res = await api.post("/categories/create", form);
-
+      await api.post("/categories/create", form);
       alert("Category Created Successfully");
+      fetchAllCategories();
 
-      // Add newly created category to the list without refetching
-      setCategories((prev) => [...prev, res.data.data || res.data]);
-
-      // Reset form
       setForm({
         name: "",
         slug: "",
@@ -57,11 +51,19 @@ const fetchAllCategories = async (searchTerm = "", page = 1, size = 10) => {
         sortOrder: 0,
         isActive: true,
       });
-      navigate(`/category`);
-
     } catch (err) {
-      console.error(err);
-      alert(err.response?.data?.message || "Failed to create category");
+      alert(err.response?.data?.message || "Create failed");
+    }
+  };
+
+  // ✅ DELETE CATEGORY
+  const deleteCategory = async (id) => {
+    if (!window.confirm("Delete this category?")) return;
+    try {
+      await api.delete(`/categories/delete/${id}`);
+      fetchAllCategories();
+    } catch {
+      alert("Delete failed");
     }
   };
 
@@ -69,12 +71,11 @@ const fetchAllCategories = async (searchTerm = "", page = 1, size = 10) => {
     <div className="category-container">
       <h2 className="cat-title">Manage Categories</h2>
 
-      {/* CREATE CATEGORY FORM */}
+      {/* CREATE FORM */}
       <form className="category-form" onSubmit={handleSubmit}>
         <h3>Create Category</h3>
 
         <input
-          type="text"
           placeholder="Category Name"
           value={form.name}
           onChange={(e) => setForm({ ...form, name: e.target.value })}
@@ -82,8 +83,7 @@ const fetchAllCategories = async (searchTerm = "", page = 1, size = 10) => {
         />
 
         <input
-          type="text"
-          placeholder="Slug (SEO friendly)"
+          placeholder="Slug"
           value={form.slug}
           onChange={(e) => setForm({ ...form, slug: e.target.value })}
           required
@@ -96,13 +96,12 @@ const fetchAllCategories = async (searchTerm = "", page = 1, size = 10) => {
         />
 
         <input
-          type="text"
           placeholder="Image URL"
           value={form.image}
           onChange={(e) => setForm({ ...form, image: e.target.value })}
         />
 
-        {form.image && <img src={form.image} className="preview-img" alt="Preview" />}
+        {form.image && <img src={form.image} className="preview-img" alt="preview" />}
 
         <label className="switch-label">
           <input
@@ -110,7 +109,7 @@ const fetchAllCategories = async (searchTerm = "", page = 1, size = 10) => {
             checked={form.isFeatured}
             onChange={(e) => setForm({ ...form, isFeatured: e.target.checked })}
           />
-          Featured Category?
+          Featured
         </label>
 
         <input
@@ -126,38 +125,50 @@ const fetchAllCategories = async (searchTerm = "", page = 1, size = 10) => {
             checked={form.isActive}
             onChange={(e) => setForm({ ...form, isActive: e.target.checked })}
           />
-          Active?
+          Active
         </label>
 
-        <button type="submit" className="btn-submit">
-          Create Category
-        </button>
+        <button className="btn-submit">Create Category</button>
       </form>
 
       {/* CATEGORY LIST */}
       <h3 className="section-title">All Categories</h3>
-      <div className="category-list">
-        {categories.length === 0 ? (
-          <p>No categories added.</p>
-        ) : (
-          categories.map((cat) => (
-            <div key={cat._id} className="cat-card">
-              <img
-                src={cat.image || "https://cdn-icons-png.flaticon.com/512/7187/7187843.png"}
-                alt="Icon"
-                className="cat-img"
-              />
 
-              <div className="cat-info">
-                <h4>{cat.name}</h4>
-                <p className="slug">/{cat.slug}</p>
-                <p>{cat.description || "No description"}</p>
-                {cat.isFeatured && <span className="featured-tag">Featured</span>}
-                {!cat.isActive && <span className="inactive-tag">Inactive</span>}
+      <div className="category-list">
+        {categories.map((cat) => (
+          <div className="cat-card" key={cat._id}>
+            <img
+              src={cat.image || "https://cdn-icons-png.flaticon.com/512/7187/7187843.png"}
+              className="cat-img"
+              alt="icon"
+            />
+
+            <div className="cat-info">
+              <h4>{cat.name}</h4>
+              <p className="slug">/{cat.slug}</p>
+              <p>{cat.description || "No description"}</p>
+
+              {cat.isFeatured && <span className="featured-tag">Featured</span>}
+              {!cat.isActive && <span className="inactive-tag">Inactive</span>}
+
+              <div className="cat-actions">
+                <button
+                  className="edit-btn"
+                  onClick={() => navigate(`/edit-category/${cat._id}`)}
+                >
+                  Edit
+                </button>
+
+                <button
+                  className="delete-btn"
+                  onClick={() => deleteCategory(cat._id)}
+                >
+                  Delete
+                </button>
               </div>
             </div>
-          ))
-        )}
+          </div>
+        ))}
       </div>
     </div>
   );

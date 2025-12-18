@@ -6,14 +6,9 @@ import api from "../../api";
 import { useNavigate } from "react-router-dom";
 
 export const fetchAllCategories = async (searchTerm = "", page = 1, size = 10) => {
-  try {
-    const data = { page, size, search: searchTerm };
-    const response = await api.post("/categories/list", data);
-    return response.data;
-  } catch (error) {
-    console.error("Error fetching categories:", error);
-    throw error;
-  }
+  const data = { page, size, search: searchTerm };
+  const response = await api.post("/categories/list", data);
+  return response.data;
 };
 
 export default function CategoryPage() {
@@ -24,30 +19,49 @@ export default function CategoryPage() {
 
   const navigate = useNavigate();
 
-  const openCategoryProducts = (categoryId) => {
-    navigate(`/products?category=${categoryId}`);
-  };
-
-  const goToCreateCategory = () => {
-    navigate("/create-category"); // new page
+  const loadCategories = async () => {
+    try {
+      setLoading(true);
+      const data = await fetchAllCategories(searchTerm, 1, 10);
+      setCategories(data.data || []);
+    } catch (err) {
+      setError("Failed to load categories");
+    } finally {
+      setLoading(false);
+    }
   };
 
   useEffect(() => {
-    const loadCategories = async () => {
-      try {
-        setLoading(true);
-        const data = await fetchAllCategories(searchTerm, 1, 10);
-        setCategories(data.data?.categories || []);
-      } catch (err) {
-        const msg = err.response?.data?.message || "Failed to load categories";
-        setError(msg);
-      } finally {
-        setLoading(false);
-      }
-    };
-
     loadCategories();
   }, [searchTerm]);
+
+  const openCategoryProducts = (id) => {
+    navigate(`/products?category=${id}`);
+  };
+
+  const goToCreateCategory = () => {
+    navigate("/create-category");
+  };
+
+  const editCategory = (e, id) => {
+    e.stopPropagation();
+    navigate(`/edit-category/${id}`);
+  };
+
+  const deleteCategory = async (e, id) => {
+    e.stopPropagation();
+
+    const confirmDelete = window.confirm("Are you sure you want to delete this category?");
+    if (!confirmDelete) return;
+
+    try {
+      const data={id}
+      await api.post(`/categories/delete/`,data);
+      loadCategories();
+    } catch (err) {
+      alert("Failed to delete category");
+    }
+  };
 
   if (loading) return <p className="loading-state-container">Loading categories...</p>;
   if (error) return <p className="error-state-container">{error}</p>;
@@ -62,7 +76,6 @@ export default function CategoryPage() {
         </aside>
 
         <main className="category-row-content">
-          {/* Header with Button Inline */}
           <div className="category-header-row">
             <h1>Explore All Categories</h1>
             <button className="create-category-btn" onClick={goToCreateCategory}>
@@ -70,7 +83,6 @@ export default function CategoryPage() {
             </button>
           </div>
 
-          {/* Search */}
           <input
             type="text"
             className="category-search"
@@ -79,18 +91,33 @@ export default function CategoryPage() {
             onChange={(e) => setSearchTerm(e.target.value)}
           />
 
-          {/* Categories Grid */}
           <div className="category-grid">
             {categories.length > 0 ? (
-              categories.map((cat, index) => (
+              categories.map((cat) => (
                 <div
                   className="category-card"
-                  key={index}
+                  key={cat._id}
                   onClick={() => openCategoryProducts(cat._id)}
-                  style={{ cursor: "pointer" }}
                 >
                   <img src={cat.image} alt={cat.name} className="category-card-image" />
                   <h3>{cat.name}</h3>
+
+                  {/* ACTION BUTTONS */}
+                  <div className="category-actions">
+                    <button
+                      className="edit-btn"
+                      onClick={(e) => editCategory(e, cat._id)}
+                    >
+                      Edit
+                    </button>
+
+                    <button
+                      className="delete-btn"
+                      onClick={(e) => deleteCategory(e, cat._id)}
+                    >
+                      Delete
+                    </button>
+                  </div>
                 </div>
               ))
             ) : (

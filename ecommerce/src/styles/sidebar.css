@@ -1,27 +1,56 @@
+/* ===== SIDEBAR CONTAINER ===== */
 .sidebar {
-    width: 220px;
-    height: 100vh;
-    background: #1e1e2f;
-    color: white;
-    padding: 20px;
-    position: fixed;
-    top: 0;
-    left: 0;
-  }
-  
-  .sidebar ul {
-    list-style: none;
-    padding: 0;
-  }
-  
-  .sidebar ul li {
-    padding: 10px 5px;
-    margin: 10px 0;
-    cursor: pointer;
-    font-size: 18px;
-  }
-  
-  .sidebar ul li:hover {
-    color: #4fa3ff;
-  }
-  
+  width: 230px;
+  height: 100vh;
+  background: #ffffff;
+  padding: 25px 20px;
+  box-sizing: border-box;
+  box-shadow: 2px 0px 10px rgba(0, 0, 0, 0.1);
+  border-right: 1px solid #e5e5e5;
+  font-family: "Poppins", sans-serif;
+}
+
+/* ===== SIDEBAR TITLE ===== */
+.sidebar h3 {
+  font-size: 22px;
+  font-weight: bold;
+  margin-bottom: 25px;
+  color: black;
+}
+
+/* ===== SIDEBAR ITEMS ===== */
+.sidebar-item {
+  padding: 12px 15px;
+  margin-bottom: 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 16px;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: inherit; /* Will use the specific color class */
+}
+
+/* Hover effect */
+.sidebar-item:hover {
+  background: #f0f0f0;
+  transform: translateX(4px);
+}
+
+/* ===== ITEM COLORS ===== */
+.categories {
+  color: #ff5733;
+}
+
+.products {
+  color: #2e86de;
+}
+
+.orders {
+  color: #28a745;
+}
+
+.users {
+  color: #8e44ad;
+}

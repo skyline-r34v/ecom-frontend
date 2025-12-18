@@ -1,94 +1,39 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
-
+import "../styles/sidebar.css"; // import the CSS file
 export default function Sidebar() {
   const navigate = useNavigate();
 
-  const sidebarStyle = {
-    width: "230px",
-    height: "100vh",
-    background: "#ffffff",
-    padding: "25px 20px",
-    boxSizing: "border-box",
-    boxShadow: "2px 0px 10px rgba(0,0,0,0.1)",
-    borderRight: "1px solid #e5e5e5",
-  };
-
-  const titleStyle = {
-    fontSize: "22px",
-    fontWeight: "bold",
-    marginBottom: "25px",
-    color: "black",
-  };
-
-  const itemBaseStyle = {
-    padding: "12px 15px",
-    marginBottom: "12px",
-    borderRadius: "8px",
-    cursor: "pointer",
-    fontSize: "16px",
-    transition: "all 0.3s ease",
-    display: "flex",
-    alignItems: "center",
-    gap: "10px",
-  };
-
-  // Colors for each menu item
-  const colors = {
-    categories: "#ff5733",   // orange red
-    products: "#2e86de",     // blue
-    orders: "#28a745",       // green
-    users: "#8e44ad",        // purple
-  };
-
-  const handleHover = (e) => {
-    e.currentTarget.style.background = "#f0f0f0";
-    e.currentTarget.style.transform = "translateX(4px)";
-  };
-
-  const handleLeave = (e) => {
-    e.currentTarget.style.background = "transparent";
-    e.currentTarget.style.transform = "translateX(0px)";
-  };
-
   return (
-    <div style={sidebarStyle}>
-      <h3 style={titleStyle}>Dashboard</h3>
+    <div className="sidebar">
+      <h3>Dashboard</h3>
 
       <div
-        style={{ ...itemBaseStyle, color: colors.categories }}
+        className="sidebar-item categories"
         onClick={() => navigate("/category")}
-        onMouseOver={handleHover}
-        onMouseOut={handleLeave}
       >
-        📁 <span style={{ color: colors.categories }}>Categories</span>
+        📁 <span>Categories</span>
       </div>
 
       <div
-        style={{ ...itemBaseStyle, color: colors.products }}
+        className="sidebar-item products"
         onClick={() => navigate("/products")}
-        onMouseOver={handleHover}
-        onMouseOut={handleLeave}
       >
-        🛍️ <span style={{ color: colors.products }}>Products</span>
+        🛍️ <span>Products</span>
       </div>
 
       <div
-        style={{ ...itemBaseStyle, color: colors.orders }}
+        className="sidebar-item orders"
         onClick={() => navigate("/orders")}
-        onMouseOver={handleHover}
-        onMouseOut={handleLeave}
       >
-        📦 <span style={{ color: colors.orders }}>Orders</span>
+        📦 <span>Orders</span>
       </div>
 
       <div
-        style={{ ...itemBaseStyle, color: colors.users }}
+        className="sidebar-item users"
         onClick={() => navigate("/users")}
-        onMouseOver={handleHover}
-        onMouseOut={handleLeave}
       >
-        👤 <span style={{ color: colors.users }}>Users</span>
+        👤 <span>Users</span>
       </div>
     </div>
   );

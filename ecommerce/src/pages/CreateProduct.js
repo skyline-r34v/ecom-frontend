@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import "../styles/products.css";
+import "../styles/AddProduct.css";
 import api from "../api"; // axios instance
 import { useNavigate } from "react-router-dom";
 import { message } from "antd";
@@ -19,41 +19,29 @@ export default function AddProduct() {
     warranty: "",
     shippingInfo: "",
     returnPolicy: "",
+    thumbnail: "",
+    images: [], // array of image URLs
   });
 
-  const [thumbnail, setThumbnail] = useState(null);
-  const [images, setImages] = useState([]);
   const [loading, setLoading] = useState(false);
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
-  const handleThumbnailChange = (e) => {
-    setThumbnail(e.target.files[0]);
-  };
-
-  const handleImagesChange = (e) => {
-    setImages([...e.target.files]);
+  const handleAddImage = () => {
+    const url = prompt("Enter Image URL");
+    if (url) setForm({ ...form, images: [...form.images, url] });
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!thumbnail) {
-      message.error("Thumbnail is required");
-      return;
-    }
-
-    const formData = new FormData();
-    Object.keys(form).forEach((key) => formData.append(key, form[key]));
-    formData.append("thumbnail", thumbnail);
-    images.forEach((img) => formData.append("images", img));
 
     try {
       setLoading(true);
-      const res = await api.post("/products/create", formData, {
-        headers: { "Content-Type": "multipart/form-data" },
-      });
+      const payload = { ...form };
+
+      const res = await api.post("/products/create", payload);
       message.success(res.data.message || "Product created successfully");
       navigate("/products"); // redirect to product listing
     } catch (err) {
@@ -80,7 +68,7 @@ export default function AddProduct() {
 
         <div className="form-group">
           <label>Category</label>
-          <input type="text" name="category" value={form.category} onChange={handleChange} required />
+          <input type="text" name="category" value={form.category} onChange={handleChange}  />
         </div>
 
         <div className="form-group">
@@ -124,13 +112,25 @@ export default function AddProduct() {
         </div>
 
         <div className="form-group">
-          <label>Thumbnail Image</label>
-          <input type="file" accept="image/*" onChange={handleThumbnailChange} required />
+          <label>Thumbnail Image URL</label>
+          <input type="text" name="thumbnail" value={form.thumbnail} onChange={handleChange} />
         </div>
 
         <div className="form-group">
           <label>Additional Images</label>
-          <input type="file" accept="image/*" multiple onChange={handleImagesChange} />
+          <button type="button" onClick={handleAddImage}>
+            + Add Image URL
+          </button>
+          <div style={{ marginTop: "10px" }}>
+            {form.images.map((img, i) => (
+              <img
+                key={i}
+                src={img}
+                alt={`img-${i}`}
+                style={{ width: "80px", height: "80px", marginRight: "10px", objectFit: "cover" }}
+              />
+            ))}
+          </div>
         </div>
 
         <button type="submit" disabled={loading}>

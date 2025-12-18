@@ -8,6 +8,7 @@ import Profile from "./pages/Profile/Profile.js"
 import Createcategory from "./pages/Categories/CreateCategory.js"
 import ProductDetails from "./pages/ProductDetails";
 import Createpoduct from "./pages/CreateProduct.js";
+import EditCategory from "./pages/Categories/Editcategory.js";
 
 function App() {
   return (
@@ -25,6 +26,8 @@ function App() {
         <Route path="/create-category" element={<Createcategory />} />
         <Route path="/products/:id" element={<ProductDetails />} />
         <Route path="/products/add" element={<Createpoduct />} />
+        <Route path="/edit-category/:id" element={<EditCategory />} />
+
       </Routes>
     </BrowserRouter>
   );

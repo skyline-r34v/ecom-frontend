@@ -200,3 +200,108 @@
   background-color: #0056b3;
 }
 
+.pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+  margin-top: 30px;
+}
+
+.pagination button {
+  padding: 6px 12px;
+  border: none;
+  border-radius: 6px;
+  background-color: #1890ff;
+  color: #fff;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+/* Grid for 9 products per slide */
+.product-grid.modern-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 35px;
+}
+
+/* Pagination styling */
+.pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+  margin-top: 30px;
+}
+
+.pagination button {
+  padding: 6px 12px;
+  border: none;
+  border-radius: 6px;
+  background-color: #1890ff;
+  color: #fff;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.pagination button:hover:not(:disabled) {
+  background-color: #40a9ff;
+}
+
+.pagination button:disabled {
+  background-color: #d9d9d9;
+  cursor: not-allowed;
+}
+
+.pagination button.active {
+  background-color: #52c41a;
+}
+.product-actions {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.edit-btn,
+.delete-btn {
+  padding: 6px 12px;
+  font-size: 13px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: 0.3s;
+}
+
+.edit-btn {
+  background-color: #1890ff;
+  color: #fff;
+}
+
+.edit-btn:hover {
+  background-color: #40a9ff;
+}
+
+.delete-btn {
+  background-color: #ff4d4f;
+  color: #fff;
+}
+
+.delete-btn:hover {
+  background-color: #ff7875;
+}
+.currency-toggle-btn {
+  padding: 6px 14px;
+  border: none;
+  border-radius: 6px;
+  background-color: #52c41a;
+  color: #fff;
+  cursor: pointer;
+  font-weight: 600;
+  transition: 0.3s;
+}
+
+.currency-toggle-btn:hover {
+  background-color: #73d13d;
+}
