@@ -3,6 +3,7 @@ import React, { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import api from "../api";
 import Sidebar from "../components/Sidebar";
+import Navbar from "../components/Navbar";
 import "../styles/products.css";
 
 export default function Product() {
@@ -12,146 +13,217 @@ export default function Product() {
   const [totalPages, setTotalPages] = useState(1);
   const [currency, setCurrency] = useState("INR");
   const [conversionRate, setConversionRate] = useState(0.012);
+  const [searchTerm, setSearchTerm] = useState("");
 
-  const location = useLocation();
   const navigate = useNavigate();
+  const location = useLocation();
   const params = new URLSearchParams(location.search);
   const categoryId = params.get("category");
-  const isProductListPage =
-    location.pathname === "/products" || location.pathname === "/products/";
 
-  const PRODUCTS_PER_SLIDE = 9;
+  const PRODUCTS_PER_PAGE = 9;
 
-  // Fetch products
-  const fetchProducts = async (pageNumber = 1) => {
+  /* ---------------- FETCH PRODUCTS ---------------- */
+  const fetchProducts = async (pageNumber = 1, search = "") => {
     try {
       setLoading(true);
-      const data = {
-        size: PRODUCTS_PER_SLIDE,
+
+      const res = await api.post("/products/list", {
+        size: PRODUCTS_PER_PAGE,
         page: pageNumber,
         category: categoryId || "all",
-      };
+        search: search,
+      });
 
-      const res = await api.post("/products/list", data);
-      setProducts(res.data.data || []);
+      setProducts(res.data?.data || []);
 
-      if (res.data.pagination) {
-        const { total } = res.data.pagination;
-        setTotalPages(Math.ceil(total / PRODUCTS_PER_SLIDE));
-      } else {
-        setTotalPages(1);
+      if (res.data?.pagination?.total) {
+        setTotalPages(Math.ceil(res.data.pagination.total / PRODUCTS_PER_PAGE));
       }
 
       setPage(pageNumber);
-    } catch (err) {
-      console.error(err);
-      message.error("Failed to fetch products.");
+    } catch (error) {
+      console.error(error);
+      message.error("Failed to fetch products");
     } finally {
       setLoading(false);
     }
   };
 
-  // Fetch conversion rate dynamically
+  /* ---------------- CURRENCY RATE ---------------- */
   const fetchConversionRate = async () => {
     try {
-      const res = await fetch("https://api.exchangerate.host/latest?base=INR&symbols=USD");
+      const res = await fetch(
+        "https://api.exchangerate.host/latest?base=INR&symbols=USD"
+      );
       const data = await res.json();
-      if (data.rates && data.rates.USD) {
+      if (data?.rates?.USD) {
         setConversionRate(data.rates.USD);
       }
-    } catch (err) {
-      console.error("Failed to fetch conversion rate:", err);
-      // fallback to default
+    } catch {
       setConversionRate(0.012);
     }
   };
 
   useEffect(() => {
-    fetchProducts(1);
+    fetchProducts(1, searchTerm);
     fetchConversionRate();
   }, [categoryId]);
 
-  const goToProductPage = (productId) => navigate(`/products/${productId}`);
-  const goToAddProduct = () => navigate("/products/add");
-  const goToEditProduct = (id) => navigate(`/products/edit/${id}`);
+  /* ---------------- SEARCH ---------------- */
+  const handleSearch = async () => {
+    fetchProducts(1, searchTerm);
+  };
 
-  const handleDeleteProduct = async (id) => {
-    if (!window.confirm("Are you sure you want to delete this product?")) return;
+  /* ---------------- HELPERS ---------------- */
+  const formatPrice = (price) =>
+    currency === "INR"
+      ? `₹${price}`
+      : `$${(price * conversionRate).toFixed(2)}`;
+
+  const handleDelete = async (id) => {
+    if (!window.confirm("Delete this product?")) return;
+
     try {
       await api.post("/products/delete", { id });
-      message.success("Product deleted successfully");
-      fetchProducts(page);
-    } catch (err) {
-      console.error(err);
-      message.error("Failed to delete product");
+      message.success("Product deleted");
+      fetchProducts(page, searchTerm);
+    } catch {
+      message.error("Delete failed");
     }
   };
 
-  const handlePageClick = (pageNumber) => {
-    if (pageNumber !== page && pageNumber >= 1 && pageNumber <= totalPages) {
-      fetchProducts(pageNumber);
-    }
-  };
+  /* ---------------- LOADING ---------------- */
+  if (loading) {
+    return <h2 className="loading-text">Loading Products...</h2>;
+  }
 
-  const getPageNumbers = () => {
-    const pages = [];
-    for (let i = 1; i <= totalPages; i++) pages.push(i);
-    return pages;
-  };
-
-  const toggleCurrency = () => setCurrency(currency === "INR" ? "USD" : "INR");
-  const formatPrice = (price) => (currency === "INR" ? `₹${price}` : `$${(price * conversionRate).toFixed(2)}`);
-
-  if (loading) return <h2 style={{ textAlign: "center", marginTop: "40px" }}>Loading Products...</h2>;
-
+  /* ---------------- UI ---------------- */
   return (
-    <div className="product-page-container">
-      <div className="product-sidebar"><Sidebar /></div>
-      <div className="product-content">
-        <div className="page-header">
-          <h2 className="page-title">{categoryId ? "Products in Selected Category" : "All Products"}</h2>
-          {isProductListPage && <button className="add-product-btn" onClick={goToAddProduct}>+ Add Product</button>}
-        </div>
+    <>
+      <Navbar />
 
-        <div style={{ marginBottom: "20px" }}>
-          <button onClick={toggleCurrency} className="currency-toggle-btn">
-            Show in {currency === "INR" ? "USD" : "INR"}
-          </button>
-        </div>
+      <div className="product-page-container">
+        <Sidebar />
 
-        <div className="product-grid modern-grid">
-          {products.length > 0 ? products.map((product) => (
-            <div className="product-item modern-card" key={product._id}>
-              <div className="product-card">
-                <div className="img-container" onClick={() => goToProductPage(product._id)}>
-                  <img src={product.thumbnail} alt={product.title} className="product-image" />
-                </div>
-                <div className="product-info">
-                  <p className="product-rating">⭐ 4.5</p>
-                  <h3 className="product-name">{product.title}</h3>
-                  <p className="product-price">
-                    {formatPrice(product.discountPrice)} <small><del>{formatPrice(product.price)}</del></small>
-                  </p>
-                  <div className="product-actions">
-                    <button className="edit-btn" onClick={() => goToEditProduct(product._id)}>Edit</button>
-                    <button className="delete-btn" onClick={() => handleDeleteProduct(product._id)}>Delete</button>
+        <div className="product-content">
+          {/* HEADER */}
+          <div className="page-header">
+            <div className="page-left">
+              <button className="back-btn" onClick={() => navigate(-1)}>
+                ← Back
+              </button>
+              <h2 className="page-title">
+                {categoryId ? "Category Products" : "All Products"}
+              </h2>
+            </div>
+
+            <div className="header-actions">
+              <button
+                className="currency-toggle-btn"
+                onClick={() =>
+                  setCurrency(currency === "INR" ? "USD" : "INR")
+                }
+              >
+                Show {currency === "INR" ? "USD" : "INR"}
+              </button>
+
+              <button
+                className="add-product-btn"
+                onClick={() => navigate("/products/add")}
+              >
+                + Add Product
+              </button>
+            </div>
+          </div>
+
+          {/* SEARCH BAR */}
+          <div className="search-bar">
+            <input
+              type="text"
+              placeholder="Search products..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              onKeyDown={(e) => e.key === "Enter" && handleSearch()}
+            />
+            <button onClick={handleSearch}>Search</button>
+          </div>
+
+          {/* PRODUCTS GRID */}
+          <div className="product-grid">
+            {products.length > 0 ? (
+              products.map((p) => (
+                <div className="product-card" key={p._id}>
+                  <div className="product-image-wrapper">
+                    <img
+                      src={p.thumbnail}
+                      alt={p.title}
+                      onClick={() => navigate(`/products/${p._id}`)}
+                    />
+                  </div>
+
+                  <div className="product-info">
+                    <span className="product-rating">⭐ 4.5</span>
+                    <h3>{p.title}</h3>
+
+                    <p className="product-price">
+                      {formatPrice(p.discountPrice)}{" "}
+                      <del>{formatPrice(p.price)}</del>
+                    </p>
+
+                    <div className="product-actions">
+                      <button
+                        className="edit-btn"
+                        onClick={() =>
+                          navigate(`/products/edit/${p._id}`)
+                        }
+                      >
+                        Edit
+                      </button>
+                      <button
+                        className="delete-btn"
+                        onClick={() => handleDelete(p._id)}
+                      >
+                        Delete
+                      </button>
+                    </div>
                   </div>
                 </div>
-              </div>
-            </div>
-          )) : <p style={{ marginTop: 20 }}>No products found for this category</p>}
-        </div>
-
-        {totalPages > 1 && (
-          <div className="pagination">
-            <button onClick={() => handlePageClick(page - 1)} disabled={page === 1}>Prev</button>
-            {getPageNumbers().map((num) => (
-              <button key={num} className={num === page ? "active" : ""} onClick={() => handlePageClick(num)}>{num}</button>
-            ))}
-            <button onClick={() => handlePageClick(page + 1)} disabled={page === totalPages}>Next</button>
+              ))
+            ) : (
+              <p>No products found</p>
+            )}
           </div>
-        )}
+
+          {/* PAGINATION */}
+          {totalPages > 1 && (
+            <div className="pagination">
+              <button
+                disabled={page === 1}
+                onClick={() => fetchProducts(page - 1, searchTerm)}
+              >
+                Prev
+              </button>
+
+              {[...Array(totalPages)].map((_, i) => (
+                <button
+                  key={i}
+                  className={page === i + 1 ? "active" : ""}
+                  onClick={() => fetchProducts(i + 1, searchTerm)}
+                >
+                  {i + 1}
+                </button>
+              ))}
+
+              <button
+                disabled={page === totalPages}
+                onClick={() => fetchProducts(page + 1, searchTerm)}
+              >
+                Next
+              </button>
+            </div>
+          )}
+        </div>
       </div>
-    </div>
+    </>
   );
 }

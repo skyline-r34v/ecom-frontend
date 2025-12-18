@@ -1,75 +1,49 @@
-import React, { useState, useEffect } from "react";
-import Sidebar from "../components/Sidebar";
-import CreateCategory from "../pages/Categories/CreateCategory";
-import { Button } from "antd";
+import React from "react";
+import { useNavigate } from "react-router-dom";
 import "../styles/home.css";
 
 export default function Home() {
-  const [openModal, setOpenModal] = useState(false);
-  const [categories, setCategories] = useState([]);
-
-  // Load categories from localStorage
-  useEffect(() => {
-    const saved = JSON.parse(localStorage.getItem("categories")) || [];
-    setCategories(saved);
-  }, []);
-
-  // Add new category
-  const handleCreateCategory = (category) => {
-    const updated = [...categories, category];
-    setCategories(updated);
-    localStorage.setItem("categories", JSON.stringify(updated));
-    setOpenModal(false);
-  };
+  const navigate = useNavigate();
 
   return (
     <div className="home-container">
-      {/* Sidebar */}
-      <div className="home-sidebar">
-        <Sidebar />
-      </div>
+      {/* Navbar */}
+      <nav className="home-navbar">
+        <h2 className="logo">ShopEase</h2>
+        <div className="nav-buttons">
+          <button onClick={() => navigate("/login")}>Login</button>
+          <button className="register" onClick={() => navigate("/register")}>
+            Register
+          </button>
+        </div>
+      </nav>
 
-      {/* Main Content */}
-      <div className="home-content">
-        <div className="home-header">
-          <h1>Home</h1>
-          <h3 className="explore-heading">Explore All Categories</h3>
+      {/* Hero Section */}
+      <section className="hero">
+        <h1>Welcome to ShopEase</h1>
+        <p>Your one-stop destination for quality products</p>
+        <button onClick={() => navigate("/products")}>
+          Explore Products
+        </button>
+      </section>
+
+      {/* Features */}
+      <section className="features">
+        <div className="feature-card">
+          <h3>🛒 Wide Products</h3>
+          <p>Choose from multiple categories</p>
         </div>
 
-        {/* Category Grid */}
-        {categories.length === 0 ? (
-          <p className="no-category">No categories available. Add one.</p>
-        ) : (
-          <ul className="category-grid">
-            {categories.map((cat, index) => (
-              <li key={index} className="category-card">
-                <img
-                  src={cat.image || "https://via.placeholder.com/200"}
-                  alt={cat.name}
-                  className="category-image"
-                />
-                <p className="category-name">{cat.name}</p>
-              </li>
-            ))}
-          </ul>
-        )}
+        <div className="feature-card">
+          <h3>⚡ Fast Delivery</h3>
+          <p>Quick and reliable shipping</p>
+        </div>
 
-        {/* Create category button */}
-        <Button
-          type="primary"
-          onClick={() => setOpenModal(true)}
-          className="create-btn"
-        >
-          + Create Category
-        </Button>
-      </div>
-
-      {/* Create Category Modal */}
-      <CreateCategory
-        open={openModal}
-        onClose={() => setOpenModal(false)}
-        onCreateCategory={handleCreateCategory}
-      />
+        <div className="feature-card">
+          <h3>🔒 Secure</h3>
+          <p>Safe and secure payments</p>
+        </div>
+      </section>
     </div>
   );
 }

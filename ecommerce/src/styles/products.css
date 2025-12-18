@@ -1,307 +1,337 @@
-/* LAYOUT */
+/* =======================
+   GLOBAL
+======================= */
 .product-page-container {
   display: flex;
   min-height: 100vh;
-  background: #f5f5f5;
+  background: linear-gradient(135deg, #f8fafc, #eef2ff);
   font-family: "Poppins", sans-serif;
 }
 
-/* Sidebar */
-.product-sidebar {
-  width: 250px;
-}
-
-/* Content */
 .product-content {
   flex: 1;
-  padding: 30px 45px;
+  padding: 40px 50px;
 }
 
-.page-title {
-  font-size: 28px;
-  font-weight: 700;
-  margin-bottom: 20px;
-  color: #050505;
-}
-
-/* CATEGORY FILTER */
-.category-filter {
-  display: flex;
-  gap: 12px;
-  margin-bottom: 25px;
-}
-
-.filter-btn {
-  padding: 8px 18px;
-  background: white;
-  border-radius: 20px;
-  border: 1px solid #ccc;
-  cursor: pointer;
-  font-weight: 600;
-  transition: 0.3s ease;
-}
-
-.filter-btn.active {
-  background: #111;
-  color: white;
-}
-
-/* GRID */
-.product-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 35px;
-}
-
-/* CARD */
-.product-card {
-  background: white;
-  border-radius: 14px;
-  box-shadow: 0 4px 16px rgba(0,0,0,0.08);
-  padding: 15px;
-  transition: 0.3s ease;
-}
-
-.product-card:hover {
-  transform: translateY(-6px);
-  box-shadow: 0 8px 24px rgba(0,0,0,0.15);
-}
-
-/* IMAGE */
-.product-image {
-  width: 100%;
-  height: 220px;
-  object-fit: contain;
-  background: #ffffff;
-  border-radius: 14px;
-  padding: 10px;
-}
-
-/* INFO */
-.product-info {
-  text-align: center;
-  margin-top: 10px;
-}
-
-.product-rating {
-  font-size: 14px;
-  background: #e0ffe1;
-  width: max-content;
-  padding: 3px 8px;
-  border-radius: 6px;
-  color: #1a7f37;
-  margin: 6px auto;
-  font-weight: 600;
-}
-
-.product-name {
-  font-size: 18px;
-  font-weight: 700;
-  margin-top: 6px;
-}
-
-.product-description {
-  font-size: 14px;
-  color: #666;
-  margin: 6px 0;
-  min-height: 42px;
-}
-
-.product-price {
-  font-size: 17px;
-  font-weight: bold;
-  color: #1e3a8a;
-  margin-top: 5px;
-}
-
-/* FLIPKART STYLE CART BUTTON */
-.add-cart-btn {
-  margin-top: 10px;
-  padding: 6px 12px;
-  font-size: 13px;
-  width: fit-content;
-  background: #ef9816;
-  color: white;
-  border: none;
-  border-radius: 6px;
-  cursor: pointer;
-  font-weight: 600;
-  transition: 0.3s ease;
-  display: block;
-  margin-left: auto;
-  margin-right: auto;
-}
-
-.add-cart-btn:hover {
-  background: #333;
-  transform: scale(1.05);
-}
-
-/* MODAL */
-.modal-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0,0,0,0.6);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 999;
-}
-
-.modal-content {
-  background: white;
-  padding: 25px;
-  border-radius: 12px;
-  max-width: 500px;
-  width: 90%;
-  text-align: center;
-  position: relative;
-}
-
-.modal-image {
-  width: 100%;
-  height: 300px;
-  object-fit: contain;
-  border-radius: 12px;
-  margin-bottom: 15px;
-}
-
-.close-btn {
-  margin-top: 15px;
-  padding: 8px 16px;
-  background: #333;
-  color: white;
-  border: none;
-  border-radius: 6px;
-  cursor: pointer;
-}
+/* =======================
+   HEADER
+======================= */
 .page-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
   margin-bottom: 20px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid rgba(0,0,0,0.08);
+}
+
+.page-left {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+}
+
+.page-title {
+  font-size: 28px;
+  font-weight: 800;
+  color: #0f172a;
+}
+
+.back-btn {
+  padding: 7px 16px;
+  border-radius: 12px;
+  border: 1px solid #e5e7eb;
+  background: white;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.35s ease;
+}
+
+.back-btn:hover {
+  background: #0f172a;
+  color: white;
+  transform: translateY(-2px);
+}
+
+.header-actions {
+  display: flex;
+  gap: 14px;
 }
 
 .add-product-btn {
-  padding: 8px 16px;
-  background-color: #007bff;
+  padding: 9px 20px;
+  border-radius: 14px;
+  background: linear-gradient(135deg, #2563eb, #1e40af);
   color: white;
   border: none;
-  border-radius: 6px;
+  font-weight: 700;
   cursor: pointer;
-  font-weight: 500;
-  transition: background-color 0.2s ease;
+  transition: 0.35s;
 }
 
 .add-product-btn:hover {
-  background-color: #0056b3;
+  transform: translateY(-2px);
+  box-shadow: 0 14px 30px rgba(37, 99, 235, 0.4);
 }
 
-.pagination {
+.currency-toggle-btn {
+  padding: 9px 20px;
+  border-radius: 999px;
+  background: linear-gradient(135deg, #22c55e, #16a34a);
+  color: white;
+  border: none;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.currency-toggle-btn:hover {
+  opacity: 0.9;
+}
+
+/* =======================
+   SEARCH BAR
+======================= */
+.search-bar {
   display: flex;
   justify-content: center;
   align-items: center;
-  gap: 8px;
-  margin-top: 30px;
+  margin: 20px 0 30px 0;
+  gap: 10px;
 }
 
-.pagination button {
-  padding: 6px 12px;
+.search-bar input {
+  flex: 1;
+  padding: 10px 16px;
+  border-radius: 12px;
+  border: 1px solid #d1d5db;
+  font-size: 16px;
+  outline: none;
+  transition: all 0.3s ease;
+}
+
+.search-bar input:focus {
+  border-color: #2563eb;
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
+}
+
+.search-bar button {
+  padding: 10px 22px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #2563eb, #1e40af);
+  color: white;
   border: none;
-  border-radius: 6px;
-  background-color: #1890ff;
-  color: #fff;
+  font-weight: 600;
   cursor: pointer;
-  transition: 0.3s;
+  transition: all 0.3s ease;
 }
 
-/* Grid for 9 products per slide */
-.product-grid.modern-grid {
+.search-bar button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 22px rgba(37, 99, 235, 0.4);
+}
+
+/* =======================
+   GRID (4 CARDS PER ROW)
+======================= */
+.product-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 35px;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 24px;
 }
 
-/* Pagination styling */
-.pagination {
+@media (max-width: 1200px) {
+  .product-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (max-width: 900px) {
+  .product-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 600px) {
+  .product-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* =======================
+   CARD
+======================= */
+.product-card {
   display: flex;
-  justify-content: center;
+  flex-direction: column;
+  background: linear-gradient(145deg, #ffffff, #f0f4ff);
+  border-radius: 24px;
+  padding: 16px;
+  overflow: hidden;
+  transition: all 0.45s ease;
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.08);
+}
+
+.product-card:hover {
+  transform: translateY(-10px) scale(1.02);
+  box-shadow: 0 28px 60px rgba(0, 0, 0, 0.18);
+}
+
+/* =======================
+   IMAGE WRAPPER
+======================= */
+.product-image-wrapper {
+  width: 100%;
+  height: 200px;
+  display: flex;
   align-items: center;
-  gap: 8px;
-  margin-top: 30px;
-}
-
-.pagination button {
-  padding: 6px 12px;
-  border: none;
-  border-radius: 6px;
-  background-color: #1890ff;
-  color: #fff;
+  justify-content: center;
+  border-radius: 20px;
+  background: #f9fafb;
+  overflow: hidden;
+  padding: 8px;
   cursor: pointer;
-  transition: 0.3s;
+  transition: transform 0.4s ease, box-shadow 0.4s ease;
 }
 
-.pagination button:hover:not(:disabled) {
-  background-color: #40a9ff;
+.product-image-wrapper img {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+  transition: transform 0.4s ease;
+  filter: drop-shadow(0 10px 16px rgba(0,0,0,0.12));
 }
 
-.pagination button:disabled {
-  background-color: #d9d9d9;
-  cursor: not-allowed;
+.product-card:hover .product-image-wrapper img {
+  transform: scale(1.08);
 }
 
-.pagination button.active {
-  background-color: #52c41a;
+.product-card:hover .product-image-wrapper {
+  box-shadow: 0 15px 35px rgba(0,0,0,0.15);
 }
+
+/* =======================
+   INFO
+======================= */
+.product-info {
+  text-align: center;
+  margin-top: 14px;
+}
+
+.product-rating {
+  background: linear-gradient(135deg, #22c55e, #16a34a);
+  color: white;
+  padding: 5px 14px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 700;
+  display: inline-block;
+  margin-bottom: 10px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+}
+
+.product-info h3 {
+  font-size: 18px;
+  font-weight: 700;
+  color: #0f172a;
+  margin-bottom: 10px;
+}
+
+.product-price {
+  font-size: 18px;
+  font-weight: 800;
+  color: #2563eb;
+}
+
+.product-price del {
+  color: #9ca3af;
+  font-size: 12px;
+  margin-left: 6px;
+}
+
+/* =======================
+   ACTION BUTTONS
+======================= */
 .product-actions {
   display: flex;
   justify-content: center;
   gap: 10px;
-  margin-top: 10px;
+  margin-top: 12px;
 }
 
 .edit-btn,
 .delete-btn {
-  padding: 6px 12px;
-  font-size: 13px;
+  padding: 5px 12px;
+  font-size: 11px;
+  border-radius: 999px;
+  font-weight: 700;
   border: none;
-  border-radius: 6px;
   cursor: pointer;
-  font-weight: 600;
-  transition: 0.3s;
+  transition: all 0.35s ease;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12);
 }
 
 .edit-btn {
-  background-color: #1890ff;
-  color: #fff;
-}
-
-.edit-btn:hover {
-  background-color: #40a9ff;
+  background: linear-gradient(135deg, #3b82f6, #1e40af);
+  color: white;
 }
 
 .delete-btn {
-  background-color: #ff4d4f;
-  color: #fff;
+  background: linear-gradient(135deg, #fb7185, #9f1239);
+  color: white;
 }
 
+.edit-btn:hover,
 .delete-btn:hover {
-  background-color: #ff7875;
-}
-.currency-toggle-btn {
-  padding: 6px 14px;
-  border: none;
-  border-radius: 6px;
-  background-color: #52c41a;
-  color: #fff;
-  cursor: pointer;
-  font-weight: 600;
-  transition: 0.3s;
+  transform: translateY(-2px);
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.18);
 }
 
-.currency-toggle-btn:hover {
-  background-color: #73d13d;
+.edit-btn:active,
+.delete-btn:active {
+  transform: scale(0.95);
+}
+
+/* =======================
+   PAGINATION
+======================= */
+.pagination {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  margin-top: 50px;
+}
+
+.pagination button {
+  padding: 9px 18px;
+  border-radius: 14px;
+  border: none;
+  background: #e5e7eb;
+  font-weight: 700;
+  cursor: pointer;
+  transition: 0.25s;
+}
+
+.pagination button:hover {
+  background: #d1d5db;
+}
+
+.pagination button.active {
+  background: linear-gradient(135deg, #2563eb, #1e40af);
+  color: white;
+}
+
+.pagination button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* =======================
+   LOADING
+======================= */
+.loading-text {
+  text-align: center;
+  margin-top: 80px;
+  font-size: 24px;
+  font-weight: 700;
+  color: #475569;
 }

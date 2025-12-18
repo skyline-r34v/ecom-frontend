@@ -1,8 +1,10 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import "../styles/AddProduct.css";
-import api from "../api"; // axios instance
+import api from "../api";
 import { useNavigate } from "react-router-dom";
 import { message } from "antd";
+
+const MAX_IMAGE_SIZE = 100 * 1024; // 100 KB
 
 export default function AddProduct() {
   const navigate = useNavigate();
@@ -19,33 +21,93 @@ export default function AddProduct() {
     warranty: "",
     shippingInfo: "",
     returnPolicy: "",
-    thumbnail: "",
-    images: [], // array of image URLs
   });
 
+  const [thumbnail, setThumbnail] = useState(null);
+  const [images, setImages] = useState([]);
+
+  const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(false);
 
+  /* ================= FETCH CATEGORIES ================= */
+  useEffect(() => {
+    fetchCategories();
+  }, []);
+
+  const fetchCategories = async () => {
+    try {
+      const data = { page: 1, size: 100 };
+      const res = await api.post("/categories/list", data);
+      setCategories(res.data.data || []);
+    } catch {
+      message.error("Failed to load categories");
+    }
+  };
+
+  /* ================= HANDLERS ================= */
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
-  const handleAddImage = () => {
-    const url = prompt("Enter Image URL");
-    if (url) setForm({ ...form, images: [...form.images, url] });
+  const handleThumbnailChange = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    if (file.size > MAX_IMAGE_SIZE) {
+      message.error("Thumbnail must be less than 100 KB");
+      e.target.value = null;
+      return;
+    }
+
+    setThumbnail(file);
   };
 
+  const handleImagesChange = (e) => {
+    const selectedFiles = Array.from(e.target.files);
+
+    const invalidFile = selectedFiles.find(
+      (file) => file.size > MAX_IMAGE_SIZE
+    );
+
+    if (invalidFile) {
+      message.error("Each image must be less than 100 KB");
+      e.target.value = null;
+      return;
+    }
+
+    setImages(selectedFiles);
+  };
+
+  /* ================= SUBMIT ================= */
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+    if (!thumbnail) {
+      message.error("Thumbnail is required");
+      return;
+    }
+
     try {
       setLoading(true);
-      const payload = { ...form };
 
-      const res = await api.post("/products/create", payload);
-      message.success(res.data.message || "Product created successfully");
-      navigate("/products"); // redirect to product listing
+      const formData = new FormData();
+
+      Object.keys(form).forEach((key) => {
+        formData.append(key, form[key]);
+      });
+
+      formData.append("thumbnail", thumbnail);
+      images.forEach((img) => {
+        formData.append("images", img);
+      });
+
+      await api.post("/products/create", formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
+
+      message.success("Product created successfully");
+      navigate("/products");
     } catch (err) {
-      console.error(err);
       message.error(err.response?.data?.message || "Error creating product");
     } finally {
       setLoading(false);
@@ -54,86 +116,151 @@ export default function AddProduct() {
 
   return (
     <div className="add-product-container">
-      <h2>Add New Product</h2>
+      <div className="add-product-header">
+        <button className="back-btn" onClick={() => navigate(-1)}>
+          ← Back
+        </button>
+        <h2>Add New Product</h2>
+      </div>
+
       <form className="add-product-form" onSubmit={handleSubmit}>
         <div className="form-group">
           <label>Title</label>
-          <input type="text" name="title" value={form.title} onChange={handleChange} required />
+          <input
+            name="title"
+            value={form.title}
+            onChange={handleChange}
+            required
+          />
         </div>
 
         <div className="form-group">
           <label>Brand</label>
-          <input type="text" name="brand" value={form.brand} onChange={handleChange} required />
+          <input name="brand" value={form.brand} onChange={handleChange} />
         </div>
 
         <div className="form-group">
           <label>Category</label>
-          <input type="text" name="category" value={form.category} onChange={handleChange}  />
+          <select
+            name="category"
+            value={form.category}
+            onChange={handleChange}
+            required
+          >
+            <option value="">Select Category</option>
+            {categories.map((cat) => (
+              <option key={cat._id} value={cat._id}>
+                {cat.name}
+              </option>
+            ))}
+          </select>
         </div>
 
         <div className="form-group">
           <label>Price</label>
-          <input type="number" name="price" value={form.price} onChange={handleChange} required />
+          <input
+            type="number"
+            name="price"
+            value={form.price}
+            onChange={handleChange}
+            required
+          />
         </div>
 
         <div className="form-group">
           <label>Discount Price</label>
-          <input type="number" name="discountPrice" value={form.discountPrice} onChange={handleChange} />
+          <input
+            type="number"
+            name="discountPrice"
+            value={form.discountPrice}
+            onChange={handleChange}
+          />
         </div>
 
         <div className="form-group">
           <label>Description</label>
-          <textarea name="description" value={form.description} onChange={handleChange} />
+          <textarea
+            name="description"
+            value={form.description}
+            onChange={handleChange}
+          />
         </div>
 
         <div className="form-group">
-          <label>Specifications (JSON or text)</label>
-          <textarea name="specifications" value={form.specifications} onChange={handleChange} />
+          <label>Specifications</label>
+          <textarea
+            name="specifications"
+            value={form.specifications}
+            onChange={handleChange}
+          />
         </div>
 
         <div className="form-group">
           <label>Stock</label>
-          <input type="number" name="stock" value={form.stock} onChange={handleChange} required />
+          <input
+            type="number"
+            name="stock"
+            value={form.stock}
+            onChange={handleChange}
+            required
+          />
         </div>
 
         <div className="form-group">
           <label>Warranty</label>
-          <input type="text" name="warranty" value={form.warranty} onChange={handleChange} />
+          <input
+            name="warranty"
+            value={form.warranty}
+            onChange={handleChange}
+          />
         </div>
 
         <div className="form-group">
           <label>Shipping Info</label>
-          <textarea name="shippingInfo" value={form.shippingInfo} onChange={handleChange} />
+          <textarea
+            name="shippingInfo"
+            value={form.shippingInfo}
+            onChange={handleChange}
+          />
         </div>
 
         <div className="form-group">
           <label>Return Policy</label>
-          <textarea name="returnPolicy" value={form.returnPolicy} onChange={handleChange} />
+          <textarea
+            name="returnPolicy"
+            value={form.returnPolicy}
+            onChange={handleChange}
+          />
         </div>
 
         <div className="form-group">
-          <label>Thumbnail Image URL</label>
-          <input type="text" name="thumbnail" value={form.thumbnail} onChange={handleChange} />
+          <label>Thumbnail (Max 100 KB)</label>
+          <input type="file" accept="image/*" onChange={handleThumbnailChange} />
+          {thumbnail && (
+            <img
+              src={URL.createObjectURL(thumbnail)}
+              alt="thumb"
+              className="preview-img"
+            />
+          )}
         </div>
 
         <div className="form-group">
-          <label>Additional Images</label>
-          <button type="button" onClick={handleAddImage}>
-            + Add Image URL
-          </button>
-          <div style={{ marginTop: "10px" }}>
-            {form.images.map((img, i) => (
-              <img
-                key={i}
-                src={img}
-                alt={`img-${i}`}
-                style={{ width: "80px", height: "80px", marginRight: "10px", objectFit: "cover" }}
-              />
+          <label>Product Images (Each Max 100 KB)</label>
+          <input
+            type="file"
+            multiple
+            accept="image/*"
+            onChange={handleImagesChange}
+          />
+          <div className="image-preview">
+            {images.map((img, i) => (
+              <img key={i} src={URL.createObjectURL(img)} alt="preview" />
             ))}
           </div>
         </div>
 
-        <button type="submit" disabled={loading}>
+        <button type="submit" disabled={loading} className="submit-btn">
           {loading ? "Creating..." : "Add Product"}
         </button>
       </form>

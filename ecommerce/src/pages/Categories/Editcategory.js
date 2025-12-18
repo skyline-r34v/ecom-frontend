@@ -4,7 +4,7 @@ import "../../styles/craetecategory.css";
 import { useNavigate, useParams } from "react-router-dom";
 
 export default function EditCategory() {
-  const { id } = useParams();
+  const { slug } = useParams(); // Use slug instead of id
   const navigate = useNavigate();
 
   const [loading, setLoading] = useState(true);
@@ -20,11 +20,11 @@ export default function EditCategory() {
   });
 
   /* ===============================
-     GET CATEGORY BY ID
+     GET CATEGORY BY SLUG
   =============================== */
-  const fetchCategoryById = async () => {
+  const fetchCategoryBySlug = async () => {
     try {
-      const res = await api.post("/categories/get-by-id", { id });
+      const res = await api.post("/categories/get-by-slug", { slug }); // send slug
       const cat = res.data.data;
 
       setForm({
@@ -45,8 +45,8 @@ export default function EditCategory() {
   };
 
   useEffect(() => {
-    fetchCategoryById();
-  }, [id]);
+    fetchCategoryBySlug();
+  }, [slug]);
 
   /* ===============================
      UPDATE CATEGORY
@@ -55,7 +55,7 @@ export default function EditCategory() {
     e.preventDefault();
 
     const payload = {
-      id,
+      slug, // send slug instead of id
       update: {
         name: form.name,
         slug: form.slug,
@@ -68,7 +68,7 @@ export default function EditCategory() {
     };
 
     try {
-      await api.post("/categories/update", payload);
+      await api.post("/categories/update-by-slug", payload); // assuming backend endpoint updated
       alert("Category Updated Successfully");
       navigate("/category");
     } catch (err) {

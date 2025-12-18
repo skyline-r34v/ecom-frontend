@@ -18,7 +18,8 @@ export default function CategoryPage() {
   const [searchTerm, setSearchTerm] = useState("");
 
   const navigate = useNavigate();
-
+  const role =  localStorage.getItem("role")
+  console.log("role",role)
   const loadCategories = async () => {
     try {
       setLoading(true);
@@ -50,21 +51,17 @@ export default function CategoryPage() {
 
   const deleteCategory = async (e, id) => {
     e.stopPropagation();
-
     const confirmDelete = window.confirm("Are you sure you want to delete this category?");
     if (!confirmDelete) return;
 
     try {
-      const data={id}
-      await api.post(`/categories/delete/`,data);
+      const data = { id };
+      await api.post(`/categories/delete/`, data);
       loadCategories();
     } catch (err) {
       alert("Failed to delete category");
     }
   };
-
-  if (loading) return <p className="loading-state-container">Loading categories...</p>;
-  if (error) return <p className="error-state-container">{error}</p>;
 
   return (
     <div>
@@ -92,7 +89,11 @@ export default function CategoryPage() {
           />
 
           <div className="category-grid">
-            {categories.length > 0 ? (
+            {loading ? (
+              <div className="grid-loader-container">
+                <div className="grid-loader"></div>
+              </div>
+            ) : categories.length > 0 ? (
               categories.map((cat) => (
                 <div
                   className="category-card"
@@ -102,19 +103,11 @@ export default function CategoryPage() {
                   <img src={cat.image} alt={cat.name} className="category-card-image" />
                   <h3>{cat.name}</h3>
 
-                  {/* ACTION BUTTONS */}
                   <div className="category-actions">
-                    <button
-                      className="edit-btn"
-                      onClick={(e) => editCategory(e, cat._id)}
-                    >
+                    <button className="edit-btn" onClick={(e) => editCategory(e, cat._id)}>
                       Edit
                     </button>
-
-                    <button
-                      className="delete-btn"
-                      onClick={(e) => deleteCategory(e, cat._id)}
-                    >
+                    <button className="delete-btn" onClick={(e) => deleteCategory(e, cat._id)}>
                       Delete
                     </button>
                   </div>
@@ -124,6 +117,8 @@ export default function CategoryPage() {
               <p>No categories found</p>
             )}
           </div>
+
+          {error && <p className="error-state-container">{error}</p>}
         </main>
       </div>
     </div>
