@@ -1,182 +1,200 @@
-import React, { useEffect, useState, useRef } from "react";
+import React, { useEffect, useState } from "react";
+import { FaBars, FaSearch, FaShoppingCart, FaTimes, FaUser } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
-import Navbar from "../components/Navbar";
+import api from "../api";
 import "../styles/home.css";
-import { FaSearch, FaFacebookF, FaInstagram, FaTwitter } from "react-icons/fa";
 
-/* HERO SLIDES */
-const heroSlides = [
-  {
-    title: "Buy & Sell Smarter",
-    desc: "India’s trusted marketplace for pre-owned products 🚀",
-    img: "https://images.unsplash.com/photo-1523275335684-37898b6baf30",
-  },
-  {
-    title: "Earn From What You Don’t Use",
-    desc: "Turn old items into instant cash 💸",
-    img: "https://images.unsplash.com/photo-1512436991641-6745cdb1723f",
-  },
-  {
-    title: "Safe. Simple. Sustainable.",
-    desc: "Verified users • Secure deals • Zero hassle 🔐",
-    img: "https://images.unsplash.com/photo-1586023492125-27b2c045efd7",
-  },
+// Hero banners
+const banners = [
+  "https://images.unsplash.com/photo-1523275335684-37898b6baf30",
+  "https://images.unsplash.com/photo-1512436991641-6745cdb1723f",
+  "https://images.unsplash.com/photo-1586023492125-27b2c045efd7",
 ];
 
-/* CATEGORIES */
-const categories = [
-  { name: "Mobiles", img: "https://images.unsplash.com/photo-1511707171634-5f897ff02aa9" },
-  { name: "Clothes", img: "https://images.unsplash.com/photo-1521334884684-d80222895322" },
-  { name: "Furniture", img: "https://images.unsplash.com/photo-1586023492125-27b2c045efd7" },
-  { name: "Electronics", img: "https://images.unsplash.com/photo-1518770660439-4636190af475" },
-  { name: "Books", img: "https://images.unsplash.com/photo-1516979187457-637abb4f9353" },
-  { name: "Toys", img: "https://images.unsplash.com/photo-1521572163474-6864f9cf17ab" },
-];
+// Fetch categories
+export const fetchAllCategories = async (searchTerm = "", page = 1, size = 10) => {
+  const data = { page, size, search: searchTerm };
+  const response = await api.post("/categories/list", data);
+  return response.data;
+};
 
 export default function Home() {
   const navigate = useNavigate();
-  const [index, setIndex] = useState(0);
-  const sliderRef = useRef(null);
+  const [drawerOpen, setDrawerOpen] = useState(false);
+  const [slideIndex, setSlideIndex] = useState(0);
+  const [activeMainCat, setActiveMainCat] = useState(null);
+  const [categories, setCategories] = useState([]);
+  const [products, setProducts] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [searchTerm, setSearchTerm] = useState("");
 
-  /* Auto slide hero */
+  // Load categories
+  const loadCategories = async () => {
+    try {
+      setLoading(true);
+      const data = await fetchAllCategories(searchTerm, 1, 10);
+      setCategories(data.data || []);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Auto hero slider
   useEffect(() => {
     const timer = setInterval(() => {
-      setIndex((prev) => (prev + 1) % heroSlides.length);
-    }, 5000);
+      setSlideIndex((prev) => (prev + 1) % banners.length);
+    }, 4000);
     return () => clearInterval(timer);
   }, []);
 
-  /* Scroll categories */
-  const scrollCategories = (direction) => {
-    const slider = sliderRef.current;
-    const scrollAmount = 300;
-    if (direction === 1) slider.scrollBy({ left: scrollAmount, behavior: "smooth" });
-    else slider.scrollBy({ left: -scrollAmount, behavior: "smooth" });
-  };
+  // Initial load
+  useEffect(() => {
+    loadCategories();
+  }, []);
+
+  const handleMainCatClick = (cat) => setActiveMainCat(cat);
+  const handleSubCatClick = (sub) => navigate(`/products?category=${sub}`);
+
+  if (loading) return <div className="loading">Loading...</div>;
 
   return (
     <div className="home-container">
-      <Navbar />
+      {/* Drawer Overlay */}
+      {drawerOpen && <div className="drawer-overlay" onClick={() => setDrawerOpen(false)} />}
 
-      {/* HERO SECTION */}
-      <section className="hero-section">
-        <div className="hero-slider">
-          {heroSlides.map((slide, i) => (
-            <div
+      {/* Side Drawer */}
+      <aside className={`side-drawer ${drawerOpen ? "open" : ""}`}>
+        <div className="drawer-header">
+          <h3>Categories</h3>
+          <FaTimes onClick={() => setDrawerOpen(false)} />
+        </div>
+        {categories.map((c, i) => (
+          <p key={i} onClick={() => handleMainCatClick(c.name)}>
+            {c.name}
+          </p>
+        ))}
+      </aside>
+
+      {/* Navbar */}
+      <header className="navbar glass">
+        <FaBars className="menu-icon" onClick={() => setDrawerOpen(true)} />
+        <div className="logo" onClick={() => navigate("/")}>ReUseHub</div>
+        <div className="nav-search">
+          <FaSearch />
+          <input
+            placeholder="Search products, brands & more"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            onKeyDown={(e) => e.key === "Enter" && loadCategories()}
+          />
+        </div>
+        <div className="nav-actions">
+          <FaUser onClick={() => navigate("/profile")} />
+          <FaShoppingCart onClick={() => navigate("/cart")} />
+        </div>
+      </header>
+
+      {/* Category Strip */}
+      <section className="category-strip">
+        <div className="category-scroll">
+          {categories.map((cat, i) => (
+            <span
               key={i}
-              className={`hero-slide ${i === index ? "active" : ""}`}
-              style={{ backgroundImage: `url(${slide.img})` }}
+              className={activeMainCat === cat.name ? "active-main-cat" : ""}
+              onClick={() => handleMainCatClick(cat.name)}
             >
+              {cat.name}
+            </span>
+          ))}
+        </div>
+      </section>
+
+      {/* Hero Slider */}
+      <section className="hero-slider">
+        <div className="hero-track" style={{ transform: `translateX(-${slideIndex * 100}%)` }}>
+          {banners.map((img, i) => (
+            <div className="hero-slide" key={i}>
+              <img src={img} alt={`banner-${i}`} />
               <div className="hero-content">
-                <h1>{slide.title}</h1>
-                <p>{slide.desc}</p>
-                <div className="hero-buttons">
-                  <button onClick={() => navigate("/products")}>Explore</button>
-                  <button className="secondary-btn" onClick={() => navigate("/register")}>
-                    Start Selling
-                  </button>
-                </div>
+                <h1>Smart Deals, Better Prices</h1>
+                <p>Buy & sell trusted pre-owned products</p>
+                <button onClick={() => navigate("/products")}>Explore Deals</button>
               </div>
             </div>
           ))}
         </div>
         <div className="hero-dots">
-          {heroSlides.map((_, i) => (
+          {banners.map((_, i) => (
             <span
               key={i}
-              className={`dot ${i === index ? "active" : ""}`}
-              onClick={() => setIndex(i)}
+              className={i === slideIndex ? "active" : ""}
+              onClick={() => setSlideIndex(i)}
             />
           ))}
         </div>
       </section>
 
-      {/* SEARCH */}
-      <section className="search-section">
-        <div className="search-bar">
-          <FaSearch className="search-icon" />
-          <input placeholder="Search mobiles, furniture, clothes, electronics..." />
+      {/* Hero Subcategory Strip */}
+      <section className="hero-subcategory-strip">
+        <div className="hero-subcategory-scroll">
+          {categories.flatMap((c) =>
+            c.sub.map((sub, i) => {
+              const productImage =
+                products.find((p) => p.category === sub || p.subcategory === sub)?.img ||
+                "https://via.placeholder.com/100";
+              return (
+                <div
+                  key={`${c.name}-${i}`}
+                  className="hero-subcategory-item"
+                  onClick={() => handleSubCatClick(sub)}
+                >
+                  <img src={productImage} alt={sub} />
+                  <span>{sub}</span>
+                </div>
+              );
+            })
+          )}
         </div>
       </section>
 
-      {/* CATEGORIES SLIDER */}
-      <section className="categories">
-        <h2>Popular Categories</h2>
-        <div className="category-slider-wrapper">
-          <button className="slide-btn left" onClick={() => scrollCategories(-1)}>&#10094;</button>
-          <div className="category-slider" ref={sliderRef}>
-            {categories.map((cat, i) => (
-              <div
-                key={i}
-                className="category-card"
-                onClick={() => navigate(`/category/${cat.name.toLowerCase()}`)}
-              >
-                <img src={cat.img} alt={cat.name} />
-                <span>{cat.name}</span>
-              </div>
-            ))}
+      {/* Subcategory Strip */}
+      {activeMainCat && (
+        <section className="subcategory-strip">
+          <div className="subcategory-scroll">
+            {categories
+              .find((c) => c.name === activeMainCat)
+              ?.sub.map((sub, i) => (
+                <span key={i} onClick={() => handleSubCatClick(sub)}>
+                  {sub}
+                </span>
+              ))}
           </div>
-          <button className="slide-btn right" onClick={() => scrollCategories(1)}>&#10095;</button>
-        </div>
-      </section>
+        </section>
+      )}
 
-      {/* TRENDING PRODUCTS */}
-      <section className="products">
-        <h2>Trending Products</h2>
-        <div className="product-grid">
-          {[
-            ["iPhone 12", "₹35,000", "Like New", "https://images.unsplash.com/photo-1523275335684-37898b6baf30"],
-            ["Sofa Set", "₹8,500", "Used", "https://images.unsplash.com/photo-1503602642458-232111445657"],
-            ["DSLR Camera", "₹22,000", "Excellent", "https://images.unsplash.com/photo-1526170375885-4d8ecf77b99f"],
-            ["Winter Jacket", "₹1,200", "Used", "https://images.unsplash.com/photo-1517841905240-472988babdf9"],
-          ].map((p, i) => (
-            <div key={i} className="product-card">
-              <span className="badge">Trending</span>
-              <img src={p[3]} alt={p[0]} />
-              <div className="product-info">
-                <h3>{p[0]}</h3>
-                <p className={`condition ${p[2] === "Used" ? "used" : ""}`}>{p[2]}</p>
-                <p className="price">{p[1]}</p>
-              </div>
+      {/* Featured Products */}
+      <section className="product-row">
+        <h2>Featured Products</h2>
+        <div className="row-scroll">
+          {products.map((p) => (
+            <div
+              key={p.id}
+              className="product-card"
+              onClick={() => navigate(`/products/${p.id}`)}
+            >
+              <img src={p.img} alt={p.name} />
+              <p>{p.name}</p>
+              <strong>₹{p.price}</strong>
             </div>
           ))}
         </div>
       </section>
 
-      {/* CTA */}
-      <section className="cta">
-        <h2>Start Selling in Minutes</h2>
-        <p>Post your product • Chat with buyers • Get paid</p>
-        <button onClick={() => navigate("/register")}>Post Your First Item</button>
-      </section>
-
-      {/* FOOTER */}
+      {/* Footer */}
       <footer className="footer">
-        <div className="footer-top">
-          <div className="footer-links">
-            <h4>Company</h4>
-            <p>About</p>
-            <p>Careers</p>
-            <p>Blog</p>
-          </div>
-          <div className="footer-links">
-            <h4>Help</h4>
-            <p>Support</p>
-            <p>FAQs</p>
-            <p>Contact</p>
-          </div>
-          <div className="footer-links">
-            <h4>Follow Us</h4>
-            <div className="social-icons">
-              <FaFacebookF />
-              <FaInstagram />
-              <FaTwitter />
-            </div>
-          </div>
-        </div>
-        <div className="footer-bottom">
-          <p>© 2025 ReUseHub • Buy Smart • Sell Fast</p>
-        </div>
+        © 2025 ReUseHub • Buy Smart • Sell Fast
       </footer>
     </div>
   );
