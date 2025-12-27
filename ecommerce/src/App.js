@@ -10,6 +10,7 @@ import Createcategory from "./pages/Categories/CreateCategory.js";
 import ProductDetails from "./pages/Products/ProductDetails";
 import Createpoduct from "./pages/Products/CreateProduct.js";
 import EditCategory from "./pages/Categories/Editcategory.js";
+import Cart from "./components/Cart.js";
 
 function App() {
   return (
@@ -34,6 +35,7 @@ function App() {
         <Route path="/profile" element={<Profile />} />
 
         <Route path="/users" element={<User />} />
+        <Route path="cart" element={<Cart/>}/>
       </Routes>
     </BrowserRouter>
   );

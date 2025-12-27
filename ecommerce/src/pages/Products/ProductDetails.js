@@ -8,14 +8,17 @@ export default function ProductDetails() {
   const navigate = useNavigate();
 
   const [product, setProduct] = useState(null);
+  const [activeImage, setActiveImage] = useState("");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
+  // ================= FETCH PRODUCT =================
   useEffect(() => {
     const fetchProduct = async () => {
       try {
         const res = await api.get(`/products/${id}`);
-        setProduct(res.data.message); // EXACT match to backend
+        setProduct(res.data.message);
+        setActiveImage(res.data.message.thumbnail);
       } catch (err) {
         if (err.response?.status === 401) {
           navigate("/login");
@@ -26,62 +29,117 @@ export default function ProductDetails() {
         setLoading(false);
       }
     };
-
     fetchProduct();
   }, [id, navigate]);
 
-  if (loading) return <h2>Loading product details...</h2>;
-  if (error) return <h2>{error}</h2>;
-  if (!product) return <h2>Product not found</h2>;
+  // ================= ADD TO CART =================
+  const handleAddToCart = async () => {
+    try {
+      const res = await api.post(
+        "/users/cart",
+        { productId: id, quantity: 1 }, // send product ID & quantity
+      
+      );
+
+      if (res.data.success) {
+        alert("Product added to cart ✅");
+        navigate("/cart"); // redirect to cart page
+      } else {
+        alert(res.data.message);
+      }
+    } catch (err) {
+      console.error("Error adding to cart:", err);
+      alert("Failed to add product to cart");
+    }
+  };
+
+  if (loading) return <h2 className="state-msg">Loading product details...</h2>;
+  if (error) return <h2 className="state-msg">{error}</h2>;
+  if (!product) return <h2 className="state-msg">Product not found</h2>;
 
   const { detail } = product;
 
   return (
     <div className="product-details-page">
 
-      {/* TOP SECTION */}
-      <div className="product-details-wrapper">
+      {/* ================= PRODUCT CARD ================= */}
+      <div className="product-card">
 
-        {/* IMAGES */}
-        <div className="product-images-section">
+        {/* ================= IMAGE PANEL ================= */}
+        <div className="image-panel">
+          <span className={`stock-badge ${product.isActive ? "in" : "out"}`}>
+            {product.isActive ? "Available" : "Unavailable"}
+          </span>
+
+          {/* MAIN IMAGE */}
           <img
-            src={product.thumbnail}
+            src={activeImage}
             alt={product.title}
             className="main-image"
           />
 
+          {/* THUMBNAILS (thumbnail + product images) */}
           <div className="image-gallery">
-            {product.images?.map((img, index) => (
-              <img key={index} src={img} alt={`img-${index}`} />
-            ))}
+            {[product.thumbnail, ...(product.images || [])]
+              .filter(Boolean)
+              .map((img, index) => (
+                <img
+                  key={index}
+                  src={img}
+                  alt={`product-${index}`}
+                  className={activeImage === img ? "active" : ""}
+                  onClick={() => setActiveImage(img)}
+                />
+              ))}
           </div>
         </div>
 
-        {/* BASIC INFO */}
-        <div className="product-info-section">
+        {/* ================= INFO PANEL ================= */}
+        <div className="info-panel">
           <h1>{product.title}</h1>
           <p className="slug">Slug: {product.slug}</p>
-
           <p><strong>Brand:</strong> {product.brand}</p>
           <p><strong>Category:</strong> {product.category?.name}</p>
 
-          <p className="price">
+          <div className="rating">
+            ⭐⭐⭐⭐☆ <span>(4.3 / 5 · 124 reviews)</span>
+          </div>
+
+          <div className="price">
             ₹{product.discountPrice}
             <del> ₹{product.price}</del>
-          </p>
+          </div>
 
-          <p>
-            <strong>Status:</strong>{" "}
-            {product.isActive ? "Available" : "Unavailable"}
-          </p>
+          <p className="short-desc">{detail?.description}</p>
 
-          <button className="add-cart-btn">
-            Add to Cart
-          </button>
+          <div className="cta-group">
+            <button
+              className="add-cart-btn"
+              onClick={handleAddToCart}
+              disabled={!product.isActive}
+            >
+              Add to Cart
+            </button>
+
+            <button
+              className="buy-now-btn"
+              onClick={() => alert("Buy Now coming soon 🚀")}
+            >
+              Buy Now
+            </button>
+          </div>
+
+          <div className="meta">
+            <p><strong>Status:</strong> {product.isActive ? "Available" : "Unavailable"}</p>
+            <p><strong>Stock:</strong> {detail?.stock}</p>
+            <p><strong>Warranty:</strong> {detail?.warranty}</p>
+            <p><strong>Shipping:</strong> {detail?.shippingInfo}</p>
+            <p><strong>Return Policy:</strong> {detail?.returnPolicy}</p>
+          </div>
         </div>
       </div>
 
-      {/* DESCRIPTION */}
+      {/* ================= DESCRIPTION ================= */}
       {detail?.description && (
         <section className="details-section">
           <h3>Product Description</h3>
@@ -89,7 +147,7 @@ export default function ProductDetails() {
         </section>
       )}
 
-      {/* SPECIFICATIONS */}
+      {/* ================= SPECIFICATIONS ================= */}
       {detail?.specifications && (
         <section className="details-section">
           <h3>Specifications</h3>
@@ -106,18 +164,7 @@ export default function ProductDetails() {
         </section>
       )}
 
-      {/* STOCK & POLICIES */}
-      <section className="details-section">
-        <h3>Purchase & Warranty</h3>
-        <ul>
-          <li><strong>Stock Available:</strong> {detail?.stock}</li>
-          <li><strong>Warranty:</strong> {detail?.warranty}</li>
-          <li><strong>Shipping:</strong> {detail?.shippingInfo}</li>
-          <li><strong>Return Policy:</strong> {detail?.returnPolicy}</li>
-        </ul>
-      </section>
-
-      {/* CATEGORY DETAILS */}
+      {/* ================= CATEGORY DETAILS ================= */}
       <section className="details-section">
         <h3>Category Details</h3>
         <ul>
@@ -135,7 +182,7 @@ export default function ProductDetails() {
         )}
       </section>
 
-      {/* CREATED BY */}
+      {/* ================= CREATED BY ================= */}
       <section className="details-section">
         <h3>Created By</h3>
         <ul>
@@ -145,7 +192,6 @@ export default function ProductDetails() {
         </ul>
       </section>
 
-    
     </div>
   );
 }

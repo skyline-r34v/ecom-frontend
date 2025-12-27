@@ -1,37 +1,53 @@
-/* ================= GLOBAL ================= */
 .product-details-page {
-  background: linear-gradient(180deg, #f5f7fb 0%, #eef2f7 100%);
+  background: linear-gradient(180deg, #f5f7fb, #eef2f7);
   padding: 48px;
   min-height: 100vh;
-  font-family: "Inter", "Segoe UI", system-ui, sans-serif;
-  color: #1f2937;
+  font-family: "Inter", system-ui, sans-serif;
 }
 
-/* ================= CARD LAYOUT ================= */
-.product-details-wrapper {
+/* ================= PRODUCT CARD ================= */
+.product-card {
   display: grid;
   grid-template-columns: 1.1fr 1fr;
   gap: 48px;
-  background: #ffffff;
-  padding: 36px;
-  border-radius: 18px;
-  box-shadow:
-    0 20px 40px rgba(0, 0, 0, 0.08),
-    0 6px 16px rgba(0, 0, 0, 0.04);
-  margin-bottom: 40px;
+  background: rgba(255,255,255,0.95);
+  backdrop-filter: blur(16px);
+  padding: 40px;
+  border-radius: 24px;
+  box-shadow: 0 30px 60px rgba(0,0,0,0.12);
+  margin-bottom: 48px;
 }
 
-/* ================= IMAGES ================= */
-.product-images-section {
+/* ================= IMAGE PANEL ================= */
+.image-panel {
   position: relative;
+}
+
+.stock-badge {
+  position: absolute;
+  top: 18px;
+  left: 18px;
+  padding: 8px 14px;
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.stock-badge.in {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.stock-badge.out {
+  background: #fee2e2;
+  color: #991b1b;
 }
 
 .main-image {
   width: 100%;
   height: 460px;
   object-fit: cover;
-  border-radius: 18px;
-  border: 1px solid #e5e7eb;
+  border-radius: 20px;
   background: #f9fafb;
 }
 
@@ -39,163 +55,116 @@
   display: flex;
   gap: 14px;
   margin-top: 18px;
+  flex-wrap: wrap;
 }
 
 .image-gallery img {
   width: 88px;
   height: 88px;
+  border-radius: 14px;
   object-fit: cover;
-  border-radius: 12px;
   cursor: pointer;
-  border: 2px solid transparent;
-  background: #f9fafb;
+  opacity: 0.6;
   transition: all 0.25s ease;
 }
 
+.image-gallery img.active,
 .image-gallery img:hover {
+  opacity: 1;
   transform: translateY(-4px);
-  border-color: #2563eb;
-  box-shadow: 0 10px 22px rgba(37, 99, 235, 0.35);
+  box-shadow: 0 12px 26px rgba(0,0,0,0.2);
+  border: 2px solid #2563eb;
 }
 
-/* ================= PRODUCT INFO ================= */
-.product-info-section {
-  display: flex;
-  flex-direction: column;
-}
-
-.product-info-section h1 {
+/* ================= INFO PANEL ================= */
+.info-panel h1 {
   font-size: 34px;
-  line-height: 1.2;
-  font-weight: 700;
-  color: #111827;
+  font-weight: 800;
 }
 
 .slug {
   font-size: 13px;
   color: #6b7280;
-  margin: 6px 0 18px;
+  margin-bottom: 14px;
 }
 
-.product-info-section p {
-  font-size: 15px;
-  margin: 8px 0;
-  color: #374151;
+.rating {
+  margin: 12px 0;
+  font-size: 14px;
 }
 
-/* ================= PRICE ================= */
 .price {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  font-size: 32px;
-  font-weight: 800;
+  font-size: 34px;
+  font-weight: 900;
   color: #dc2626;
-  margin: 22px 0;
 }
 
 .price del {
-  font-size: 17px;
-  font-weight: 500;
+  font-size: 16px;
   color: #9ca3af;
+  margin-left: 12px;
+}
+
+.short-desc {
+  margin: 18px 0;
+  color: #4b5563;
+  line-height: 1.7;
 }
 
 /* ================= CTA ================= */
-.add-cart-btn {
-  margin-top: auto;
-  padding: 16px 28px;
-  background: linear-gradient(135deg, #2563eb, #1e40af);
-  color: #ffffff;
-  border: none;
+.cta-group {
+  display: flex;
+  gap: 16px;
+  margin: 26px 0;
+}
+
+.add-cart-btn,
+.buy-now-btn {
+  flex: 1;
+  padding: 16px;
   border-radius: 14px;
-  font-size: 16px;
+  border: none;
   font-weight: 700;
   cursor: pointer;
-  letter-spacing: 0.4px;
-  transition: all 0.25s ease;
 }
 
-.add-cart-btn:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 18px 32px rgba(37, 99, 235, 0.45);
+.add-cart-btn {
+  background: linear-gradient(135deg, #2563eb, #1e40af);
+  color: white;
 }
 
-/* ================= SECTIONS ================= */
+.buy-now-btn {
+  background: #111827;
+  color: white;
+}
+
+/* ================= DETAILS ================= */
 .details-section {
-  background: #ffffff;
-  padding: 32px 36px;
-  border-radius: 18px;
+  background: white;
+  padding: 36px;
+  border-radius: 20px;
   margin-bottom: 32px;
-  box-shadow:
-    0 16px 32px rgba(0, 0, 0, 0.07),
-    0 6px 12px rgba(0, 0, 0, 0.04);
+  box-shadow: 0 16px 36px rgba(0,0,0,0.08);
 }
 
 .details-section h3 {
   font-size: 22px;
-  font-weight: 700;
   margin-bottom: 18px;
-  color: #111827;
-  position: relative;
-}
-
-.details-section h3::after {
-  content: "";
-  position: absolute;
-  left: 0;
-  bottom: -8px;
-  width: 48px;
-  height: 4px;
-  border-radius: 4px;
-  background: linear-gradient(90deg, #2563eb, #60a5fa);
-}
-
-/* ================= DESCRIPTION ================= */
-.details-section p {
-  font-size: 15px;
-  color: #4b5563;
-  line-height: 1.8;
-}
-
-/* ================= LIST ================= */
-.details-section ul {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-}
-
-.details-section li {
-  font-size: 14px;
-  padding: 10px 0;
-  border-bottom: 1px dashed #e5e7eb;
-  color: #374151;
 }
 
 /* ================= SPEC TABLE ================= */
 .spec-table {
   width: 100%;
   border-collapse: collapse;
-  margin-top: 14px;
-}
-
-.spec-table tr:nth-child(even) {
-  background: #f9fafb;
 }
 
 .spec-table td {
-  padding: 14px 12px;
-  font-size: 14px;
+  padding: 14px;
+  border-bottom: 1px dashed #e5e7eb;
 }
 
 .spec-key {
-  width: 32%;
   font-weight: 700;
-  color: #111827;
-  text-transform: capitalize;
-}
-
-.spec-value {
-  color: #374151;
 }
 
 /* ================= CATEGORY IMAGE ================= */
@@ -204,17 +173,12 @@
   max-width: 240px;
   border-radius: 16px;
   border: 1px solid #e5e7eb;
-  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.1);
 }
 
 /* ================= RESPONSIVE ================= */
 @media (max-width: 1024px) {
-  .product-details-wrapper {
+  .product-card {
     grid-template-columns: 1fr;
-  }
-
-  .main-image {
-    height: 380px;
   }
 }
 
@@ -223,15 +187,7 @@
     padding: 24px;
   }
 
-  .product-info-section h1 {
+  .info-panel h1 {
     font-size: 26px;
-  }
-
-  .price {
-    font-size: 26px;
-  }
-
-  .image-gallery {
-    justify-content: center;
   }
 }

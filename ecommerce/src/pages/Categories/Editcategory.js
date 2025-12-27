@@ -4,7 +4,7 @@ import "../../styles/craetecategory.css";
 import { useNavigate, useParams } from "react-router-dom";
 
 export default function EditCategory() {
-  const { slug } = useParams(); // Use slug instead of id
+  const { id } = useParams(); // /categories/:id
   const navigate = useNavigate();
 
   const [loading, setLoading] = useState(true);
@@ -20,11 +20,12 @@ export default function EditCategory() {
   });
 
   /* ===============================
-     GET CATEGORY BY SLUG
+     GET CATEGORY DETAILS
+     POST /categories/:id
   =============================== */
-  const fetchCategoryBySlug = async () => {
+  const fetchCategory = async () => {
     try {
-      const res = await api.post("/categories/get-by-slug", { slug }); // send slug
+      const res = await api.get(`/categories/${id}`);
       const cat = res.data.data;
 
       setForm({
@@ -37,7 +38,7 @@ export default function EditCategory() {
         isActive: cat.isActive !== false,
       });
     } catch (err) {
-      alert("Category not found");
+      alert("Category not found vvvvvvvv");
       navigate("/category");
     } finally {
       setLoading(false);
@@ -45,17 +46,23 @@ export default function EditCategory() {
   };
 
   useEffect(() => {
-    fetchCategoryBySlug();
-  }, [slug]);
+    fetchCategory();
+  }, [id]);
 
   /* ===============================
      UPDATE CATEGORY
+     POST /categories/update
+     BODY:
+     {
+       id: "",
+       update: { ... }
+     }
   =============================== */
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     const payload = {
-      slug, // send slug instead of id
+      id,
       update: {
         name: form.name,
         slug: form.slug,
@@ -68,7 +75,7 @@ export default function EditCategory() {
     };
 
     try {
-      await api.post("/categories/update-by-slug", payload); // assuming backend endpoint updated
+      await api.post("/categories/update", payload);
       alert("Category Updated Successfully");
       navigate("/category");
     } catch (err) {
@@ -76,7 +83,8 @@ export default function EditCategory() {
     }
   };
 
-  if (loading) return <p className="loading-state-container">Loading category...</p>;
+  if (loading)
+    return <p className="loading-state-container">Loading category...</p>;
 
   return (
     <div className="category-container">
@@ -96,13 +104,14 @@ export default function EditCategory() {
           placeholder="Slug"
           value={form.slug}
           onChange={(e) => setForm({ ...form, slug: e.target.value })}
-          required
         />
 
         <textarea
           placeholder="Description"
           value={form.description}
-          onChange={(e) => setForm({ ...form, description: e.target.value })}
+          onChange={(e) =>
+            setForm({ ...form, description: e.target.value })
+          }
         />
 
         <input
