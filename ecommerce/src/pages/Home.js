@@ -1,5 +1,11 @@
 import React, { useEffect, useState } from "react";
-import { FaBars, FaSearch, FaShoppingCart, FaUser } from "react-icons/fa";
+import {
+  FaBars,
+  FaSearch,
+  FaShoppingCart,
+  FaUser,
+  FaSignOutAlt,
+} from "react-icons/fa";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import api from "../api";
 import "../styles/home.css";
@@ -14,8 +20,12 @@ export default function Home() {
   const navigate = useNavigate();
   const [params] = useSearchParams();
 
-  const [categories, setCategories] = useState([]); // main + subcategories
-  const [allCategories, setAllCategories] = useState([]); // flat list for strip
+  // ================= AUTH =================
+  const isLoggedIn = Boolean(localStorage.getItem("token"));
+
+  // ================= STATE =================
+  const [categories, setCategories] = useState([]);
+  const [allCategories, setAllCategories] = useState([]);
   const [slideIndex, setSlideIndex] = useState(0);
   const [products, setProducts] = useState([]);
   const [loadingProducts, setLoadingProducts] = useState(false);
@@ -24,20 +34,26 @@ export default function Home() {
   const categoryParam = params.get("category");
   const searchParam = params.get("search");
 
-  /* ================= FETCH CATEGORIES ================= */
+  // ================= LOGOUT HANDLER =================
+  const handleLogout = () => {
+    localStorage.clear(); // clears token, user, etc.
+    navigate("/");   // or "/" if you prefer
+  };
+
+  // ================= FETCH CATEGORIES =================
   useEffect(() => {
     api
       .get("/categories/with-subcategories")
       .then((res) => setCategories(res.data.data || []))
-      .catch((err) => console.error(err));
+      .catch(console.error);
 
     api
       .post("/categories/list", { page: 1, size: 20 })
       .then((res) => setAllCategories(res.data.data || []))
-      .catch((err) => console.error(err));
+      .catch(console.error);
   }, []);
 
-  /* ================= FETCH PRODUCTS ================= */
+  // ================= FETCH PRODUCTS =================
   useEffect(() => {
     setLoadingProducts(true);
     api
@@ -51,7 +67,7 @@ export default function Home() {
       .finally(() => setLoadingProducts(false));
   }, [categoryParam, searchParam]);
 
-  /* ================= HERO SLIDER ================= */
+  // ================= HERO SLIDER =================
   useEffect(() => {
     const timer = setInterval(
       () => setSlideIndex((prev) => (prev + 1) % banners.length),
@@ -66,7 +82,7 @@ export default function Home() {
       <header className="noon-navbar">
         <FaBars className="menu-icon" />
         <div className="logo" onClick={() => navigate("/")}>
-          ReUseHub
+          OneKart
         </div>
 
         <div className="nav-search">
@@ -76,30 +92,47 @@ export default function Home() {
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             onKeyDown={(e) =>
-              e.key === "Enter" && navigate(`/products?search=${search}`)
+              e.key === "Enter" &&
+              navigate(`/products?search=${search}`)
             }
           />
         </div>
 
         <div className="nav-actions">
-          <FaUser onClick={() => navigate("/profile")} />
-          <FaShoppingCart onClick={() => navigate("/cart")} />
+          {isLoggedIn && (
+            <>
+              <FaUser
+                title="Profile"
+                onClick={() => navigate("/profile")}
+              />
+              <FaShoppingCart
+                title="Cart"
+                onClick={() => navigate("/cart")}
+              />
+              <FaSignOutAlt
+                title="Logout"
+                onClick={handleLogout}
+                className="logout-icon"
+              />
+            </>
+          )}
         </div>
       </header>
 
-      {/* ================= CATEGORY DROPDOWN BELOW NAVBAR (HOVER) ================= */}
+      {/* ================= CATEGORY DROPDOWN ================= */}
       <div className="categories-dropdown-container">
         {categories.map((cat) => (
           <div key={cat._id} className="dropdown-main">
             <span className="category-name">{cat.name}</span>
-
-            {cat.subCategories.length > 0 && (
+            {cat.subCategories?.length > 0 && (
               <div className="sub-dropdown">
                 {cat.subCategories.map((sub) => (
                   <div
                     key={sub._id}
                     className="sub-item"
-                    onClick={() => navigate(`/products?category=${sub._id}`)}
+                    onClick={() =>
+                      navigate(`/products?category=${sub._id}`)
+                    }
                   >
                     {sub.name}
                   </div>
@@ -131,14 +164,16 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ================= CATEGORY STRIP ABOVE PRODUCTS ================= */}
+      {/* ================= CATEGORY STRIP ================= */}
       <section className="category-strip">
         <div className="category-scroll">
           {allCategories.map((cat) => (
             <div
               key={cat._id}
               className="category-item"
-              onClick={() => navigate(`/products?category=${cat._id}`)}
+              onClick={() =>
+                navigate(`/products?category=${cat._id}`)
+              }
             >
               <img
                 src={cat.image || "https://via.placeholder.com/60"}
@@ -159,9 +194,8 @@ export default function Home() {
         ) : (
           <div className="row-scroll">
             {products.map((p) => {
-              // Determine which image to show
               const productImg =
-                (p.images && p.images.length > 0 && p.images[0]) ||
+                (p.images && p.images[0]) ||
                 p.thumbnail ||
                 "https://via.placeholder.com/180";
 
@@ -169,7 +203,9 @@ export default function Home() {
                 <div
                   key={p._id}
                   className="noon-product"
-                  onClick={() => navigate(`/products/${p._id}`)}
+                  onClick={() =>
+                    navigate(`/products/${p._id}`)
+                  }
                 >
                   <img src={productImg} alt={p.title} />
                   <p>{p.title}</p>
@@ -181,10 +217,9 @@ export default function Home() {
         )}
       </section>
 
-
       {/* ================= FOOTER ================= */}
       <footer className="noon-footer">
-        © 2025 ReUseHub • Buy Smart • Sell Fast
+        © 2025 OneKart • Buy Smart • Sell Fast
       </footer>
     </div>
   );

@@ -3,12 +3,12 @@ import Login from "./pages/Login.js";
 import Register from "./pages/Register.js";
 import Home from "./pages/Home.js";
 import User from "./pages/User.js";
-import Product from "./pages/Products.js";
+import Product from "./pages/Products/Products.js";
 import Category from "./pages/Categories/Categories.js";
 import Profile from "./pages/Profile/Profile.js";
 import Createcategory from "./pages/Categories/CreateCategory.js";
-import ProductDetails from "./pages/ProductDetails";
-import Createpoduct from "./pages/CreateProduct.js";
+import ProductDetails from "./pages/Products/ProductDetails";
+import Createpoduct from "./pages/Products/CreateProduct.js";
 import EditCategory from "./pages/Categories/Editcategory.js";
 
 function App() {

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
-import "../styles/AddProduct.css";
-import api from "../api";
+import "../../styles/AddProduct.css";
+import api from "../../api";
 import { useNavigate } from "react-router-dom";
 import { message } from "antd";
 

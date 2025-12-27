@@ -1,10 +1,10 @@
 import { message } from "antd";
 import React, { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import api from "../api";
-import Sidebar from "../components/Sidebar";
-import Navbar from "../components/Navbar";
-import "../styles/products.css";
+import api from "../../api";
+import Sidebar from "../../components/Sidebar";
+import Navbar from "../../components/Navbar";
+import "../../styles/products.css";
 
 export default function Product() {
   const [products, setProducts] = useState([]);
