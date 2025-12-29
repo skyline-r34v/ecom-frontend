@@ -1,9 +1,11 @@
 import React, { useEffect, useState } from "react";
 import api from "../api";
+import { useNavigate } from "react-router-dom";
 
 const Cart = () => {
   const [cart, setCart] = useState(null);
   const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
 
   // ================= FETCH CART =================
   const fetchCart = async () => {
@@ -127,7 +129,7 @@ const Cart = () => {
           borderRadius: "6px",
           cursor: "pointer",
         }}
-        onClick={() => alert("Checkout coming soon 🚀")}
+        onClick={() => navigate("/checkout")}   // ✅ FIXED
       >
         Proceed to Checkout
       </button>

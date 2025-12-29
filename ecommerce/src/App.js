@@ -1,41 +1,73 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import Login from "./pages/Login.js";
-import Register from "./pages/Register.js";
-import Home from "./pages/Home.js";
-import User from "./pages/User.js";
-import Product from "./pages/Products/Products.js";
-import Category from "./pages/Categories/Categories.js";
-import Profile from "./pages/Profile/Profile.js";
-import Createcategory from "./pages/Categories/CreateCategory.js";
+
+import Login from "./pages/Login";
+import Register from "./pages/Register";
+import Home from "./pages/Home";
+import User from "./pages/User";
+
+// Products
+import Product from "./pages/Products/Products";
 import ProductDetails from "./pages/Products/ProductDetails";
-import Createpoduct from "./pages/Products/CreateProduct.js";
-import EditCategory from "./pages/Categories/Editcategory.js";
-import Cart from "./components/Cart.js";
+import Createproduct from "./pages/Products/CreateProduct";
+
+// Categories
+import Category from "./pages/Categories/Categories";
+import Createcategory from "./pages/Categories/CreateCategory";
+import EditCategory from "./pages/Categories/Editcategory";
+
+// User
+import Profile from "./pages/Profile/Profile";
+
+// Cart & Orders
+import Cart from "./components/Cart";
+import MyOrders from "./pages/MyOrders";
+import OrderDetails from "./pages/OrderDetails";
+import Checkout from "./pages/Checkout";   // ✅ ADD THIS
+
+// Admin
+import AdminOrders from "./pages/AdminOrders";
 
 function App() {
+  const role = localStorage.getItem("role"); // admin / customer
+
   return (
     <BrowserRouter>
       <Routes>
-        {/* ✅ Home Page */}
+
+        {/* ================= HOME ================= */}
         <Route path="/" element={<Home />} />
 
-        {/* Auth */}
+        {/* ================= AUTH ================= */}
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
 
-        {/* Pages */}
+        {/* ================= PRODUCTS ================= */}
         <Route path="/products" element={<Product />} />
         <Route path="/products/:id" element={<ProductDetails />} />
-        <Route path="/products/add" element={<Createpoduct />} />
+        <Route path="/products/add" element={<Createproduct />} />
 
+        {/* ================= CATEGORIES ================= */}
         <Route path="/category" element={<Category />} />
         <Route path="/create-category" element={<Createcategory />} />
         <Route path="/edit-category/:id" element={<EditCategory />} />
 
+        {/* ================= USER ================= */}
         <Route path="/profile" element={<Profile />} />
-
         <Route path="/users" element={<User />} />
-        <Route path="cart" element={<Cart/>}/>
+
+        {/* ================= CART ================= */}
+        <Route path="/cart" element={<Cart />} />
+
+        {/* ================= ORDERS ================= */}
+        <Route path="/checkout" element={<Checkout />} />  {/* ✅ REQUIRED */}
+        <Route path="/orders" element={<MyOrders />} />
+        <Route path="/orders/:id" element={<OrderDetails />} />
+
+        {/* ================= ADMIN ================= */}
+        {role === "admin" && (
+          <Route path="/admin/orders" element={<AdminOrders />} />
+        )}
+
       </Routes>
     </BrowserRouter>
   );

@@ -13,7 +13,8 @@ export default function Register() {
         {
           name: values.name,
           email: values.email,
-          password: values.password
+          password: values.password,
+          mobile: values.mobile
         }
       );
 
@@ -51,8 +52,15 @@ export default function Register() {
         </Form.Item>
 
         <Form.Item
+          name="mobile"
+          label="mobile"
+          rules={[{ required: true, message: "Enter Number" }]}
+        >
+          <Input placeholder="Enter Number" />
+        </Form.Item>
+        <Form.Item
           name="password"
-          label="Password"
+          label="password"
           rules={[{ required: true, message: "Enter password" }]}
         >
           <Input.Password placeholder="Enter password" />

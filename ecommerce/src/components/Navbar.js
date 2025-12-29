@@ -7,7 +7,7 @@ import {
   FaSignOutAlt,
 } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
-import "../styles/home.css";
+import "../styles/navbar.css";
 
 export default function Navbar({ search, setSearch }) {
   const navigate = useNavigate();
@@ -40,7 +40,7 @@ export default function Navbar({ search, setSearch }) {
       </div>
 
       <div className="nav-actions">
-        {isLoggedIn && (
+        {isLoggedIn ? (
           <>
             <FaUser
               title="Profile"
@@ -56,6 +56,13 @@ export default function Navbar({ search, setSearch }) {
               className="logout-icon"
             />
           </>
+        ) : (
+          <button
+            className="login-link"
+            onClick={() => navigate("/login")}
+          >
+            Login
+          </button>
         )}
       </div>
     </header>

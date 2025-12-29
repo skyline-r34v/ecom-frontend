@@ -1,56 +1,98 @@
-/* ===== SIDEBAR CONTAINER ===== */
-.sidebar {
-  width: 230px;
-  height: 100vh;
-  background: #ffffff;
-  padding: 25px 20px;
-  box-sizing: border-box;
-  box-shadow: 2px 0px 10px rgba(0, 0, 0, 0.1);
-  border-right: 1px solid #e5e5e5;
+.sidebar.enhanced {
+  width: 260px;
+  background: #fff;
+  padding: 25px;
+  border-radius: 15px;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+  min-height: 90vh;
   font-family: "Poppins", sans-serif;
-}
-
-/* ===== SIDEBAR TITLE ===== */
-.sidebar h3 {
-  font-size: 22px;
-  font-weight: bold;
-  margin-bottom: 25px;
-  color: black;
-}
-
-/* ===== SIDEBAR ITEMS ===== */
-.sidebar-item {
-  padding: 12px 15px;
-  margin-bottom: 12px;
-  border-radius: 8px;
-  cursor: pointer;
-  font-size: 16px;
+  position: sticky;
+  top: 20px;
+  overflow-y: auto;
   transition: all 0.3s ease;
+}
+
+.sidebar.enhanced h3 {
+  margin-bottom: 20px;
+  font-size: 20px;
+  color: #111827;
+  border-bottom: 2px solid #feee00;
+  padding-bottom: 10px;
+}
+
+.sidebar-item {
   display: flex;
   align-items: center;
-  gap: 10px;
-  color: inherit; /* Will use the specific color class */
+  gap: 12px;
+  padding: 12px 0;
+  cursor: pointer;
+  font-size: 16px;
+  color: #111827;
+  transition: all 0.3s ease;
 }
 
-/* Hover effect */
+.sidebar-item span {
+  flex: 1;
+}
+
 .sidebar-item:hover {
-  background: #f0f0f0;
-  transform: translateX(4px);
+  color: #feee00;
+  transform: translateX(5px);
 }
 
-/* ===== ITEM COLORS ===== */
-.categories {
-  color: #ff5733;
+.filter-group {
+  margin-bottom: 18px;
+  display: flex;
+  flex-direction: column;
+  transition: all 0.3s ease;
 }
 
-.products {
-  color: #2e86de;
+.filter-group label {
+  font-weight: 600;
+  margin-bottom: 6px;
+  color: #333;
 }
 
-.orders {
-  color: #28a745;
+.filter-group select {
+  padding: 10px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  font-size: 14px;
+  transition: all 0.2s ease;
 }
 
-.users {
-  color: #8e44ad;
+.filter-group select:hover {
+  border-color: #feee00;
+}
+
+.apply-btn {
+  width: 100%;
+  padding: 12px;
+  background: #feee00;
+  border: none;
+  border-radius: 10px;
+  font-weight: bold;
+  cursor: pointer;
+  margin-top: 15px;
+  transition: all 0.3s ease;
+}
+
+.apply-btn:hover {
+  background: #e5d800;
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+}
+
+/* Scrollbar styling */
+.sidebar.enhanced::-webkit-scrollbar {
+  width: 6px;
+}
+
+.sidebar.enhanced::-webkit-scrollbar-thumb {
+  background-color: rgba(0,0,0,0.2);
+  border-radius: 3px;
+}
+
+.sidebar.enhanced::-webkit-scrollbar-track {
+  background: transparent;
 }

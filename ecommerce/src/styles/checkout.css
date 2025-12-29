@@ -1,0 +1,102 @@
+/* ================= CONTAINER ================= */
+.checkout-container {
+    max-width: 450px;
+    margin: 50px auto;
+    padding: 32px 28px;
+    background: #ffffff;
+    border-radius: 16px;
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.08);
+    font-family: "Poppins", sans-serif;
+    transition: transform 0.2s ease;
+  }
+  
+  .checkout-container:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+  }
+  
+  /* ================= TITLE ================= */
+  .checkout-title {
+    text-align: center;
+    margin-bottom: 28px;
+    font-size: 26px;
+    font-weight: 700;
+    color: #111827;
+    letter-spacing: 0.5px;
+  }
+  
+  /* ================= FORM ================= */
+  .checkout-form {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+  
+  /* ================= INPUT & SELECT ================= */
+  .checkout-form input,
+  .checkout-select {
+    padding: 14px 16px;
+    border-radius: 10px;
+    border: 1px solid #d1d5db;
+    font-size: 15px;
+    outline: none;
+    transition: 0.25s ease;
+    background: #f9fafb;
+  }
+  
+  .checkout-form input:focus,
+  .checkout-select:focus {
+    border-color: #2563eb;
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.2);
+    background: #ffffff;
+  }
+  
+  .checkout-select {
+    cursor: pointer;
+    appearance: none;
+    background: #f9fafb url("data:image/svg+xml,%3Csvg width='12' height='7' viewBox='0 0 12 7' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1L6 6L11 1' stroke='%23374751' stroke-width='2'/%3E%3C/svg%3E") no-repeat right 12px center;
+    background-size: 12px 7px;
+  }
+  
+  /* ================= BUTTON ================= */
+  .checkout-btn {
+    margin-top: 14px;
+    padding: 16px;
+    border-radius: 12px;
+    border: none;
+    background: linear-gradient(135deg, #2563eb, #1d4ed8);
+    color: white;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
+  }
+  
+  .checkout-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 25px rgba(37, 99, 235, 0.35);
+  }
+  
+  /* ================= RESPONSIVE ================= */
+  @media (max-width: 500px) {
+    .checkout-container {
+      padding: 24px 16px;
+      margin: 30px 16px;
+    }
+  
+    .checkout-title {
+      font-size: 22px;
+    }
+  
+    .checkout-form input,
+    .checkout-select {
+      font-size: 14px;
+      padding: 12px 14px;
+    }
+  
+    .checkout-btn {
+      font-size: 15px;
+      padding: 14px;
+    }
+  }
+  

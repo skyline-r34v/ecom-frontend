@@ -1,13 +1,7 @@
 import React, { useEffect, useState } from "react";
-import {
-  FaBars,
-  FaSearch,
-  FaShoppingCart,
-  FaUser,
-  FaSignOutAlt,
-} from "react-icons/fa";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import api from "../api";
+import Navbar from "../components/Navbar";
 import "../styles/home.css";
 
 const banners = [
@@ -20,9 +14,6 @@ export default function Home() {
   const navigate = useNavigate();
   const [params] = useSearchParams();
 
-  // ================= AUTH =================
-  const isLoggedIn = Boolean(localStorage.getItem("token"));
-
   // ================= STATE =================
   const [categories, setCategories] = useState([]);
   const [allCategories, setAllCategories] = useState([]);
@@ -33,12 +24,6 @@ export default function Home() {
 
   const categoryParam = params.get("category");
   const searchParam = params.get("search");
-
-  // ================= LOGOUT HANDLER =================
-  const handleLogout = () => {
-    localStorage.clear(); // clears token, user, etc.
-    navigate("/");   // or "/" if you prefer
-  };
 
   // ================= FETCH CATEGORIES =================
   useEffect(() => {
@@ -79,45 +64,7 @@ export default function Home() {
   return (
     <div className="noon-home">
       {/* ================= NAVBAR ================= */}
-      <header className="noon-navbar">
-        <FaBars className="menu-icon" />
-        <div className="logo" onClick={() => navigate("/")}>
-          OneKart
-        </div>
-
-        <div className="nav-search">
-          <FaSearch />
-          <input
-            placeholder="Search products"
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            onKeyDown={(e) =>
-              e.key === "Enter" &&
-              navigate(`/products?search=${search}`)
-            }
-          />
-        </div>
-
-        <div className="nav-actions">
-          {isLoggedIn && (
-            <>
-              <FaUser
-                title="Profile"
-                onClick={() => navigate("/profile")}
-              />
-              <FaShoppingCart
-                title="Cart"
-                onClick={() => navigate("/cart")}
-              />
-              <FaSignOutAlt
-                title="Logout"
-                onClick={handleLogout}
-                className="logout-icon"
-              />
-            </>
-          )}
-        </div>
-      </header>
+      <Navbar search={search} setSearch={setSearch} />
 
       {/* ================= CATEGORY DROPDOWN ================= */}
       <div className="categories-dropdown-container">

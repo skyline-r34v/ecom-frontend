@@ -1,0 +1,91 @@
+/* ================= CONTAINER ================= */
+.myorders-container {
+    max-width: 800px;
+    margin: 40px auto;
+    padding: 24px;
+    font-family: "Poppins", sans-serif;
+    background: #f9fafb;
+    border-radius: 14px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+  }
+  
+  /* ================= TITLE ================= */
+  .myorders-title {
+    text-align: center;
+    font-size: 28px;
+    font-weight: 700;
+    margin-bottom: 24px;
+    color: #111827;
+    letter-spacing: 0.5px;
+  }
+  
+  /* ================= ORDER CARD ================= */
+  .order-card {
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    padding: 16px 20px;
+    margin-bottom: 16px;
+    background: #ffffff;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  
+  .order-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+  }
+  
+  .order-info p {
+    margin: 4px 0;
+    font-size: 15px;
+    color: #374151;
+  }
+  
+  .order-info p strong {
+    color: #111827;
+  }
+  
+  /* ================= STATUS BADGE ================= */
+  .status-badge {
+    padding: 6px 12px;
+    border-radius: 12px;
+    font-size: 13px;
+    font-weight: 600;
+    color: white;
+    text-transform: uppercase;
+  }
+  
+  .status-PLACED { background-color: #facc15; color: #1f2937; }
+  .status-CONFIRMED { background-color: #3b82f6; }
+  .status-PACKED { background-color: #6366f1; }
+  .status-SHIPPED { background-color: #2563eb; }
+  .status-DELIVERED { background-color: #16a34a; }
+  .status-CANCELLED { background-color: #ef4444; }
+  .status-RETURN_REQUESTED { background-color: #f97316; }
+  .status-RETURNED { background-color: #f43f5e; }
+  
+  /* ================= EMPTY STATE ================= */
+  .no-orders {
+    text-align: center;
+    font-size: 16px;
+    color: #6b7280;
+    margin-top: 20px;
+  }
+  
+  /* ================= RESPONSIVE ================= */
+  @media (max-width: 768px) {
+    .myorders-container {
+      padding: 16px;
+      margin: 20px;
+    }
+  
+    .order-card {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 10px;
+    }
+  }
+  

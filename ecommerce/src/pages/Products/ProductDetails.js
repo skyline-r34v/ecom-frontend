@@ -35,21 +35,37 @@ export default function ProductDetails() {
   // ================= ADD TO CART =================
   const handleAddToCart = async () => {
     try {
-      const res = await api.post(
-        "/users/cart",
-        { productId: id, quantity: 1 }, // send product ID & quantity
-      
-      );
+      const res = await api.post("/users/cart", {
+        productId: id,
+        quantity: 1,
+      });
 
       if (res.data.success) {
         alert("Product added to cart ✅");
-        navigate("/cart"); // redirect to cart page
+        navigate("/cart");
       } else {
         alert(res.data.message);
       }
     } catch (err) {
-      console.error("Error adding to cart:", err);
       alert("Failed to add product to cart");
+    }
+  };
+
+  // ================= BUY NOW =================
+  const handleBuyNow = async () => {
+    try {
+      const res = await api.post("/users/cart", {
+        productId: id,
+        quantity: 1,
+      });
+
+      if (res.data.success) {
+        navigate("/checkout"); // 👉 ORDER PAGE
+      } else {
+        alert(res.data.message);
+      }
+    } catch (err) {
+      alert("Unable to proceed to checkout");
     }
   };
 
@@ -71,14 +87,12 @@ export default function ProductDetails() {
             {product.isActive ? "Available" : "Unavailable"}
           </span>
 
-          {/* MAIN IMAGE */}
           <img
             src={activeImage}
             alt={product.title}
             className="main-image"
           />
 
-          {/* THUMBNAILS (thumbnail + product images) */}
           <div className="image-gallery">
             {[product.thumbnail, ...(product.images || [])]
               .filter(Boolean)
@@ -123,7 +137,8 @@ export default function ProductDetails() {
 
             <button
               className="buy-now-btn"
-              onClick={() => alert("Buy Now coming soon 🚀")}
+              onClick={handleBuyNow}
+              disabled={!product.isActive}
             >
               Buy Now
             </button>
