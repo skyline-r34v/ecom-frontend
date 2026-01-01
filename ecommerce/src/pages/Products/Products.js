@@ -4,61 +4,63 @@ import { useLocation, useNavigate } from "react-router-dom";
 import api from "../../api";
 import Sidebar from "../../components/Sidebar";
 import Navbar from "../../components/Navbar";
-import "../../styles/products.css";
+import "../../styles/products.css"; // keep CSS import
 
 export default function Product() {
-  const [products, setProducts] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [page, setPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(1);
-  const [currency, setCurrency] = useState("INR");
-  const [conversionRate, setConversionRate] = useState(0.012);
-  const [searchTerm, setSearchTerm] = useState("");
-
   const navigate = useNavigate();
   const location = useLocation();
+
   const params = new URLSearchParams(location.search);
   const categoryId = params.get("category");
 
   const PRODUCTS_PER_PAGE = 9;
 
-  /* ---------------- FETCH PRODUCTS ---------------- */
+  const [products, setProducts] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+
+  const [currency, setCurrency] = useState("INR");
+  const [conversionRate, setConversionRate] = useState(0.012);
+  const [searchTerm, setSearchTerm] = useState("");
+
+  /* ================= FETCH PRODUCTS ================= */
   const fetchProducts = async (pageNumber = 1, search = "") => {
     try {
       setLoading(true);
 
       const res = await api.post("/products/list", {
-        size: PRODUCTS_PER_PAGE,
         page: pageNumber,
-        category: categoryId || "all",
-        search: search,
+        size: PRODUCTS_PER_PAGE,
+        category: categoryId || undefined,
+        search,
       });
 
       setProducts(res.data?.data || []);
 
       if (res.data?.pagination?.total) {
-        setTotalPages(Math.ceil(res.data.pagination.total / PRODUCTS_PER_PAGE));
+        setTotalPages(
+          Math.ceil(res.data.pagination.total / PRODUCTS_PER_PAGE)
+        );
       }
 
       setPage(pageNumber);
-    } catch (error) {
-      console.error(error);
-      message.error("Failed to fetch products");
+    } catch (err) {
+      console.error(err);
+      message.error("Failed to load products");
     } finally {
       setLoading(false);
     }
   };
 
-  /* ---------------- CURRENCY RATE ---------------- */
+  /* ================= CURRENCY ================= */
   const fetchConversionRate = async () => {
     try {
       const res = await fetch(
         "https://api.exchangerate.host/latest?base=INR&symbols=USD"
       );
       const data = await res.json();
-      if (data?.rates?.USD) {
-        setConversionRate(data.rates.USD);
-      }
+      setConversionRate(data?.rates?.USD || 0.012);
     } catch {
       setConversionRate(0.012);
     }
@@ -69,19 +71,20 @@ export default function Product() {
     fetchConversionRate();
   }, [categoryId]);
 
-  /* ---------------- SEARCH ---------------- */
-  const handleSearch = async () => {
+  /* ================= SEARCH ================= */
+  const handleSearch = () => {
     fetchProducts(1, searchTerm);
   };
 
-  /* ---------------- HELPERS ---------------- */
+  /* ================= PRICE FORMAT ================= */
   const formatPrice = (price) =>
     currency === "INR"
       ? `₹${price}`
       : `$${(price * conversionRate).toFixed(2)}`;
 
+  /* ================= DELETE ================= */
   const handleDelete = async (id) => {
-    if (!window.confirm("Delete this product?")) return;
+    if (!window.confirm("Are you sure you want to delete this product?")) return;
 
     try {
       await api.post("/products/delete", { id });
@@ -92,12 +95,16 @@ export default function Product() {
     }
   };
 
-  /* ---------------- LOADING ---------------- */
+  /* ================= ADD TO CART ================= */
+  const handleAddToCart = (product) => {
+    message.success(`${product.title} added to cart`);
+  };
+
+  /* ================= LOADING ================= */
   if (loading) {
     return <h2 className="loading-text">Loading Products...</h2>;
   }
 
-  /* ---------------- UI ---------------- */
   return (
     <>
       <Navbar />
@@ -136,7 +143,7 @@ export default function Product() {
             </div>
           </div>
 
-          {/* SEARCH BAR */}
+          {/* SEARCH */}
           <div className="search-bar">
             <input
               type="text"
@@ -148,37 +155,39 @@ export default function Product() {
             <button onClick={handleSearch}>Search</button>
           </div>
 
-          {/* PRODUCTS GRID */}
-          <div className="product-grid">
-            {products.length > 0 ? (
+          {/* GRID */}
+          <div className="home-product-grid">
+            {products.length ? (
               products.map((p) => (
-                <div className="product-card" key={p._id}>
-                  <div className="product-image-wrapper">
-                    <img
-                      src={p.thumbnail}
-                      alt={p.title}
-                      onClick={() => navigate(`/products/${p._id}`)}
-                    />
+                <div className="fk-card" key={p._id}>
+                  <div className="fk-img-box" onClick={() => navigate(`/products/${p._id}`)}>
+                    <img src={p.thumbnail} alt={p.title} />
                   </div>
 
-                  <div className="product-info">
-                    <span className="product-rating">⭐ 4.5</span>
-                    <h3>{p.title}</h3>
+                  <div className="fk-info">
+                    <h3 className="fk-title">{p.title}</h3>
+                    <div className="fk-rating">
+                      ⭐ 4.5 <span>(100 reviews)</span>
+                    </div>
 
-                    <p className="product-price">
-                      {formatPrice(p.discountPrice)}{" "}
-                      <del>{formatPrice(p.price)}</del>
-                    </p>
+                    <div className="fk-price">
+                      {formatPrice(p.discountPrice || p.price)}
+                      {p.discountPrice && <del>{formatPrice(p.price)}</del>}
+                      {p.discountPrice && <span className="fk-off">OFF</span>}
+                    </div>
 
-                    <div className="product-actions">
+                    <button className="fk-cart-btn" onClick={() => handleAddToCart(p)}>
+                      Add to Cart
+                    </button>
+
+                    <div className="product-actions" style={{marginTop: '8px'}}>
                       <button
                         className="edit-btn"
-                        onClick={() =>
-                          navigate(`/products/edit/${p._id}`)
-                        }
+                        onClick={() => navigate(`/products/edit/${p._id}`)}
                       >
                         Edit
                       </button>
+
                       <button
                         className="delete-btn"
                         onClick={() => handleDelete(p._id)}

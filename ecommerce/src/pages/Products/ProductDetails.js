@@ -12,6 +12,11 @@ export default function ProductDetails() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
+  // ================= PAYMENT DRAWER =================
+  const [isPaymentOpen, setIsPaymentOpen] = useState(false);
+  const [quantity, setQuantity] = useState(1);
+  const [paymentMethod, setPaymentMethod] = useState("credit-card");
+
   // ================= FETCH PRODUCT =================
   useEffect(() => {
     const fetchProduct = async () => {
@@ -52,21 +57,15 @@ export default function ProductDetails() {
   };
 
   // ================= BUY NOW =================
-  const handleBuyNow = async () => {
-    try {
-      const res = await api.post("/users/cart", {
-        productId: id,
-        quantity: 1,
-      });
+  const handleBuyNow = () => {
+    setIsPaymentOpen(true);
+  };
 
-      if (res.data.success) {
-        navigate("/checkout"); // 👉 ORDER PAGE
-      } else {
-        alert(res.data.message);
-      }
-    } catch (err) {
-      alert("Unable to proceed to checkout");
-    }
+  // ================= PAY NOW =================
+  const handlePayNow = () => {
+    alert(`Payment successful! ₹${(product.discountPrice ?? product.price) * quantity} paid via ${paymentMethod}`);
+    setIsPaymentOpen(false);
+    navigate("/"); // redirect after payment
   };
 
   if (loading) return <h2 className="state-msg">Loading product details...</h2>;
@@ -153,6 +152,66 @@ export default function ProductDetails() {
           </div>
         </div>
       </div>
+
+      {/* ================= PAYMENT DRAWER ================= */}
+      {isPaymentOpen && (
+        <div className="drawer-backdrop" onClick={() => setIsPaymentOpen(false)}>
+          <div className="drawer" onClick={(e) => e.stopPropagation()}>
+            <h2>Complete Your Order</h2>
+
+            <div className="drawer-product">
+              <img src={activeImage} alt={product.title} />
+              <div className="drawer-product-info">
+                <h3>{product.title}</h3>
+                <p>Price: ₹{product.discountPrice}</p>
+                <div className="quantity-selector">
+                  <button onClick={() => setQuantity(q => Math.max(1, q - 1))}>-</button>
+                  <span>{quantity}</span>
+                  <button onClick={() => setQuantity(q => q + 1)}>+</button>
+                </div>
+              </div>
+            </div>
+
+            <div className="payment-options">
+              <h4>Payment Method</h4>
+              <label>
+                <input
+                  type="radio"
+                  name="payment"
+                  value="credit-card"
+                  checked={paymentMethod === "credit-card"}
+                  onChange={(e) => setPaymentMethod(e.target.value)}
+                /> Credit/Debit Card
+              </label>
+              <label>
+                <input
+                  type="radio"
+                  name="payment"
+                  value="upi"
+                  checked={paymentMethod === "upi"}
+                  onChange={(e) => setPaymentMethod(e.target.value)}
+                /> UPI
+              </label>
+              <label>
+                <input
+                  type="radio"
+                  name="payment"
+                  value="cod"
+                  checked={paymentMethod === "cod"}
+                  onChange={(e) => setPaymentMethod(e.target.value)}
+                /> Cash on Delivery
+              </label>
+            </div>
+
+            <button className="checkout-btn" onClick={handlePayNow}>
+              Pay Now ₹{(product.discountPrice ?? product.price) * quantity}
+            </button>
+            <button className="close-drawer" onClick={() => setIsPaymentOpen(false)}>
+              ✕
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* ================= DESCRIPTION ================= */}
       {detail?.description && (

@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import api from "../api";
 import { useNavigate } from "react-router-dom";
+import "../styles/cart.css"
 
 const Cart = () => {
   const [cart, setCart] = useState(null);
@@ -44,95 +45,116 @@ const Cart = () => {
     }
   };
 
-  if (loading) return <p>Loading cart...</p>;
+  // ================= REMOVE ITEM =================
+  const removeItem = async (productId) => {
+    try {
+      const res = await api.post("/users/cart", { productId,quantity:-1});
+      if (res.data.success) {
+        setCart(res.data.cart);
+      } else {
+        alert(res.data.message);
+      }
+    } catch (error) {
+      console.error("Remove item error:", error);
+      alert("Unable to remove item");
+    }
+  };
+
+  if (loading) return <p className="empty-cart">Loading cart...</p>;
   if (!cart || cart.items.length === 0)
-    return <p>Your cart is empty.</p>;
+    return (
+      <div className="empty-cart">
+        <p>Your cart is empty.</p>
+        <button
+          className="continue-shopping"
+          onClick={() => navigate("/products")}
+        >
+          Continue Shopping
+        </button>
+      </div>
+    );
 
   // ================= TOTAL PRICE =================
   const totalPrice = cart.items.reduce(
     (total, item) =>
-      total +
-      (item.product.discountPrice ?? item.product.price) *
-        item.quantity,
+      total + (item.product.discountPrice ?? item.product.price) * item.quantity,
     0
   );
 
+  // ================= GO TO CHECKOUT =================
+  const proceedToCheckout = () => {
+    navigate("/checkout", {
+      state: {
+        cartItems: cart.items,
+        total: totalPrice,
+      },
+    });
+  };
+
   return (
-    <div className="cart-container">
-      <h2>Your Cart</h2>
+    <div className="cart-page">
+      <h1>Your Cart</h1>
+      <div className="cart-layout">
+        {/* ========== ITEMS ========== */}
+        <div className="cart-items">
+          {cart.items.map((item) => (
+            <div className="cart-item" key={item._id}>
+              <img src={item.product.thumbnail} alt={item.product.title} />
 
-      {cart.items.map((item) => (
-        <div
-          key={item._id}
-          style={{
-            display: "flex",
-            gap: "20px",
-            marginBottom: "20px",
-            padding: "15px",
-            border: "1px solid #ddd",
-            borderRadius: "10px",
-          }}
-        >
-          {/* PRODUCT IMAGE */}
-          <img
-            src={item.product.thumbnail}
-            alt={item.product.title}
-            style={{
-              width: "120px",
-              height: "120px",
-              objectFit: "cover",
-              borderRadius: "8px",
-            }}
-          />
+              <div className="cart-info">
+                <h3>{item.product.title}</h3>
+                <p>
+                  Price: ₹{item.product.discountPrice ?? item.product.price}
+                </p>
 
-          {/* PRODUCT INFO */}
-          <div style={{ flex: 1 }}>
-            <h3>{item.product.title}</h3>
-            <p>
-              Price: ₹
-              {item.product.discountPrice ??
-                item.product.price}
-            </p>
+                {/* Quantity Controls */}
+                <div className="qty-control">
+                  <button
+                    onClick={() => updateQuantity(item.product._id, -1)}
+                  >
+                    -
+                  </button>
+                  <span>{item.quantity}</span>
+                  <button
+                    onClick={() => updateQuantity(item.product._id, 1)}
+                  >
+                    +
+                  </button>
+                </div>
 
-            {/* QUANTITY CONTROLS */}
-            <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-              <button onClick={() => updateQuantity(item.product._id, -1)}>
-                -
-              </button>
+                <p style={{ marginTop: "10px" }}>
+                  Subtotal: ₹
+                  {(item.product.discountPrice ?? item.product.price) *
+                    item.quantity}
+                </p>
 
-              <span>{item.quantity}</span>
-
-              <button onClick={() => updateQuantity(item.product._id, 1)}>
-                +
-              </button>
+                <button
+                  className="remove-btn"
+                  onClick={() => removeItem(item.product._id)}
+                >
+                  Remove
+                </button>
+              </div>
             </div>
-
-            <p style={{ marginTop: "10px" }}>
-              Subtotal: ₹
-              {(item.product.discountPrice ??
-                item.product.price) * item.quantity}
-            </p>
-          </div>
+          ))}
         </div>
-      ))}
 
-      {/* TOTAL */}
-      <h3>Total Amount: ₹{totalPrice}</h3>
-
-      <button
-        style={{
-          marginTop: "20px",
-          padding: "12px 20px",
-          background: "#000",
-          color: "#fff",
-          border: "none",
-          borderRadius: "6px",
-          cursor: "pointer",
-        }}
-        onClick={() => navigate("/checkout")}   // ✅ FIXED
-      >
-        Proceed to Checkout
-      </button>
+        {/* ========== SUMMARY ========== */}
+        <div className="cart-summary">
+          <h2>Summary</h2>
+          <div className="summary-row">
+            <span>Items:</span>
+            <span>{cart.items.length}</span>
+          </div>
+          <div className="summary-row">
+            <span>Total:</span>
+            <span>₹{totalPrice}</span>
+          </div>
+          <button className="checkout-btn" onClick={proceedToCheckout}>
+            Proceed to Checkout
+          </button>
+        </div>
+      </div>
     </div>
   );
 };

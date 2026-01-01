@@ -14,66 +14,68 @@ export default function Home() {
   const navigate = useNavigate();
   const [params] = useSearchParams();
 
-  // ================= STATE =================
   const [categories, setCategories] = useState([]);
   const [allCategories, setAllCategories] = useState([]);
-  const [slideIndex, setSlideIndex] = useState(0);
   const [products, setProducts] = useState([]);
+  const [slideIndex, setSlideIndex] = useState(0);
   const [loadingProducts, setLoadingProducts] = useState(false);
   const [search, setSearch] = useState("");
 
   const categoryParam = params.get("category");
   const searchParam = params.get("search");
 
-  // ================= FETCH CATEGORIES =================
+  // Fetch categories
   useEffect(() => {
-    api
-      .get("/categories/with-subcategories")
-      .then((res) => setCategories(res.data.data || []))
+    api.get("/categories/with-subcategories")
+      .then(res => setCategories(res.data.data || []))
       .catch(console.error);
 
-    api
-      .post("/categories/list", { page: 1, size: 20 })
-      .then((res) => setAllCategories(res.data.data || []))
+    api.post("/categories/list", { page: 1, size: 20 })
+      .then(res => setAllCategories(res.data.data || []))
       .catch(console.error);
   }, []);
 
-  // ================= FETCH PRODUCTS =================
+  // Fetch products
   useEffect(() => {
     setLoadingProducts(true);
-    api
-      .post("/products/list", {
-        page: 1,
-        size: 20,
-        category: categoryParam || undefined,
-        search: searchParam || undefined,
-      })
-      .then((res) => setProducts(res.data.data || []))
+    api.post("/products/list", {
+      page: 1,
+      size: 20,
+      category: categoryParam || undefined,
+      search: searchParam || undefined,
+    })
+      .then(res => setProducts(res.data.data || []))
       .finally(() => setLoadingProducts(false));
   }, [categoryParam, searchParam]);
 
-  // ================= HERO SLIDER =================
+  // Hero slider
   useEffect(() => {
-    const timer = setInterval(
-      () => setSlideIndex((prev) => (prev + 1) % banners.length),
-      4000
-    );
+    const timer = setInterval(() => {
+      setSlideIndex(prev => (prev + 1) % banners.length);
+    }, 4000);
     return () => clearInterval(timer);
   }, []);
 
   return (
-    <div className="noon-home">
-      {/* ================= NAVBAR ================= */}
+    <div className="onekart-home">
       <Navbar search={search} setSearch={setSearch} />
 
-      {/* ================= CATEGORY DROPDOWN ================= */}
+      {/* Trust Bar */}
+      <div className="trust-bar">
+        <span>✔ Secure Payments</span>
+        <span>✔ Easy Returns</span>
+        <span>✔ Fast Delivery</span>
+        <span>✔ Genuine Sellers</span>
+      </div>
+
+      {/* Category Dropdown */}
       <div className="categories-dropdown-container">
-        {categories.map((cat) => (
+        {categories.map(cat => (
           <div key={cat._id} className="dropdown-main">
             <span className="category-name">{cat.name}</span>
             {cat.subCategories?.length > 0 && (
               <div className="sub-dropdown">
-                {cat.subCategories.map((sub) => (
+                {cat.subCategories.map(sub => (
                   <div
                     key={sub._id}
                     className="sub-item"
@@ -90,7 +92,7 @@ export default function Home() {
         ))}
       </div>
 
-      {/* ================= HERO SLIDER ================= */}
+      {/* Hero Section */}
       <section className="hero-slider">
         <div
           className="hero-track"
@@ -100,21 +102,30 @@ export default function Home() {
             <div key={i} className="hero-slide">
               <img src={img} alt="banner" />
               <div className="hero-content">
-                <h1>Smart Deals, Better Prices</h1>
-                <p>Buy & sell trusted pre-owned products</p>
-                <button onClick={() => navigate("/products")}>
-                  Explore Deals
-                </button>
+                <span className="badge">OneKart Deals</span>
+                <h1>Everything you need. One Cart.</h1>
+                <p>Shop electronics, fashion & home essentials</p>
+                <div className="hero-actions">
+                  <button onClick={() => navigate("/products")}>
+                    Shop Now
+                  </button>
+                  <button
+                    className="ghost"
+                    onClick={() => navigate("/cart")}
+                  >
+                    Go to Cart
+                  </button>
+                </div>
               </div>
             </div>
           ))}
         </div>
       </section>
 
-      {/* ================= CATEGORY STRIP ================= */}
+      {/* Category Strip */}
       <section className="category-strip">
         <div className="category-scroll">
-          {allCategories.map((cat) => (
+          {allCategories.map(cat => (
             <div
               key={cat._id}
               className="category-item"
@@ -133,15 +144,24 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ================= PRODUCTS ================= */}
+      {/* Products */}
       <section className="product-row">
-        <h2>Recommended for you</h2>
+        <div className="row-head">
+          <h2>Top Picks for You</h2>
+          <button
+            className="link"
+            onClick={() => navigate("/products")}
+          >
+            View All
+          </button>
+        </div>
+
         {loadingProducts ? (
           <p>Loading products...</p>
         ) : (
-          <div className="row-scroll">
-            {products.map((p) => {
-              const productImg =
+          <div className="home-product-grid">
+            {products.map(p => {
+              const img =
                 (p.images && p.images[0]) ||
                 p.thumbnail ||
                 "https://via.placeholder.com/180";
@@ -149,14 +169,38 @@ export default function Home() {
               return (
                 <div
                   key={p._id}
-                  className="noon-product"
+                  className="fk-card"
                   onClick={() =>
                     navigate(`/products/${p._id}`)
                   }
                 >
-                  <img src={productImg} alt={p.title} />
-                  <p>{p.title}</p>
-                  <strong>₹{p.discountPrice || p.price}</strong>
+                  <div className="fk-img-box">
+                    <img src={img} alt={p.title} />
+                  </div>
+
+                  <div className="fk-info">
+                    <p className="fk-title">{p.title}</p>
+                    <div className="fk-rating">⭐ 4.4 <span>(1,234)</span></div>
+                    <div className="fk-price">
+                      ₹{p.discountPrice || p.price}
+                      {p.discountPrice && <del>₹{p.price}</del>}
+                      {p.discountPrice && (
+                        <span className="fk-off">
+                          {Math.floor(((p.price - p.discountPrice)/p.price)*100)}% off
+                        </span>
+                      )}
+                    </div>
+                  </div>
+
+                  <button
+                    className="fk-cart-btn"
+                    onClick={e => {
+                      e.stopPropagation();
+                      alert("Added to cart");
+                    }}
+                  >
+                    ADD TO CART
+                  </button>
                 </div>
               );
             })}
@@ -164,9 +208,8 @@ export default function Home() {
         )}
       </section>
 
-      {/* ================= FOOTER ================= */}
-      <footer className="noon-footer">
-        © 2025 OneKart • Buy Smart • Sell Fast
+      <footer className="onekart-footer">
+        © 2025 OneKart • One Cart. Endless Choice.
       </footer>
     </div>
   );
