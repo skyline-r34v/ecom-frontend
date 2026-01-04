@@ -191,3 +191,20 @@
     margin-top: 12px;
   }
 }
+.address-card {
+  border: 1px solid #ccc;
+  padding: 12px;
+  margin-bottom: 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.address-card:hover {
+  border-color: #007bff;
+}
+
+.address-card.selected {
+  border-color: #007bff;
+  background-color: #e6f0ff;
+}

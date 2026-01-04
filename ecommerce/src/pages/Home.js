@@ -4,11 +4,33 @@ import api from "../api";
 import Navbar from "../components/Navbar";
 import "../styles/home.css";
 
+/* ================= HERO BANNERS ================= */
 const banners = [
   "https://images.unsplash.com/photo-1523275335684-37898b6baf30",
   "https://images.unsplash.com/photo-1512436991641-6745cdb1723f",
   "https://images.unsplash.com/photo-1586023492125-27b2c045efd7",
 ];
+
+/* ================= CUSTOMER RATING ================= */
+const Rating = ({ reviews = [] }) => {
+  if (!reviews || reviews.length === 0) {
+    return <div className="fk-rating no-rating">No ratings</div>;
+  }
+
+  const avg = reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length;
+  const fullStars = Math.floor(avg);
+
+  return (
+    <div className="fk-rating">
+      {[...Array(5)].map((_, i) => (
+        <span key={i} className={i < fullStars ? "" : "star-muted"}>
+          ⭐
+        </span>
+      ))}
+      <span className="rating-text">{avg.toFixed(1)} ({reviews.length})</span>
+    </div>
+  );
+};
 
 export default function Home() {
   const navigate = useNavigate();
@@ -20,11 +42,12 @@ export default function Home() {
   const [slideIndex, setSlideIndex] = useState(0);
   const [loadingProducts, setLoadingProducts] = useState(false);
   const [search, setSearch] = useState("");
+  const [wishlist, setWishlist] = useState([]); // store product IDs in wishlist
 
   const categoryParam = params.get("category");
   const searchParam = params.get("search");
 
-  // Fetch categories
+  /* ================= FETCH CATEGORIES ================= */
   useEffect(() => {
     api.get("/categories/with-subcategories")
       .then(res => setCategories(res.data.data || []))
@@ -35,12 +58,12 @@ export default function Home() {
       .catch(console.error);
   }, []);
 
-  // Fetch products
+  /* ================= FETCH PRODUCTS ================= */
   useEffect(() => {
     setLoadingProducts(true);
     api.post("/products/list", {
       page: 1,
-      size: 20,
+      size: 50,
       category: categoryParam || undefined,
       search: searchParam || undefined,
     })
@@ -48,7 +71,7 @@ export default function Home() {
       .finally(() => setLoadingProducts(false));
   }, [categoryParam, searchParam]);
 
-  // Hero slider
+  /* ================= HERO SLIDER ================= */
   useEffect(() => {
     const timer = setInterval(() => {
       setSlideIndex(prev => (prev + 1) % banners.length);
@@ -56,11 +79,36 @@ export default function Home() {
     return () => clearInterval(timer);
   }, []);
 
+  /* ================= GROUP BY CATEGORY ================= */
+  const productsByCategory = products.reduce((acc, product) => {
+    const name = product.category?.name || "Others";
+    if (!acc[name]) acc[name] = [];
+    acc[name].push(product);
+    return acc;
+  }, {});
+
+  /* ================= WISHLIST TOGGLE ================= */
+  const toggleWishlist = async (productId) => {
+    try {
+      if (wishlist.includes(productId)) {
+        await api.delete(`/users/wishlist/${productId}`);
+        setWishlist(prev => prev.filter(id => id !== productId));
+        alert("Removed from wishlist 💔");
+      } else {
+        await api.post("/users/wishlist", { productId });
+        setWishlist(prev => [...prev, productId]);
+        alert("Added to wishlist ❤️");
+      }
+    } catch {
+      alert("Wishlist action failed");
+    }
+  };
+
   return (
     <div className="onekart-home">
       <Navbar search={search} setSearch={setSearch} />
 
-      {/* Trust Bar */}
+      {/* ================= TRUST BAR ================= */}
       <div className="trust-bar">
         <span>✔ Secure Payments</span>
         <span>✔ Easy Returns</span>
@@ -68,36 +116,9 @@ export default function Home() {
         <span>✔ Genuine Sellers</span>
       </div>
 
-      {/* Category Dropdown */}
-      <div className="categories-dropdown-container">
-        {categories.map(cat => (
-          <div key={cat._id} className="dropdown-main">
-            <span className="category-name">{cat.name}</span>
-            {cat.subCategories?.length > 0 && (
-              <div className="sub-dropdown">
-                {cat.subCategories.map(sub => (
-                  <div
-                    key={sub._id}
-                    className="sub-item"
-                    onClick={() =>
-                      navigate(`/products?category=${sub._id}`)
-                    }
-                  >
-                    {sub.name}
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-        ))}
-      </div>
-
-      {/* Hero Section */}
+      {/* ================= HERO ================= */}
       <section className="hero-slider">
-        <div
-          className="hero-track"
-          style={{ transform: `translateX(-${slideIndex * 100}%)` }}
-        >
+        <div className="hero-track" style={{ transform: `translateX(-${slideIndex * 100}%)` }}>
           {banners.map((img, i) => (
             <div key={i} className="hero-slide">
               <img src={img} alt="banner" />
@@ -106,15 +127,8 @@ export default function Home() {
                 <h1>Everything you need. One Cart.</h1>
                 <p>Shop electronics, fashion & home essentials</p>
                 <div className="hero-actions">
-                  <button onClick={() => navigate("/products")}>
-                    Shop Now
-                  </button>
-                  <button
-                    className="ghost"
-                    onClick={() => navigate("/cart")}
-                  >
-                    Go to Cart
-                  </button>
+                  <button onClick={() => navigate("/products")}>Shop Now</button>
+                  <button className="ghost" onClick={() => navigate("/cart")}>Go to Cart</button>
                 </div>
               </div>
             </div>
@@ -122,91 +136,73 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Category Strip */}
+      {/* ================= CATEGORY STRIP ================= */}
       <section className="category-strip">
         <div className="category-scroll">
           {allCategories.map(cat => (
-            <div
-              key={cat._id}
-              className="category-item"
-              onClick={() =>
-                navigate(`/products?category=${cat._id}`)
-              }
-            >
-              <img
-                src={cat.image || "https://via.placeholder.com/60"}
-                alt={cat.name}
-                className="category-img"
-              />
+            <div key={cat._id} className="category-item" onClick={() => navigate(`/products?category=${cat._id}`)}>
+              <img src={cat.image || "https://via.placeholder.com/60"} alt={cat.name} className="category-img" />
               <span>{cat.name}</span>
             </div>
           ))}
         </div>
       </section>
 
-      {/* Products */}
-      <section className="product-row">
-        <div className="row-head">
-          <h2>Top Picks for You</h2>
-          <button
-            className="link"
-            onClick={() => navigate("/products")}
-          >
-            View All
-          </button>
-        </div>
+      {/* ================= CATEGORY-WISE PRODUCTS ================= */}
+      {loadingProducts ? (
+        <p style={{ padding: 40 }}>Loading products...</p>
+      ) : (
+        Object.keys(productsByCategory).map(catName => (
+          <section className="product-row" key={catName}>
+            <div className="row-head">
+              <h2>{catName}</h2>
+              <button className="link" onClick={() => navigate(`/products?category=${productsByCategory[catName][0].category?._id}`)}>
+                View All
+              </button>
+            </div>
 
-        {loadingProducts ? (
-          <p>Loading products...</p>
-        ) : (
-          <div className="home-product-grid">
-            {products.map(p => {
-              const img =
-                (p.images && p.images[0]) ||
-                p.thumbnail ||
-                "https://via.placeholder.com/180";
-
-              return (
-                <div
-                  key={p._id}
-                  className="fk-card"
-                  onClick={() =>
-                    navigate(`/products/${p._id}`)
-                  }
-                >
+            <div className="home-product-grid">
+              {productsByCategory[catName].slice(0, 5).map(p => (
+                <div key={p._id} className="fk-card" onClick={() => navigate(`/products/${p._id}`)}>
                   <div className="fk-img-box">
-                    <img src={img} alt={p.title} />
+                    <img src={p.images?.[0] || p.thumbnail || "https://via.placeholder.com/180"} alt={p.title} />
                   </div>
 
                   <div className="fk-info">
                     <p className="fk-title">{p.title}</p>
-                    <div className="fk-rating">⭐ 4.4 <span>(1,234)</span></div>
+
+                    {/* ⭐ CUSTOMER RATING */}
+                    <Rating reviews={p.reviews} />
+
                     <div className="fk-price">
                       ₹{p.discountPrice || p.price}
                       {p.discountPrice && <del>₹{p.price}</del>}
-                      {p.discountPrice && (
-                        <span className="fk-off">
-                          {Math.floor(((p.price - p.discountPrice)/p.price)*100)}% off
-                        </span>
-                      )}
                     </div>
                   </div>
 
-                  <button
-                    className="fk-cart-btn"
-                    onClick={e => {
-                      e.stopPropagation();
-                      alert("Added to cart");
-                    }}
-                  >
-                    ADD TO CART
-                  </button>
+                  {/* ================= CART & WISHLIST ================= */}
+                  <div className="fk-card-actions">
+                    <button
+                      className="fk-cart-btn"
+                      onClick={e => { e.stopPropagation(); alert("Added to cart"); }}
+                    >
+                      ADD TO CART
+                    </button>
+
+                    <button
+                      className={`fk-wishlist-btn ${wishlist.includes(p._id) ? "active" : ""}`}
+                      onClick={e => { e.stopPropagation(); toggleWishlist(p._id); }}
+                      title="Add to Wishlist"
+                    >
+                      {wishlist.includes(p._id) ? "❤️" : "❤️"}
+                    </button>
+                  </div>
                 </div>
-              );
-            })}
-          </div>
-        )}
-      </section>
+              ))}
+            </div>
+          </section>
+        ))
+      )}
 
       <footer className="onekart-footer">
         © 2025 OneKart • One Cart. Endless Choice.

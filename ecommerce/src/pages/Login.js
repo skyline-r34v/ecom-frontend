@@ -24,6 +24,9 @@ export default function Login() {
       localStorage.setItem("role", res.data.data.user.role);
       localStorage.setItem("email", res.data.data.user.email);
       localStorage.setItem("userId", res.data.data.user._id);
+
+      localStorage.setItem("mobile",res.data.data.user.mobile)
+      
       // Redirect
       navigate("/category");
 

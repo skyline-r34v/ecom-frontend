@@ -6,53 +6,81 @@ import "../styles/checkout.css";
 export default function Checkout() {
   const navigate = useNavigate();
   const location = useLocation();
-
   const userId = localStorage.getItem("userId");
 
   const { cartItems = [], total = 0 } = location.state || {};
 
-  const [shippingAddress, setShippingAddress] = useState({
+  const [addresses, setAddresses] = useState([]); // all saved addresses
+  const [selectedAddressId, setSelectedAddressId] = useState(null); // selected address
+  const [newAddress, setNewAddress] = useState({
     fullName: "",
     phone: "",
-    addressLine1: "",
-    addressLine2: "",
+    street: "",
     city: "",
     state: "",
     postalCode: "",
     country: "India",
   });
+  const [addingNew, setAddingNew] = useState(false);
 
   const [payment, setPayment] = useState({ method: "COD" });
-
+  const userName=localStorage.getItem("")
+  // Fetch user profile and addresses
   useEffect(() => {
     api
       .post("/users/profile", { userId })
       .then((res) => {
         const user = res.data.data;
         if (user) {
-          const defaultAddress =
-            user.addresses.find((a) => a.isDefault) || user.addresses[0] || {};
-          setShippingAddress({
-            fullName: user.name || "",
-            phone: user.phone || "",
-            addressLine1: defaultAddress.street || "",
-            addressLine2: "",
-            city: defaultAddress.city || "",
-            state: defaultAddress.state || "",
-            postalCode: defaultAddress.postalCode || "",
-            country: defaultAddress.country || "India",
-          });
+          const userAddresses = user.addresses || [];
+          setAddresses(userAddresses);
+
+          const defaultAddress = userAddresses.find((a) => a.isDefault) || userAddresses[0];
+          if (defaultAddress) setSelectedAddressId(defaultAddress._id);
         }
       })
       .catch(console.error);
   }, [userId]);
 
-  const handleChange = (e) => {
-    setShippingAddress({ ...shippingAddress, [e.target.name]: e.target.value });
+  // Handle selecting an existing address
+  const handleSelectAddress = (id) => {
+    setSelectedAddressId(id);
+  };
+
+  // Handle adding a new address
+  const handleNewAddressChange = (e) => {
+    setNewAddress({ ...newAddress, [e.target.name]: e.target.value });
+  };
+
+  const addNewAddress = async () => {
+    try {
+      const res = await api.post("/users/address/add", { userId, address: newAddress });
+      if (res.data.success) {
+        const updatedAddresses = [...addresses, res.data.address];
+        setAddresses(updatedAddresses);
+        setSelectedAddressId(res.data.address._id);
+        setAddingNew(false);
+        setNewAddress({
+          fullName: "",
+          phone: "",
+          addressLine1: "",
+          addressLine2: "",
+          city: "",
+          state: "",
+          postalCode: "",
+          country: "India",
+        });
+      }
+    } catch (error) {
+      alert("Failed to add address");
+    }
   };
 
   const placeOrder = async () => {
     try {
+      const shippingAddress = addresses.find((a) => a._id === selectedAddressId);
+      if (!shippingAddress) return alert("Please select an address");
+
       const res = await api.post("/orders/create", {
         shippingAddress,
         payment,
@@ -97,15 +125,44 @@ export default function Checkout() {
         {/* ================= SHIPPING FORM ================= */}
         <div className="checkout-form">
           <h3>Shipping Address</h3>
-          {Object.keys(shippingAddress).map((key) => (
-            <input
-              key={key}
-              name={key}
-              placeholder={key.replace(/([A-Z])/g, " $1")}
-              value={shippingAddress[key]}
-              onChange={handleChange}
-            />
+
+          {/* List of existing addresses */}
+          {addresses.map((addr) => (
+            <div
+              key={addr._id}
+              className={`address-card ${selectedAddressId === addr._id ? "selected" : ""}`}
+              onClick={() => handleSelectAddress(addr._id)}
+            >
+              <p><b>{addr.fullName}</b> - {addr.phone}</p>
+              <p>{addr.addressLine1}, {addr.addressLine2}</p>
+              <p>{addr.city}, {addr.state}, {addr.postalCode}</p>
+              <p>{addr.country}</p>
+            </div>
           ))}
+
+          {/* Add new address toggle */}
+          {addingNew ? (
+            <div className="new-address-form">
+              {Object.keys(newAddress).map((key) => (
+                <input
+                  key={key}
+                  name={key}
+                  placeholder={key.replace(/([A-Z])/g, " $1")}
+                  value={newAddress[key]}
+                  onChange={handleNewAddressChange}
+                />
+              ))}
+              <button className="checkout-btn" onClick={addNewAddress}>
+                Save Address
+              </button>
+            </div>
+          ) : (
+            <button className="checkout-btn" onClick={() => setAddingNew(true)}>
+              + Add New Address
+            </button>
+          )}
+
+          {/* Payment method */}
           <select
             className="checkout-select"
             value={payment.method}
@@ -117,6 +174,7 @@ export default function Checkout() {
             <option value="NET_BANKING">Net Banking</option>
             <option value="WALLET">Wallet</option>
           </select>
+
           <button className="checkout-btn" onClick={placeOrder}>
             Place Order
           </button>

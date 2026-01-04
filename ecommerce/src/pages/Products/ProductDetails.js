@@ -12,7 +12,10 @@ export default function ProductDetails() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
-  // ================= PAYMENT DRAWER =================
+  // ================= WISHLIST =================
+  const [isWishlisted, setIsWishlisted] = useState(false);
+
+  // ================= PAYMENT =================
   const [isPaymentOpen, setIsPaymentOpen] = useState(false);
   const [quantity, setQuantity] = useState(1);
   const [paymentMethod, setPaymentMethod] = useState("credit-card");
@@ -22,8 +25,15 @@ export default function ProductDetails() {
     const fetchProduct = async () => {
       try {
         const res = await api.get(`/products/${id}`);
-        setProduct(res.data.message);
-        setActiveImage(res.data.message.thumbnail);
+        const data = res.data.message;
+
+        setProduct(data);
+        setActiveImage(data.thumbnail);
+
+        // if backend sends wishlist status
+        if (data.isWishlisted) {
+          setIsWishlisted(true);
+        }
       } catch (err) {
         if (err.response?.status === 401) {
           navigate("/login");
@@ -34,6 +44,7 @@ export default function ProductDetails() {
         setLoading(false);
       }
     };
+
     fetchProduct();
   }, [id, navigate]);
 
@@ -51,21 +62,40 @@ export default function ProductDetails() {
       } else {
         alert(res.data.message);
       }
-    } catch (err) {
+    } catch {
       alert("Failed to add product to cart");
     }
   };
 
-  // ================= BUY NOW =================
-  const handleBuyNow = () => {
-    setIsPaymentOpen(true);
+  // ================= WISHLIST TOGGLE =================
+  const toggleWishlist = async () => {
+    try {
+      if (isWishlisted) {
+        await api.delete(`/users/wishlist/${id}`);
+        setIsWishlisted(false);
+        alert("Removed from wishlist 💔");
+      } else {
+        await api.post("/users/wishlist", { productId: id });
+        setIsWishlisted(true);
+        alert("Added to wishlist ❤️");
+      }
+    } catch {
+      alert("Wishlist action failed");
+    }
   };
+
+  // ================= BUY NOW =================
+  const handleBuyNow = () => setIsPaymentOpen(true);
 
   // ================= PAY NOW =================
   const handlePayNow = () => {
-    alert(`Payment successful! ₹${(product.discountPrice ?? product.price) * quantity} paid via ${paymentMethod}`);
+    alert(
+      `Payment successful! ₹${
+        (product.discountPrice ?? product.price) * quantity
+      } paid via ${paymentMethod}`
+    );
     setIsPaymentOpen(false);
-    navigate("/"); // redirect after payment
+    navigate("/");
   };
 
   if (loading) return <h2 className="state-msg">Loading product details...</h2>;
@@ -76,21 +106,15 @@ export default function ProductDetails() {
 
   return (
     <div className="product-details-page">
-
       {/* ================= PRODUCT CARD ================= */}
       <div className="product-card">
-
         {/* ================= IMAGE PANEL ================= */}
         <div className="image-panel">
           <span className={`stock-badge ${product.isActive ? "in" : "out"}`}>
             {product.isActive ? "Available" : "Unavailable"}
           </span>
 
-          <img
-            src={activeImage}
-            alt={product.title}
-            className="main-image"
-          />
+          <img src={activeImage} alt={product.title} className="main-image" />
 
           <div className="image-gallery">
             {[product.thumbnail, ...(product.images || [])]
@@ -109,7 +133,18 @@ export default function ProductDetails() {
 
         {/* ================= INFO PANEL ================= */}
         <div className="info-panel">
-          <h1>{product.title}</h1>
+          <div className="title-row">
+            <h1>{product.title}</h1>
+
+            {/* ❤️ LIKE / WISHLIST */}
+            <button
+              className={`wishlist-btn ${isWishlisted ? "active" : ""}`}
+              onClick={toggleWishlist}
+            >
+              {isWishlisted ? "❤️" : "❤️"}
+            </button>
+          </div>
+
           <p className="slug">Slug: {product.slug}</p>
           <p><strong>Brand:</strong> {product.brand}</p>
           <p><strong>Category:</strong> {product.category?.name}</p>
@@ -172,40 +207,10 @@ export default function ProductDetails() {
               </div>
             </div>
 
-            <div className="payment-options">
-              <h4>Payment Method</h4>
-              <label>
-                <input
-                  type="radio"
-                  name="payment"
-                  value="credit-card"
-                  checked={paymentMethod === "credit-card"}
-                  onChange={(e) => setPaymentMethod(e.target.value)}
-                /> Credit/Debit Card
-              </label>
-              <label>
-                <input
-                  type="radio"
-                  name="payment"
-                  value="upi"
-                  checked={paymentMethod === "upi"}
-                  onChange={(e) => setPaymentMethod(e.target.value)}
-                /> UPI
-              </label>
-              <label>
-                <input
-                  type="radio"
-                  name="payment"
-                  value="cod"
-                  checked={paymentMethod === "cod"}
-                  onChange={(e) => setPaymentMethod(e.target.value)}
-                /> Cash on Delivery
-              </label>
-            </div>
-
             <button className="checkout-btn" onClick={handlePayNow}>
               Pay Now ₹{(product.discountPrice ?? product.price) * quantity}
             </button>
+
             <button className="close-drawer" onClick={() => setIsPaymentOpen(false)}>
               ✕
             </button>
@@ -238,7 +243,7 @@ export default function ProductDetails() {
         </section>
       )}
 
-      {/* ================= CATEGORY DETAILS ================= */}
+      {/* ================= CATEGORY ================= */}
       <section className="details-section">
         <h3>Category Details</h3>
         <ul>
@@ -265,7 +270,6 @@ export default function ProductDetails() {
           <li><strong>Role:</strong> {product.createdBy?.role}</li>
         </ul>
       </section>
-
     </div>
   );
 }

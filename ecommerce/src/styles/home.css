@@ -390,3 +390,24 @@
     flex-wrap: wrap;
   }
 }
+.fk-card-actions {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 8px;
+}
+
+.fk-wishlist-btn {
+  background: none;
+  border: none;
+  font-size: 20px;
+  cursor: pointer;
+  transition: transform 0.2s ease;
+}
+
+.fk-wishlist-btn:hover {
+  transform: scale(1.2);
+}
+
+.fk-wishlist-btn.active {
+  color: red;
+}

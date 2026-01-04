@@ -45,7 +45,7 @@ const Cart = () => {
     }
   };
 
-  // ================= REMOVE ITEM =================
+  // ================= REMOVE ITEM ========
   const removeItem = async (productId) => {
     try {
       const res = await api.post("/users/cart", { productId,quantity:-1});
