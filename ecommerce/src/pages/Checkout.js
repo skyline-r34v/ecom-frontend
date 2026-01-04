@@ -24,7 +24,8 @@ export default function Checkout() {
   const [addingNew, setAddingNew] = useState(false);
 
   const [payment, setPayment] = useState({ method: "COD" });
-  const userName=localStorage.getItem("")
+  const userName=localStorage.getItem("name")
+  const mobile = localStorage.getItem("mobile");
   // Fetch user profile and addresses
   useEffect(() => {
     api
@@ -54,7 +55,7 @@ export default function Checkout() {
 
   const addNewAddress = async () => {
     try {
-      const res = await api.post("/users/address/add", { userId, address: newAddress });
+      const res = await api.post("/users/profile", { userId, address: newAddress });
       if (res.data.success) {
         const updatedAddresses = [...addresses, res.data.address];
         setAddresses(updatedAddresses);
@@ -63,8 +64,7 @@ export default function Checkout() {
         setNewAddress({
           fullName: "",
           phone: "",
-          addressLine1: "",
-          addressLine2: "",
+          street: "",
           city: "",
           state: "",
           postalCode: "",
@@ -77,21 +77,37 @@ export default function Checkout() {
   };
 
   const placeOrder = async () => {
-    try {
-      const shippingAddress = addresses.find((a) => a._id === selectedAddressId);
-      if (!shippingAddress) return alert("Please select an address");
+  try {
+    const selectedAddr = addresses.find(
+      (a) => a._id === selectedAddressId
+    );
 
-      const res = await api.post("/orders/create", {
-        shippingAddress,
-        payment,
-        items: cartItems,
-        total,
-      });
-      if (res.data.success) navigate("/orders");
-    } catch (error) {
-      alert("Order failed");
+    if (!selectedAddr) {
+      return alert("Please select an address");
     }
-  };
+
+    const shippingAddress = {
+      ...selectedAddr,
+      fullName: userName,
+      phone: mobile,
+    };
+
+    const res = await api.post("/orders/create", {
+      shippingAddress,
+      payment,
+      items: cartItems,
+      total,
+    });
+
+    if (res.data.success) {
+      navigate("/orders");
+    }
+  } catch (error) {
+    console.error(error);
+    alert("Order failed");
+  }
+};
+
 
   return (
     <div className="checkout-container">
@@ -134,7 +150,7 @@ export default function Checkout() {
               onClick={() => handleSelectAddress(addr._id)}
             >
               <p><b>{addr.fullName}</b> - {addr.phone}</p>
-              <p>{addr.addressLine1}, {addr.addressLine2}</p>
+              <p>{addr.street}</p>
               <p>{addr.city}, {addr.state}, {addr.postalCode}</p>
               <p>{addr.country}</p>
             </div>
