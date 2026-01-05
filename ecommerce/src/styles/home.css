@@ -411,3 +411,110 @@
 .fk-wishlist-btn.active {
   color: red;
 }
+
+/* ================= CATEGORY HOVER BAR ================= */
+.category-hover-bar {
+  background: #ffffff;
+  border-bottom: 1px solid #e5e7eb;
+  position: sticky;
+  top: 64px;
+  z-index: 100;
+}
+
+.category-hover-container {
+  display: flex;
+  gap: 32px;
+  padding: 14px 48px;
+  align-items: center;
+}
+
+.category-hover-item {
+  position: relative;
+  cursor: pointer;
+}
+
+.category-name {
+  font-weight: 600;
+  font-size: 15px;
+  color: #111827;
+  padding: 6px 0;
+}
+
+.category-hover-item:hover .category-name {
+  color: #2563eb;
+}
+
+/* ================= SUBCATEGORY DROPDOWN ================= */
+.subcategory-dropdown {
+  position: absolute;
+  top: 32px;
+  left: 0;
+  background: white;
+  min-width: 180px;
+  border-radius: 8px;
+  box-shadow: 0 12px 30px rgba(0,0,0,0.12);
+  padding: 8px 0;
+  display: none;
+}
+
+.category-hover-item:hover .subcategory-dropdown {
+  display: block;
+}
+
+.subcategory-item {
+  padding: 10px 16px;
+  font-size: 14px;
+  color: #374151;
+  transition: background 0.2s;
+}
+
+.subcategory-item:hover {
+  background: #f3f4f6;
+  color: #2563eb;
+}
+/* ================= ALL CATEGORY LIST ================= */
+.all-category-list {
+  padding: 40px 48px 10px;
+  background: #ffffff;
+}
+
+.section-title {
+  font-size: 22px;
+  font-weight: 600;
+  margin-bottom: 20px;
+  color: #111827;
+}
+
+.all-category-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  gap: 20px;
+}
+
+.all-category-card {
+  background: #f9fafb;
+  border-radius: 12px;
+  padding: 16px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+}
+
+.all-category-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 10px 24px rgba(0,0,0,0.12);
+}
+
+.all-category-card img {
+  width: 64px;
+  height: 64px;
+  object-fit: contain;
+  margin-bottom: 10px;
+}
+
+.all-category-card span {
+  font-size: 14px;
+  font-weight: 500;
+  color: #1f2937;
+}

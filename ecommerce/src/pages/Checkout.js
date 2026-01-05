@@ -10,8 +10,15 @@ export default function Checkout() {
 
   const { cartItems = [], total = 0 } = location.state || {};
 
-  const [addresses, setAddresses] = useState([]); // all saved addresses
-  const [selectedAddressId, setSelectedAddressId] = useState(null); // selected address
+  /* ================= PRICING ================= */
+  const SHIPPING_FEE = 50;
+  const GST_RATE = 0.18;
+
+  const gstAmount = Math.round(total * GST_RATE);
+  const grandTotal = total + SHIPPING_FEE + gstAmount;
+
+  const [addresses, setAddresses] = useState([]);
+  const [selectedAddressId, setSelectedAddressId] = useState(null);
   const [newAddress, setNewAddress] = useState({
     fullName: "",
     phone: "",
@@ -24,9 +31,11 @@ export default function Checkout() {
   const [addingNew, setAddingNew] = useState(false);
 
   const [payment, setPayment] = useState({ method: "COD" });
-  const userName=localStorage.getItem("name")
+
+  const userName = localStorage.getItem("name");
   const mobile = localStorage.getItem("mobile");
-  // Fetch user profile and addresses
+
+  /* ================= FETCH PROFILE ================= */
   useEffect(() => {
     api
       .post("/users/profile", { userId })
@@ -36,29 +45,32 @@ export default function Checkout() {
           const userAddresses = user.addresses || [];
           setAddresses(userAddresses);
 
-          const defaultAddress = userAddresses.find((a) => a.isDefault) || userAddresses[0];
+          const defaultAddress =
+            userAddresses.find((a) => a.isDefault) || userAddresses[0];
           if (defaultAddress) setSelectedAddressId(defaultAddress._id);
         }
       })
       .catch(console.error);
   }, [userId]);
 
-  // Handle selecting an existing address
   const handleSelectAddress = (id) => {
     setSelectedAddressId(id);
   };
 
-  // Handle adding a new address
   const handleNewAddressChange = (e) => {
     setNewAddress({ ...newAddress, [e.target.name]: e.target.value });
   };
 
   const addNewAddress = async () => {
     try {
-      const res = await api.post("/users/profile", { userId, address: newAddress });
+      const res = await api.post("/users/profile", {
+        userId,
+        address: newAddress,
+      });
+
       if (res.data.success) {
-        const updatedAddresses = [...addresses, res.data.address];
-        setAddresses(updatedAddresses);
+        const updated = [...addresses, res.data.address];
+        setAddresses(updated);
         setSelectedAddressId(res.data.address._id);
         setAddingNew(false);
         setNewAddress({
@@ -71,92 +83,117 @@ export default function Checkout() {
           country: "India",
         });
       }
-    } catch (error) {
+    } catch {
       alert("Failed to add address");
     }
   };
 
+  /* ================= PLACE ORDER ================= */
   const placeOrder = async () => {
-  try {
-    const selectedAddr = addresses.find(
-      (a) => a._id === selectedAddressId
-    );
+    try {
+      const selectedAddr = addresses.find(
+        (a) => a._id === selectedAddressId
+      );
 
-    if (!selectedAddr) {
-      return alert("Please select an address");
+      if (!selectedAddr) {
+        return alert("Please select an address");
+      }
+
+      const shippingAddress = {
+        ...selectedAddr,
+        fullName: userName,
+        phone: mobile,
+      };
+
+      const res = await api.post("/orders/create", {
+        shippingAddress,
+        payment,
+        items: cartItems,
+        subtotal: total,
+        shippingFee: SHIPPING_FEE,
+        gst: gstAmount,
+        total: grandTotal,
+      });
+
+      if (res.data.success) {
+        navigate("/orders");
+      }
+    } catch (error) {
+      console.error(error);
+      alert("Order failed");
     }
-
-    const shippingAddress = {
-      ...selectedAddr,
-      fullName: userName,
-      phone: mobile,
-    };
-
-    const res = await api.post("/orders/create", {
-      shippingAddress,
-      payment,
-      items: cartItems,
-      total,
-    });
-
-    if (res.data.success) {
-      navigate("/orders");
-    }
-  } catch (error) {
-    console.error(error);
-    alert("Order failed");
-  }
-};
-
+  };
 
   return (
     <div className="checkout-container">
       <h2 className="checkout-title">Checkout</h2>
 
       <div className="checkout-layout">
-        {/* ================= PRODUCT SUMMARY ================= */}
+        {/* ================= ORDER SUMMARY ================= */}
         <div className="checkout-summary">
           <h3>Order Summary</h3>
+
           {cartItems.map((item) => (
             <div key={item._id} className="summary-item">
-              <img src={item.product.thumbnail} alt={item.product.title} />
+              <img
+                src={item.product.thumbnail}
+                alt={item.product.title}
+              />
               <div className="summary-info">
                 <h4>{item.product.title}</h4>
                 <p><b>Brand:</b> {item.product.brand || "N/A"}</p>
-                <p><b>Category:</b> {item.product.category || "N/A"}</p>
                 <p><b>Price:</b> ₹{item.product.discountPrice ?? item.product.price}</p>
-                <p><b>Quantity:</b> {item.quantity}</p>
+                <p><b>Qty:</b> {item.quantity}</p>
                 <p className="subtotal">
-                  <b>Subtotal:</b> ₹{(item.product.discountPrice ?? item.product.price) * item.quantity}
+                  <b>Subtotal:</b> ₹
+                  {(item.product.discountPrice ?? item.product.price) *
+                    item.quantity}
                 </p>
               </div>
             </div>
           ))}
-          <div className="summary-total">
-            <span>Total</span>
-            <span>₹ {total}</span>
+
+          {/* ================= PRICE DETAILS ================= */}
+          <div className="price-breakup">
+            <div>
+              <span>Subtotal</span>
+              <span>₹ {total}</span>
+            </div>
+            <div>
+              <span>Shipping Fee</span>
+              <span>₹ {SHIPPING_FEE}</span>
+            </div>
+            <div>
+              <span>GST (18%)</span>
+              <span>₹ {gstAmount}</span>
+            </div>
+            <hr />
+            <div className="grand-total">
+              <span>Grand Total</span>
+              <span>₹ {grandTotal}</span>
+            </div>
           </div>
         </div>
 
-        {/* ================= SHIPPING FORM ================= */}
+        {/* ================= SHIPPING ================= */}
         <div className="checkout-form">
           <h3>Shipping Address</h3>
 
-          {/* List of existing addresses */}
           {addresses.map((addr) => (
             <div
               key={addr._id}
-              className={`address-card ${selectedAddressId === addr._id ? "selected" : ""}`}
+              className={`address-card ${
+                selectedAddressId === addr._id ? "selected" : ""
+              }`}
               onClick={() => handleSelectAddress(addr._id)}
             >
               <p><b>{addr.fullName}</b> - {addr.phone}</p>
               <p>{addr.street}</p>
-              <p>{addr.city}, {addr.state}, {addr.postalCode}</p>
+              <p>{addr.city}, {addr.state} {addr.postalCode}</p>
               <p>{addr.country}</p>
             </div>
           ))}
 
-          {/* Add new address toggle */}
           {addingNew ? (
             <div className="new-address-form">
               {Object.keys(newAddress).map((key) => (
@@ -173,12 +210,15 @@ export default function Checkout() {
               </button>
             </div>
           ) : (
-            <button className="checkout-btn" onClick={() => setAddingNew(true)}>
+            <button
+              className="checkout-btn"
+              onClick={() => setAddingNew(true)}
+            >
               + Add New Address
             </button>
           )}
 
-          {/* Payment method */}
+          {/* ================= PAYMENT ================= */}
           <select
             className="checkout-select"
             value={payment.method}

@@ -144,7 +144,7 @@ const Cart = () => {
           <h2>Summary</h2>
           <div className="summary-row">
             <span>Items:</span>
-            <span>{cart.items.length}</span>
+            <span>{cart.item.quantity}</span>
           </div>
           <div className="summary-row">
             <span>Total:</span>
