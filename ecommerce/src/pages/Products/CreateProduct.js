@@ -27,20 +27,36 @@ export default function AddProduct() {
   const [images, setImages] = useState([]);
 
   const [categories, setCategories] = useState([]);
+  const [brands, setBrands] = useState([]);
   const [loading, setLoading] = useState(false);
 
-  /* ================= FETCH CATEGORIES ================= */
+  /* ================= FETCH CATEGORIES & BRANDS ================= */
   useEffect(() => {
     fetchCategories();
+    fetchBrands();
   }, []);
 
   const fetchCategories = async () => {
     try {
-      const data = { page: 1, size: 100 };
-      const res = await api.post("/categories/list", data);
+      const res = await api.post("/categories/list", {
+        page: 1,
+        size: 100,
+      });
       setCategories(res.data.data || []);
     } catch {
       message.error("Failed to load categories");
+    }
+  };
+
+  const fetchBrands = async () => {
+    try {
+      const res = await api.post("/brands/list", {
+        page: 1,
+        size: 100,
+      });
+      setBrands(res.data.data || []);
+    } catch {
+      message.error("Failed to load brands");
     }
   };
 
@@ -87,6 +103,11 @@ export default function AddProduct() {
       return;
     }
 
+    if (!form.brand) {
+      message.error("Brand is required");
+      return;
+    }
+
     try {
       setLoading(true);
 
@@ -114,6 +135,7 @@ export default function AddProduct() {
     }
   };
 
+  /* ================= UI ================= */
   return (
     <div className="add-product-container">
       <div className="add-product-header">
@@ -136,7 +158,19 @@ export default function AddProduct() {
 
         <div className="form-group">
           <label>Brand</label>
-          <input name="brand" value={form.brand} onChange={handleChange} />
+          <select
+            name="brand"
+            value={form.brand}
+            onChange={handleChange}
+            required
+          >
+            <option value="">Select Brand</option>
+            {brands.map((brand) => (
+              <option key={brand._id} value={brand._id}>
+                {brand.name}
+              </option>
+            ))}
+          </select>
         </div>
 
         <div className="form-group">
