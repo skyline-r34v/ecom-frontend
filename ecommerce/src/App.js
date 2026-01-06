@@ -27,6 +27,11 @@ import Checkout from "./pages/Checkout";   // ✅ ADD THIS
 // Admin
 import AdminOrders from "./pages/AdminOrders";
 
+// Brands
+import BrandCreate from "./pages/Brands/Create";
+import BrandList from "./pages/Brands/Lists";
+import BrandEdit from "./pages/Brands/Update";
+
 function App() {
   const role = localStorage.getItem("role"); // admin / customer
 
@@ -62,6 +67,11 @@ function App() {
         <Route path="/checkout" element={<Checkout />} />  {/* ✅ REQUIRED */}
         <Route path="/orders" element={<MyOrders />} />
         <Route path="/orders/:id" element={<OrderDetails />} />
+
+        {/* ================= BRANDS ================= */}
+        <Route path="/brands" element={<BrandList />} />
+        <Route path="/brands/create" element={<BrandCreate />} />
+        <Route path="/brands/edit/:slug" element={<BrandEdit />} />
 
         {/* ================= ADMIN ================= */}
         {role === "admin" && (
