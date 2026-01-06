@@ -27,7 +27,7 @@ export default function EditCategory() {
     try {
       const res = await api.get(`/categories/${id}`);
       const cat = res.data.data;
-
+      console.log(id)
       setForm({
         name: cat.name || "",
         slug: cat.slug || "",

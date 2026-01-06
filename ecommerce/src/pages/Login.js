@@ -27,7 +27,7 @@ export default function Login() {
       localStorage.setItem("mobile",res.data.data.user.mobile)
       
       // Redirect
-      navigate("/category");
+      navigate("/");
 
     } catch (err) {
       console.error(err);
