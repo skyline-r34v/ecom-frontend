@@ -1,0 +1,87 @@
+/* ================= BRAND CREATE PAGE ================= */
+.brand-create-container {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(180deg, #f8fafc, #eef2f7);
+    padding: 24px;
+  }
+  
+  .brand-create-card {
+    width: 100%;
+    max-width: 520px;
+    background: #ffffff;
+    border-radius: 16px;
+    padding: 32px;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.08);
+  }
+  
+  .brand-create-card h2 {
+    font-size: 24px;
+    font-weight: 600;
+    color: #111827;
+    margin-bottom: 24px;
+    text-align: center;
+  }
+  
+  /* ================= FORM ================= */
+  .brand-form {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+  
+  .brand-form input,
+  .brand-form textarea {
+    width: 100%;
+    padding: 12px 14px;
+    border-radius: 10px;
+    border: 1px solid #d1d5db;
+    font-size: 14px;
+    outline: none;
+  }
+  
+  .brand-form textarea {
+    resize: vertical;
+    min-height: 100px;
+  }
+  
+  .brand-form input:focus,
+  .brand-form textarea:focus {
+    border-color: #6366f1;
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
+  }
+  
+  /* ================= FILE INPUT ================= */
+  .brand-form input[type="file"] {
+    padding: 8px;
+    border: 1px dashed #c7d2fe;
+    background: #eef2ff;
+  }
+  
+  /* ================= BUTTON ================= */
+  .brand-form button {
+    margin-top: 10px;
+    background: linear-gradient(135deg, #6366f1, #4f46e5);
+    color: #ffffff;
+    border: none;
+    padding: 12px;
+    border-radius: 12px;
+    font-size: 15px;
+    cursor: pointer;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+  
+  .brand-form button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 25px rgba(79, 70, 229, 0.35);
+  }
+  
+  /* ================= RESPONSIVE ================= */
+  @media (max-width: 480px) {
+    .brand-create-card {
+      padding: 24px 20px;
+    }
+  }
+  

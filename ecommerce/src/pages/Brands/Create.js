@@ -1,5 +1,7 @@
 import React, { useState } from "react";
 import api from "../../api";
+import "../../styles/createbrand.css";
+
 export default function BrandCreate() {
   const [form, setForm] = useState({
     name: "",

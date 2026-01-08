@@ -1,0 +1,76 @@
+.brand-container {
+    padding: 20px;
+  }
+  
+  .brand-title {
+    margin-bottom: 15px;
+    font-size: 22px;
+    font-weight: 600;
+  }
+  
+  .brand-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: #fff;
+  }
+  
+  .brand-table th,
+  .brand-table td {
+    border: 1px solid #ddd;
+    padding: 10px;
+    text-align: center;
+  }
+  
+  .brand-table th {
+    background-color: #f4f4f4;
+    font-weight: 600;
+  }
+  
+  .brand-table img {
+    width: 50px;
+    height: 50px;
+    object-fit: contain;
+  }
+  
+  .brand-table tr:hover {
+    background-color: #fafafa;
+  }
+  
+  .action-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+  }
+  
+  .edit-btn {
+    padding: 6px 12px;
+    border: none;
+    background-color: #007bff;
+    color: #fff;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+  
+  .edit-btn:hover {
+    background-color: #0056b3;
+  }
+  
+  .delete-btn {
+    padding: 6px 12px;
+    border: none;
+    background-color: #dc3545;
+    color: #fff;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+  
+  .delete-btn:hover {
+    background-color: #b52a37;
+  }
+  
+  .no-data {
+    text-align: center;
+    padding: 20px;
+    color: #777;
+  }
+  
