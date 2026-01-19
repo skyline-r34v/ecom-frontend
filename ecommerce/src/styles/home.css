@@ -518,3 +518,54 @@
   font-weight: 500;
   color: #1f2937;
 }
+/* ================= BRAND SECTION ================= */
+.brand-section {
+  padding: 40px 48px 10px;
+  background: #ffffff;
+}
+
+.brand-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  gap: 20px;
+}
+
+.brand-card {
+  background: #f9fafb;
+  border-radius: 12px;
+  padding: 16px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+.brand-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.12);
+}
+
+.brand-card img {
+  width: 80px;
+  height: 80px;
+  object-fit: contain;
+  margin-bottom: 10px;
+}
+
+.brand-card span {
+  font-size: 14px;
+  font-weight: 600;
+  color: #1f2937;
+}
+
+/* ================= RESPONSIVE ================= */
+@media (max-width: 768px) {
+  .brand-section {
+    padding: 24px 16px;
+  }
+
+  .brand-card img {
+    width: 64px;
+    height: 64px;
+  }
+}
