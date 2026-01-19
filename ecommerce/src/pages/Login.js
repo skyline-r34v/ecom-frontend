@@ -10,7 +10,7 @@ export default function Login() {
   const handleLogin = async (values) => {
     try {
       // POST Login API
-      const res = await axios.post("https://ecom-backend-awcn.onrender.com/api/users/login", {
+      const res = await axios.post("http://localhost:7045/api/users/login", {
         email: values.email,
         password: values.password,
       });

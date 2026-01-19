@@ -1,27 +1,32 @@
 import React, { useEffect, useState } from "react";
 import api from "../../api";
 import { useNavigate } from "react-router-dom";
-import "../../styles/brandlist.css";
+//import "../../styles/brandlist.css";
+import Sidebar from "../../components/Sidebar";
 
 export default function BrandList() {
   const [brands, setBrands] = useState([]);
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
-
-  useEffect(() => {
-    fetchBrands();
-  }, []);
 
   const fetchBrands = async () => {
     try {
+      setLoading(true);
       const res = await api.post("/brands/list", {
         page: 1,
         size: 50,
       });
-      setBrands(res.data.data || []);
+      setBrands(res?.data?.data || []);
     } catch (err) {
       console.error("Failed to fetch brands", err);
+    } finally {
+      setLoading(false);
     }
   };
+
+  useEffect(() => {
+    fetchBrands();
+  }, []);
 
   const handleDelete = async (id) => {
     const confirmDelete = window.confirm(
@@ -31,7 +36,7 @@ export default function BrandList() {
 
     try {
       await api.delete(`/brands/delete/${id}`);
-      setBrands(brands.filter((brand) => brand._id !== id));
+      setBrands((prev) => prev.filter((brand) => brand._id !== id));
     } catch (err) {
       console.error("Failed to delete brand", err);
       alert("Failed to delete brand");
@@ -40,59 +45,72 @@ export default function BrandList() {
 
   return (
     <div className="brand-container">
+      <aside className="category-sidebar">
+        <Sidebar />
+      </aside>
+
       <h2 className="brand-title">Brands</h2>
 
-      <table className="brand-table">
-        <thead>
-          <tr>
-            <th>Logo</th>
-            <th>Name</th>
-            <th>Website</th>
-            <th>Action</th>
-          </tr>
-        </thead>
+      {loading ? (
+        <p className="loading-text">Loading brands...</p>
+      ) : (
+        <table className="brand-table">
+          <thead>
+            <tr>
+              <th>Logo</th>
+              <th>Name</th>
+              <th>Website</th>
+              <th>Action</th>
+            </tr>
+          </thead>
 
-        <tbody>
-          {brands.length > 0 ? (
-            brands.map((brand) => (
-              <tr key={brand._id}>
-                <td>
-                  {brand.logo ? (
-                    <img src={brand.logo} alt={brand.name} />
-                  ) : (
-                    "—"
-                  )}
-                </td>
-                <td>{brand.name}</td>
-                <td>{brand.website || "—"}</td>
-                <td className="action-buttons">
-                  <button
-                    className="edit-btn"
-                    onClick={() =>
-                      navigate(`/brands/edit/${brand.slug}`)
-                    }
-                  >
-                    Edit
-                  </button>
+          <tbody>
+            {brands.length > 0 ? (
+              brands.map((brand) => (
+                <tr key={brand._id}>
+                  <td>
+                    {brand.logo ? (
+                      <img
+                        src={brand.logo}
+                        alt={brand.name || "Brand logo"}
+                      />
+                    ) : (
+                      "—"
+                    )}
+                  </td>
 
-                  <button
-                    className="delete-btn"
-                    onClick={() => handleDelete(brand._id)}
-                  >
-                    Delete
-                  </button>
+                  <td>{brand.name}</td>
+                  <td>{brand.website || "—"}</td>
+
+                  <td className="action-buttons">
+                    <button
+                      className="edit-btn"
+                      onClick={() =>
+                        navigate(`/brands/edit/${brand.slug}`)
+                      }
+                    >
+                      Edit
+                    </button>
+
+                    <button
+                      className="delete-btn"
+                      onClick={() => handleDelete(brand._id)}
+                    >
+                      Delete
+                    </button>
+                  </td>
+                </tr>
+              ))
+            ) : (
+              <tr>
+                <td colSpan="4" className="no-data">
+                  No brands found
                 </td>
               </tr>
-            ))
-          ) : (
-            <tr>
-              <td colSpan="4" className="no-data">
-                No brands found
-              </td>
-            </tr>
-          )}
-        </tbody>
-      </table>
+            )}
+          </tbody>
+        </table>
+      )}
     </div>
   );
 }

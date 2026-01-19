@@ -36,6 +36,7 @@ export default function Sidebar() {
       <div className="sidebar-item" onClick={() => navigate("/products")}>🛍️ <span>Products</span></div>
       <div className="sidebar-item" onClick={() => navigate("/orders")}>📦 <span>Orders</span></div>
       <div className="sidebar-item" onClick={() => navigate("/users")}>👤 <span>Users</span></div>
+      <div className="sidebar-item" onClick={() => navigate("/brands")}>👤 <span>brands</span></div>
     </>
   );
 
