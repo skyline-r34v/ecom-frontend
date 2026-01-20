@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import api from "../../api";
 import { useNavigate } from "react-router-dom";
-//import "../../styles/brandlist.css";
+import "../../styles/brandlist.css";
 import Sidebar from "../../components/Sidebar";
 
 export default function BrandList() {
