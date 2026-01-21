@@ -10,7 +10,7 @@ export default function Login() {
   const handleLogin = async (values) => {
     try {
       // POST Login API
-      const res = await axios.post("http://localhost:7045/api/users/login", {
+      const res = await axios.post("https://dzd6mcmr-7045.inc1.devtunnels.ms/api/users/login", {
         email: values.email,
         password: values.password,
       });

@@ -5,6 +5,7 @@ import {
   FaShoppingCart,
   FaUser,
   FaSignOutAlt,
+  FaInfoCircle,
 } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 import "../styles/navbar.css";
@@ -40,15 +41,24 @@ export default function Navbar({ search, setSearch }) {
       </div>
 
       <div className="nav-actions">
+        {/* About */}
+        <FaInfoCircle
+          title="About Us"
+          onClick={() => navigate("/about")}
+          className="nav-icon"
+        />
+
         {isLoggedIn ? (
           <>
             <FaUser
               title="Profile"
               onClick={() => navigate("/profile")}
+              className="nav-icon"
             />
             <FaShoppingCart
               title="Cart"
               onClick={() => navigate("/cart")}
+              className="nav-icon"
             />
             <FaSignOutAlt
               title="Logout"

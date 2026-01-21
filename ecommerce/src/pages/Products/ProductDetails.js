@@ -71,11 +71,11 @@ export default function ProductDetails() {
   const toggleWishlist = async () => {
     try {
       if (isWishlisted) {
-        await api.delete(`/users/wishlist/${id}`);
+        await api.post(`/wishlist/delete`);
         setIsWishlisted(false);
         alert("Removed from wishlist 💔");
       } else {
-        await api.post("/users/wishlist", { productId: id });
+        await api.post("/wishlists/create", { productId: id });
         setIsWishlisted(true);
         alert("Added to wishlist ❤️");
       }
@@ -146,7 +146,7 @@ export default function ProductDetails() {
           </div>
 
           <p className="slug">Slug: {product.slug}</p>
-          <p><strong>Brand:</strong> {product.brand}</p>
+          <p><strong>Brand:</strong> {product.brand.name}</p>
           <p><strong>Category:</strong> {product.category?.name}</p>
 
           <div className="rating">

@@ -1,76 +1,196 @@
+/* ======================================
+   LAYOUT
+====================================== */
+.brand-layout {
+  display: flex;
+  background: #eef2ff;
+  min-height: 100vh;
+  font-family: "Poppins", sans-serif;
+  gap: 20px;
+}
+
+/* ======================================
+   CONTENT
+====================================== */
 .brand-container {
-    padding: 20px;
+  flex: 1;
+  padding: 40px;
+}
+
+/* ======================================
+   HEADER
+====================================== */
+.brand-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 25px;
+}
+
+.brand-title {
+  font-size: 32px;
+  color: #1e3a8a;
+  font-weight: 600;
+  margin: 0;
+}
+
+.add-brand-btn {
+  padding: 10px 18px;
+  background: #3b82f6;
+  color: #ffffff;
+  border: none;
+  border-radius: 12px;
+  font-size: 16px;
+  cursor: pointer;
+  transition: 0.25s ease;
+}
+
+.add-brand-btn:hover {
+  background: #2563eb;
+  transform: translateY(-2px);
+}
+
+/* ======================================
+   GRID
+====================================== */
+.brand-card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 28px;
+}
+
+/* ======================================
+   BRAND CARD
+====================================== */
+.brand-card {
+  padding: 22px 20px;
+  border-radius: 16px;
+  border: 1px solid #e2e8f0;
+  background: #ffffff;
+  text-align: center;
+  transition: 0.25s ease;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.06);
+}
+
+.brand-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 10px 25px rgba(59, 130, 246, 0.25);
+  border-color: #3b82f6;
+  background: #f4faff;
+}
+
+/* ======================================
+   BRAND LOGO
+====================================== */
+.brand-logo {
+  width: 105px;
+  height: 105px;
+  border-radius: 14px;
+  margin: 0 auto 14px;
+  border: 3px solid #dbeafe;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: 0.25s ease;
+}
+
+.brand-logo img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  border-radius: 10px;
+}
+
+.brand-card:hover .brand-logo {
+  transform: scale(1.05);
+}
+
+.no-logo {
+  font-size: 13px;
+  color: #64748b;
+}
+
+/* ======================================
+   TEXT
+====================================== */
+.brand-name {
+  font-size: 18px;
+  color: #1f2937;
+  font-weight: 600;
+  margin-bottom: 6px;
+}
+
+.brand-website {
+  font-size: 14px;
+  color: #64748b;
+  margin-bottom: 12px;
+  word-break: break-word;
+}
+
+/* ======================================
+   ACTION BUTTONS
+====================================== */
+.brand-actions {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  margin-top: 14px;
+}
+
+.brand-actions button {
+  padding: 6px 14px;
+  border-radius: 10px;
+  font-size: 14px;
+  cursor: pointer;
+  border: none;
+  transition: 0.25s ease;
+}
+
+/* EDIT */
+.edit-btn {
+  background: #3b22c5;
+  color: #ffffff;
+}
+
+.edit-btn:hover {
+  background: hsl(238, 70%, 52%);
+}
+
+/* DELETE */
+.delete-btn {
+  background: #ef4444;
+  color: #ffffff;
+}
+
+.delete-btn:hover {
+  background: #dc2626;
+}
+
+/* ======================================
+   STATES
+====================================== */
+.loading-text {
+  margin-top: 40px;
+  text-align: center;
+  color: #2563eb;
+  font-size: 16px;
+}
+
+.no-data {
+  text-align: center;
+  color: #64748b;
+  padding: 40px;
+}
+
+/* ======================================
+   RESPONSIVE
+====================================== */
+@media (max-width: 900px) {
+  .brand-layout {
+    flex-direction: column;
   }
-  
-  .brand-title {
-    margin-bottom: 15px;
-    font-size: 22px;
-    font-weight: 600;
+
+  .brand-container {
+    padding: 25px;
   }
-  
-  .brand-table {
-    width: 100%;
-    border-collapse: collapse;
-    background: #fff;
-  }
-  
-  .brand-table th,
-  .brand-table td {
-    border: 1px solid #ddd;
-    padding: 10px;
-    text-align: center;
-  }
-  
-  .brand-table th {
-    background-color: #f4f4f4;
-    font-weight: 600;
-  }
-  
-  .brand-table img {
-    width: 50px;
-    height: 50px;
-    object-fit: contain;
-  }
-  
-  .brand-table tr:hover {
-    background-color: #fafafa;
-  }
-  
-  .action-buttons {
-    display: flex;
-    justify-content: center;
-    gap: 10px;
-  }
-  
-  .edit-btn {
-    padding: 6px 12px;
-    border: none;
-    background-color: #007bff;
-    color: #fff;
-    border-radius: 4px;
-    cursor: pointer;
-  }
-  
-  .edit-btn:hover {
-    background-color: #0056b3;
-  }
-  
-  .delete-btn {
-    padding: 6px 12px;
-    border: none;
-    background-color: #dc3545;
-    color: #fff;
-    border-radius: 4px;
-    cursor: pointer;
-  }
-  
-  .delete-btn:hover {
-    background-color: #b52a37;
-  }
-  
-  .no-data {
-    text-align: center;
-    padding: 20px;
-    color: #777;
-  }
-  
+}

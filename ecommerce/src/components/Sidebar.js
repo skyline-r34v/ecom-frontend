@@ -6,7 +6,6 @@ export default function Sidebar() {
   const navigate = useNavigate();
   const role = localStorage.getItem("role");
 
-  // Customer filter state
   const [filters, setFilters] = useState({
     category: "",
     price: "",
@@ -22,25 +21,41 @@ export default function Sidebar() {
 
   const applyFilters = () => {
     const query = Object.entries(filters)
-      .filter(([key, value]) => value !== "")
+      .filter(([_, value]) => value !== "")
       .map(([key, value]) => `${key}=${value}`)
       .join("&");
+
     navigate(`/products?${query}`);
   };
 
-  // Admin Sidebar
+  /* ================= ADMIN ================= */
   const AdminSidebar = () => (
     <>
       <h3>Dashboard</h3>
-      <div className="sidebar-item" onClick={() => navigate("/category")}>📁 <span>Categories</span></div>
-      <div className="sidebar-item" onClick={() => navigate("/products")}>🛍️ <span>Products</span></div>
-      <div className="sidebar-item" onClick={() => navigate("/orders")}>📦 <span>Orders</span></div>
-      <div className="sidebar-item" onClick={() => navigate("/users")}>👤 <span>Users</span></div>
-      <div className="sidebar-item" onClick={() => navigate("/brands")}>👤 <span>brands</span></div>
+
+      <div className="sidebar-item" onClick={() => navigate("/category")}>
+        📁 <span>Categories</span>
+      </div>
+
+      <div className="sidebar-item" onClick={() => navigate("/products")}>
+        🛍️ <span>Products</span>
+      </div>
+
+      <div className="sidebar-item" onClick={() => navigate("/orders")}>
+        📦 <span>Orders</span>
+      </div>
+
+      <div className="sidebar-item" onClick={() => navigate("/users")}>
+        👤 <span>Users</span>
+      </div>
+
+      <div className="sidebar-item" onClick={() => navigate("/brands")}>
+        🏷️ <span>Brands</span>
+      </div>
     </>
   );
 
-  // Customer Sidebar
+  /* ================= CUSTOMER ================= */
   const CustomerSidebar = () => (
     <>
       <h3>Filter Products</h3>
@@ -88,20 +103,26 @@ export default function Sidebar() {
 
       <div className="filter-group">
         <label>Availability</label>
-        <select name="availability" value={filters.availability} onChange={handleFilterChange}>
+        <select
+          name="availability"
+          value={filters.availability}
+          onChange={handleFilterChange}
+        >
           <option value="">All</option>
           <option value="in-stock">In Stock</option>
           <option value="out-of-stock">Out of Stock</option>
         </select>
       </div>
 
-      <button className="apply-btn" onClick={applyFilters}>Apply Filters</button>
+      <button className="apply-btn" onClick={applyFilters}>
+        Apply Filters
+      </button>
     </>
   );
 
   return (
-    <div className="sidebar">
+    <aside className="sidebar sidebar-alt">
       {role === "admin" ? <AdminSidebar /> : <CustomerSidebar />}
-    </div>
+    </aside>
   );
 }

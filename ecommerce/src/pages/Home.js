@@ -4,27 +4,33 @@ import api from "../api";
 import Navbar from "../components/Navbar";
 import "../styles/home.css";
 
-/* ================= HERO BANNERS ================= */
+/* ================= HERO BANNERS (SHOES) ================= */
 const banners = [
-  "https://images.unsplash.com/photo-1523275335684-37898b6baf30",
-  "https://images.unsplash.com/photo-1512436991641-6745cdb1723f",
-  "https://images.unsplash.com/photo-1586023492125-27b2c045efd7",
+  "https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Fwww.stuff.tv%2Fwp-content%2Fuploads%2Fsites%2F2%2F2023%2F04%2Fbest-running-shoes-lead.jpg&f=1&nofb=1&ipt=0d284b33741d412ef0fe0735909c3f8c8c0d06e52a8f293185bb03c1719f2492",
+  "https://images.unsplash.com/photo-1506544777-64cfbe1142df?w=900&auto=format&fit=crop&q=60",
+  "https://images.unsplash.com/photo-1595341888016-a392ef81b7de?w=900&auto=format&fit=crop&q=60",
 ];
 
 /* ================= RATING ================= */
 const Rating = ({ reviews = [] }) => {
-  if (!reviews.length)
+  if (!reviews.length) {
     return <div className="fk-rating no-rating">No ratings</div>;
+  }
 
-  const avg = reviews.reduce((s, r) => s + r.rating, 0) / reviews.length;
+  const avg =
+    reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length;
   const fullStars = Math.floor(avg);
 
   return (
     <div className="fk-rating">
       {[...Array(5)].map((_, i) => (
-        <span key={i} className={i < fullStars ? "" : "star-muted"}>⭐</span>
+        <span key={i} className={i < fullStars ? "" : "star-muted"}>
+          ⭐
+        </span>
       ))}
-      <span className="rating-text">{avg.toFixed(1)} ({reviews.length})</span>
+      <span className="rating-text">
+        {avg.toFixed(1)} ({reviews.length})
+      </span>
     </div>
   );
 };
@@ -36,17 +42,16 @@ export default function Home() {
   const [categories, setCategories] = useState([]);
   const [allCategories, setAllCategories] = useState([]);
   const [products, setProducts] = useState([]);
-  const [brands, setBrands] = useState([]); // ✅ already existing brand data
+  const [brands, setBrands] = useState([]);
   const [slideIndex, setSlideIndex] = useState(0);
   const [loadingProducts, setLoadingProducts] = useState(false);
   const [search, setSearch] = useState("");
   const [wishlist, setWishlist] = useState([]);
 
-
   const categoryParam = params.get("category");
   const searchParam = params.get("search");
 
-  /* ================= FETCH CATEGORIES ================= */
+  /* ================= FETCH CATEGORIES & BRANDS ================= */
   useEffect(() => {
     api.get("/categories/with-subcategories")
       .then(res => setCategories(res.data.data || []))
@@ -56,7 +61,7 @@ export default function Home() {
       .then(res => setAllCategories(res.data.data || []))
       .catch(console.error);
 
-    api.post("/brands/list",{ page: 1, size: 20 }) // your existing brand API
+    api.post("/brands/list", { page: 1, size: 20 })
       .then(res => setBrands(res.data.data || []))
       .catch(console.error);
   }, []);
@@ -82,9 +87,9 @@ export default function Home() {
     return () => clearInterval(timer);
   }, []);
 
-  /* ================= GROUP PRODUCTS ================= */
+  /* ================= GROUP PRODUCTS BY CATEGORY ================= */
   const productsByCategory = products.reduce((acc, p) => {
-    const name = p.category?.name || "Others";
+    const name = p.category?.name || "Footwear";
     if (!acc[name]) acc[name] = [];
     acc[name].push(p);
     return acc;
@@ -94,14 +99,14 @@ export default function Home() {
   const toggleWishlist = async (id) => {
     try {
       if (wishlist.includes(id)) {
-        await api.delete(`/users/wishlist/${id}`);
+        await api.post(`/wishlist/delete`);
         setWishlist(prev => prev.filter(x => x !== id));
       } else {
-        await api.post("/users/wishlist", { productId: id });
+        await api.post("/wishlists/create", { productId: id });
         setWishlist(prev => [...prev, id]);
       }
     } catch {
-      alert("Wishlist failed");
+      alert("Wishlist update failed");
     }
   };
 
@@ -116,17 +121,22 @@ export default function Home() {
             <div key={cat._id} className="category-hover-item">
               <span
                 className="category-name"
-                onClick={() => navigate(`/products?category=${cat._id}`)}
+                onClick={() =>
+                  navigate(`/products?category=${cat._id}`)
+                }
               >
                 {cat.name}
               </span>
+
               {cat.subCategories?.length > 0 && (
                 <div className="subcategory-dropdown">
                   {cat.subCategories.map(sub => (
                     <div
                       key={sub._id}
                       className="subcategory-item"
-                      onClick={() => navigate(`/products?subcategory=${sub._id}`)}
+                      onClick={() =>
+                        navigate(`/products?subcategory=${sub._id}`)
+                      }
                     >
                       {sub.name}
                     </div>
@@ -140,17 +150,30 @@ export default function Home() {
 
       {/* ================= HERO ================= */}
       <section className="hero-slider">
-        <div className="hero-track" style={{ transform: `translateX(-${slideIndex * 100}%)` }}>
+        <div
+          className="hero-track"
+          style={{ transform: `translateX(-${slideIndex * 100}%)` }}
+        >
           {banners.map((img, i) => (
             <div key={i} className="hero-slide">
-              <img src={img} alt="banner" />
+              <img src={img} alt="shoes banner" />
               <div className="hero-content">
-                <span className="badge">OneKart Deals</span>
-                <h1>Everything you need. One Cart.</h1>
-                <p>Shop electronics, fashion & home essentials</p>
+                <span className="badge">Exclusive Shoe Deals</span>
+                <h1>Step Into Style & Comfort</h1>
+                <p>
+                  Discover premium sneakers, running shoes, and everyday
+                  footwear from top brands.
+                </p>
                 <div className="hero-actions">
-                  <button onClick={() => navigate("/products")}>Shop Now</button>
-                  <button className="ghost" onClick={() => navigate("/cart")}>Go to Cart</button>
+                  <button onClick={() => navigate("/products")}>
+                    Shop Shoes
+                  </button>
+                  <button
+                    className="ghost"
+                    onClick={() => navigate("/products")}
+                  >
+                    Explore Collection
+                  </button>
                 </div>
               </div>
             </div>
@@ -160,15 +183,20 @@ export default function Home() {
 
       {/* ================= SHOP BY CATEGORY ================= */}
       <section className="all-category-list">
-        <h2 className="section-title">Shop by Category</h2>
+        <h2 className="section-title">Shop by Shoe Category</h2>
         <div className="all-category-grid">
           {allCategories.map(cat => (
             <div
               key={cat._id}
               className="all-category-card"
-              onClick={() => navigate(`/products?category=${cat._id}`)}
+              onClick={() =>
+                navigate(`/products?category=${cat._id}`)
+              }
             >
-              <img src={cat.image || "https://via.placeholder.com/80"} alt={cat.name} />
+              <img
+                src={cat.image || "https://via.placeholder.com/80"}
+                alt={cat.name}
+              />
               <span>{cat.name}</span>
             </div>
           ))}
@@ -177,15 +205,20 @@ export default function Home() {
 
       {/* ================= SHOP BY BRAND ================= */}
       <section className="brand-section">
-        <h2 className="section-title">Shop by Brand</h2>
+        <h2 className="section-title">Top Shoe Brands</h2>
         <div className="brand-grid">
           {brands.map(brand => (
             <div
               key={brand._id}
               className="brand-card"
-              onClick={() => navigate(`/products?brand=${brand._id}`)}
+              onClick={() =>
+                navigate(`/products?brand=${brand._id}`)
+              }
             >
-              <img src={brand.logo || "https://via.placeholder.com/80"} alt={brand.name} />
+              <img
+                src={brand.logo || "https://via.placeholder.com/80"}
+                alt={brand.name}
+              />
               <span>{brand.name}</span>
             </div>
           ))}
@@ -194,7 +227,7 @@ export default function Home() {
 
       {/* ================= PRODUCTS ================= */}
       {loadingProducts ? (
-        <p style={{ padding: 40 }}>Loading products...</p>
+        <p style={{ padding: 40 }}>Loading shoes...</p>
       ) : (
         Object.keys(productsByCategory).map(catName => (
           <section className="product-row" key={catName}>
@@ -202,33 +235,68 @@ export default function Home() {
               <h2>{catName}</h2>
               <button
                 className="link"
-                onClick={() => navigate(`/products?category=${productsByCategory[catName][0]?.category?._id}`)}
+                onClick={() =>
+                  navigate(
+                    `/products?category=${productsByCategory[catName][0]?.category?._id}`
+                  )
+                }
               >
-                View All
+                View All Shoes
               </button>
             </div>
 
             <div className="home-product-grid">
               {productsByCategory[catName].slice(0, 5).map(p => (
-                <div key={p._id} className="fk-card" onClick={() => navigate(`/products/${p._id}`)}>
+                <div
+                  key={p._id}
+                  className="fk-card"
+                  onClick={() =>
+                    navigate(`/products/${p._id}`)
+                  }
+                >
                   <div className="fk-img-box">
-                    <img src={p.images?.[0] || p.thumbnail || "https://via.placeholder.com/180"} alt={p.title} />
+                    <img
+                      src={
+                        p.images?.[0] ||
+                        p.thumbnail ||
+                        "https://via.placeholder.com/180"
+                      }
+                      alt={p.title}
+                    />
                   </div>
 
                   <div className="fk-info">
                     <p className="fk-title">{p.title}</p>
                     <Rating reviews={p.reviews} />
-                    <div className="fk-price">₹{p.discountPrice || p.price}{p.discountPrice && <del>₹{p.price}</del>}</div>
+                    <div className="fk-price">
+                      ₹{p.discountPrice || p.price}
+                      {p.discountPrice && <del>₹{p.price}</del>}
+                    </div>
                   </div>
 
                   <div className="fk-card-actions">
-                    <button className="fk-cart-btn" onClick={e => { e.stopPropagation(); alert("Added to cart"); }}>
+                    <button
+                      className="fk-cart-btn"
+                      onClick={e => {
+                        e.stopPropagation();
+                        alert("Added to cart");
+                      }}
+                    >
                       ADD TO CART
                     </button>
                     <button
-                      className={`fk-wishlist-btn ${wishlist.includes(p._id) ? "active" : ""}`}
-                      onClick={e => { e.stopPropagation(); toggleWishlist(p._id); }}
-                    >❤️</button>
+                      className={`fk-wishlist-btn ${
+                        wishlist.includes(p._id)
+                          ? "active"
+                          : ""
+                      }`}
+                      onClick={e => {
+                        e.stopPropagation();
+                        toggleWishlist(p._id);
+                      }}
+                    >
+                      ❤️
+                    </button>
                   </div>
                 </div>
               ))}
@@ -237,7 +305,9 @@ export default function Home() {
         ))
       )}
 
-      <footer className="onekart-footer">© 2025 OneKart • One Cart. Endless Choice.</footer>
+      <footer className="onekart-footer">
+        © 2025 OneKart • Step Better. Walk Smarter.
+      </footer>
     </div>
   );
 }

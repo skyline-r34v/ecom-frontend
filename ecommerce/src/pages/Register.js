@@ -9,7 +9,7 @@ export default function Register() {
   const handleRegister = async (values) => {
     try {
       const res = await axios.post(
-        "https://ecom-backend-awcn.onrender.com/api/users/create",
+        "https://dzd6mcmr-7045.inc1.devtunnels.ms/api/users/create",
         {
           name: values.name,
           email: values.email,

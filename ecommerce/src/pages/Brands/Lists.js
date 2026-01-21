@@ -29,60 +29,54 @@ export default function BrandList() {
   }, []);
 
   const handleDelete = async (id) => {
-    const confirmDelete = window.confirm(
-      "Are you sure you want to delete this brand?"
-    );
-    if (!confirmDelete) return;
+    if (!window.confirm("Delete this brand?")) return;
 
     try {
       await api.delete(`/brands/delete/${id}`);
-      setBrands((prev) => prev.filter((brand) => brand._id !== id));
-    } catch (err) {
-      console.error("Failed to delete brand", err);
-      alert("Failed to delete brand");
+      setBrands((prev) => prev.filter((b) => b._id !== id));
+    } catch {
+      alert("Delete failed");
     }
   };
 
   return (
-    <div className="brand-container">
-      <aside className="category-sidebar">
-        <Sidebar />
-      </aside>
+    <div className="brand-layout">
+      {/* Sidebar */}
+      <Sidebar />
 
-      <h2 className="brand-title">Brands</h2>
+      {/* Content */}
+      <div className="brand-container">
+        <div className="brand-header">
+          <h2 className="brand-title">Brands</h2>
+          <button
+            className="add-brand-btn"
+            onClick={() => navigate("/brands/add")}
+          >
+            + Add Brand
+          </button>
+        </div>
 
-      {loading ? (
-        <p className="loading-text">Loading brands...</p>
-      ) : (
-        <table className="brand-table">
-          <thead>
-            <tr>
-              <th>Logo</th>
-              <th>Name</th>
-              <th>Website</th>
-              <th>Action</th>
-            </tr>
-          </thead>
-
-          <tbody>
-            {brands.length > 0 ? (
+        {loading ? (
+          <p className="loading-text">Loading brands...</p>
+        ) : (
+          <div className="brand-card-grid">
+            {brands.length ? (
               brands.map((brand) => (
-                <tr key={brand._id}>
-                  <td>
+                <div className="brand-card" key={brand._id}>
+                  <div className="brand-logo">
                     {brand.logo ? (
-                      <img
-                        src={brand.logo}
-                        alt={brand.name || "Brand logo"}
-                      />
+                      <img src={brand.logo} alt={brand.name} />
                     ) : (
-                      "—"
+                      <span className="no-logo">No Logo</span>
                     )}
-                  </td>
+                  </div>
 
-                  <td>{brand.name}</td>
-                  <td>{brand.website || "—"}</td>
+                  <h3 className="brand-name">{brand.name}</h3>
+                  <p className="brand-website">
+                    {brand.website || "No website"}
+                  </p>
 
-                  <td className="action-buttons">
+                  <div className="brand-actions">
                     <button
                       className="edit-btn"
                       onClick={() =>
@@ -98,19 +92,15 @@ export default function BrandList() {
                     >
                       Delete
                     </button>
-                  </td>
-                </tr>
+                  </div>
+                </div>
               ))
             ) : (
-              <tr>
-                <td colSpan="4" className="no-data">
-                  No brands found
-                </td>
-              </tr>
+              <p className="no-data">No brands found</p>
             )}
-          </tbody>
-        </table>
-      )}
+          </div>
+        )}
+      </div>
     </div>
   );
 }

@@ -162,7 +162,8 @@ export default function AddProduct() {
             name="brand"
             value={form.brand}
             onChange={handleChange}
-            required
+          
+            
           >
             <option value="">Select Brand</option>
             {brands.map((brand) => (

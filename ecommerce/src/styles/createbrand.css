@@ -1,87 +1,150 @@
-/* ================= BRAND CREATE PAGE ================= */
-.brand-create-container {
-    min-height: 100vh;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: linear-gradient(180deg, #f8fafc, #eef2f7);
-    padding: 24px;
+/* ================= PAGE BACKGROUND ================= */
+.create-brand-page {
+  min-height: 100vh;
+  background:
+    radial-gradient(circle at top left, #c7d2fe, transparent 45%),
+    radial-gradient(circle at bottom right, #fde68a, transparent 45%),
+    linear-gradient(135deg, #f8fafc, #eef2ff);
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 40px 20px;
+}
+
+/* ================= GLASS CARD ================= */
+.create-brand-card {
+  width: 100%;
+  max-width: 560px;
+
+  background: rgba(255, 255, 255, 0.55);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+
+  border-radius: 20px;
+  padding: 36px;
+
+  border: 1px solid rgba(255, 255, 255, 0.35);
+
+  box-shadow:
+    0 30px 60px rgba(0, 0, 0, 0.12),
+    inset 0 1px 0 rgba(255, 255, 255, 0.6);
+
+  animation: glassFade 0.5s ease;
+}
+
+/* ================= ANIMATION ================= */
+@keyframes glassFade {
+  from {
+    opacity: 0;
+    transform: translateY(18px) scale(0.98);
   }
-  
-  .brand-create-card {
-    width: 100%;
-    max-width: 520px;
-    background: #ffffff;
-    border-radius: 16px;
-    padding: 32px;
-    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.08);
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
   }
-  
-  .brand-create-card h2 {
-    font-size: 24px;
-    font-weight: 600;
-    color: #111827;
-    margin-bottom: 24px;
-    text-align: center;
+}
+
+/* ================= TITLE ================= */
+.create-brand-card h2 {
+  font-size: 26px;
+  font-weight: 800;
+  color: #0f172a;
+  margin-bottom: 28px;
+  text-align: center;
+  letter-spacing: -0.3px;
+}
+
+/* ================= FORM ================= */
+.create-brand-form {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+/* ================= INPUTS ================= */
+.create-brand-form input,
+.create-brand-form textarea {
+  padding: 14px 16px;
+  font-size: 15px;
+  border-radius: 12px;
+  border: 1px solid rgba(203, 213, 225, 0.8);
+  background: rgba(255, 255, 255, 0.65);
+  color: #0f172a;
+  outline: none;
+
+  transition:
+    border-color 0.25s ease,
+    box-shadow 0.25s ease,
+    background 0.25s ease;
+}
+
+.create-brand-form textarea {
+  min-height: 110px;
+  resize: vertical;
+}
+
+/* ================= PLACEHOLDER ================= */
+.create-brand-form input::placeholder,
+.create-brand-form textarea::placeholder {
+  color: #64748b;
+}
+
+/* ================= FOCUS ================= */
+.create-brand-form input:focus,
+.create-brand-form textarea:focus {
+  background: rgba(255, 255, 255, 0.85);
+  border-color: #6366f1;
+  box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.25);
+}
+
+/* ================= FILE INPUT ================= */
+.create-brand-form input[type="file"] {
+  background: rgba(255, 255, 255, 0.5);
+  border: 1px dashed #a5b4fc;
+  cursor: pointer;
+}
+
+/* ================= BUTTON ================= */
+.create-brand-form button {
+  margin-top: 8px;
+  padding: 14px;
+  border-radius: 14px;
+  border: none;
+  cursor: pointer;
+
+  font-size: 16px;
+  font-weight: 700;
+  letter-spacing: 0.2px;
+
+  background: linear-gradient(135deg, #4f46e5, #6366f1);
+  color: #ffffff;
+
+  transition:
+    transform 0.25s ease,
+    box-shadow 0.25s ease,
+    filter 0.25s ease;
+}
+
+.create-brand-form button:hover:not(:disabled) {
+  transform: translateY(-3px);
+  box-shadow: 0 18px 35px rgba(99, 102, 241, 0.45);
+  filter: brightness(1.05);
+}
+
+.create-brand-form button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* ================= MOBILE ================= */
+@media (max-width: 480px) {
+  .create-brand-card {
+    padding: 26px;
+    border-radius: 18px;
   }
-  
-  /* ================= FORM ================= */
-  .brand-form {
-    display: flex;
-    flex-direction: column;
-    gap: 16px;
+
+  .create-brand-card h2 {
+    font-size: 22px;
   }
-  
-  .brand-form input,
-  .brand-form textarea {
-    width: 100%;
-    padding: 12px 14px;
-    border-radius: 10px;
-    border: 1px solid #d1d5db;
-    font-size: 14px;
-    outline: none;
-  }
-  
-  .brand-form textarea {
-    resize: vertical;
-    min-height: 100px;
-  }
-  
-  .brand-form input:focus,
-  .brand-form textarea:focus {
-    border-color: #6366f1;
-    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
-  }
-  
-  /* ================= FILE INPUT ================= */
-  .brand-form input[type="file"] {
-    padding: 8px;
-    border: 1px dashed #c7d2fe;
-    background: #eef2ff;
-  }
-  
-  /* ================= BUTTON ================= */
-  .brand-form button {
-    margin-top: 10px;
-    background: linear-gradient(135deg, #6366f1, #4f46e5);
-    color: #ffffff;
-    border: none;
-    padding: 12px;
-    border-radius: 12px;
-    font-size: 15px;
-    cursor: pointer;
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
-  }
-  
-  .brand-form button:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 10px 25px rgba(79, 70, 229, 0.35);
-  }
-  
-  /* ================= RESPONSIVE ================= */
-  @media (max-width: 480px) {
-    .brand-create-card {
-      padding: 24px 20px;
-    }
-  }
-  
+}
