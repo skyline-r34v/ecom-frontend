@@ -9,7 +9,7 @@ export default function Register() {
   const handleRegister = async (values) => {
     try {
       const res = await axios.post(
-        "https://dzd6mcmr-7045.inc1.devtunnels.ms/api/users/create",
+        "https://s657g66h-7045.inc1.devtunnels.ms/api/users/create",
         {
           name: values.name,
           email: values.email,

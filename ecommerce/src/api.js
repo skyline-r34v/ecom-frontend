@@ -2,7 +2,7 @@
 import axios from "axios";
 
 const api = axios.create({
-  baseURL: "https://dzd6mcmr-7045.inc1.devtunnels.ms/api",
+  baseURL: "https://ecom-backend-awcn.onrender.com/api",
 });
 
 // Attach token automatically
