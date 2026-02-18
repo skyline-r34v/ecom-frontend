@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import api from "../api";
+import api from "../../api";
 import "../styles/myorder.css";
 
 export default function MyOrders() {

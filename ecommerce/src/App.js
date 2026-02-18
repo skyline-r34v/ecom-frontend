@@ -20,9 +20,9 @@ import Profile from "./pages/Profile/Profile";
 
 // Cart & Orders
 import Cart from "./components/Cart";
-import MyOrders from "./pages/MyOrders";
+import MyOrders from "./pages/Profile/MyOrders";
 import OrderDetails from "./pages/OrderDetails";
-import Checkout from "./pages/Checkout";   // ✅ ADD THIS
+import Checkout from "./pages/Profile/Checkout";   // ✅ ADD THIS
 
 // Admin
 import AdminOrders from "./pages/AdminOrders";

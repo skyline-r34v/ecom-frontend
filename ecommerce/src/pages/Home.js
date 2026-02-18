@@ -17,8 +17,7 @@ const Rating = ({ reviews = [] }) => {
     return <div className="fk-rating no-rating">No ratings</div>;
   }
 
-  const avg =
-    reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length;
+  const avg = reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length;
   const fullStars = Math.floor(avg);
 
   return (
