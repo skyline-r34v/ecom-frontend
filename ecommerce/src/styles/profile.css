@@ -184,3 +184,113 @@
   font-size: 18px;
   color: #444;
 }
+.account-wrapper {
+  display: flex;
+  background: #f3f3f3;
+  padding: 30px;
+  gap: 30px;
+}
+
+/* Sidebar */
+.account-sidebar {
+  width: 220px;
+  background: #fff;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+
+.account-sidebar ul {
+  list-style: none;
+  padding: 0;
+}
+
+.account-sidebar li {
+  padding: 10px 0;
+  cursor: pointer;
+  color: #333;
+}
+
+.account-sidebar .active {
+  font-weight: 600;
+  color: #ff9900;
+}
+
+/* Content */
+.account-content {
+  flex: 1;
+}
+
+.account-card {
+  background: #fff;
+  padding: 25px;
+  margin-bottom: 25px;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.profile-section {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.avatar {
+  width: 100px;
+  border-radius: 50%;
+}
+
+.role-badge {
+  background: #232f3e;
+  color: #fff;
+  padding: 4px 10px;
+  font-size: 12px;
+  border-radius: 20px;
+}
+
+.primary-btn {
+  background: #ff9900;
+  border: none;
+  padding: 10px 20px;
+  color: #fff;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.primary-btn:hover {
+  background: #e68a00;
+}
+
+.link-btn {
+  background: none;
+  border: none;
+  color: #007185;
+  cursor: pointer;
+}
+
+.address-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 20px;
+}
+
+.address-card {
+  border: 1px solid #ddd;
+  padding: 15px;
+  border-radius: 6px;
+}
+
+.default-chip {
+  background: #007600;
+  color: #fff;
+  font-size: 11px;
+  padding: 2px 8px;
+  border-radius: 10px;
+  margin-left: 8px;
+}

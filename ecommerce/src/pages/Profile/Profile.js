@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import "../../styles/profile.css";
 import api from "../../api";
-
+import Navbar from "../../components/Navbar";
 export default function ProfilePage() {
   const [profile, setProfile] = useState(null);
   const [error, setError] = useState("");
@@ -158,247 +158,172 @@ export default function ProfilePage() {
   if (!profile) return <p className="loading">Loading profile...</p>;
 
   return (
-    <div className="profile-container">
-      <button className="back-btn" onClick={() => window.history.back()}>
-        ← Back
-      </button>
-
-      {/* HEADER */}
-      <div className="profile-header">
-        <img
-          src={
-            profile.avatar ||
-            "https://cdn-icons-png.flaticon.com/512/149/149071.png"
-          }
-          alt="Avatar"
-          className="profile-avatar"
-        />
-
-        <div>
-          {isEditing ? (
-            <input
-              type="text"
-              name="name"
-              value={form.name}
-              onChange={handleChange}
-              className="edit-input"
-            />
-          ) : (
-            <h2 className="profile-title">{profile.name}</h2>
-          )}
-
-          <p className="profile-bio">{profile.email}</p>
-          <p className="profile-kyc capitalize">{profile.role}</p>
+    <div>
+      <Navbar />
+      <div className="account-wrapper">
+        {/* LEFT SIDEBAR */}
+        <div className="account-sidebar">
+          <h3>Your Account</h3>
+          <ul>
+            <li className="active">Profile</li>
+            <li>Addresses</li>
+            <li>Security</li>
+            <li>Orders</li>
+          </ul>
         </div>
 
-        <button className="edit-btn" onClick={() => setIsEditing(!isEditing)}>
-          {isEditing ? "Cancel" : "Edit"}
-        </button>
-      </div>
+        {/* RIGHT CONTENT */}
+        <div className="account-content">
 
-      {/* BASIC INFO */}
-      <div className="profile-card">
-        <h3 className="card-title">Basic Information</h3>
-
-        <p>
-          <strong>Phone:</strong>{" "}
-          {isEditing ? (
-            <input
-              type="text"
-              name="phone"
-              value={form.phone}
-              onChange={handleChange}
-              className="edit-input"
-            />
-          ) : (
-            profile.phone || "Not added"
-          )}
-        </p>
-
-        <p>
-          <strong>Gender:</strong>{" "}
-          {isEditing ? (
-            <select
-              name="gender"
-              value={form.gender || ""}
-              onChange={handleChange}
-              className="edit-select"
-            >
-              <option value="">Select</option>
-              <option value="male">Male</option>
-              <option value="female">Female</option>
-            </select>
-          ) : (
-            profile.gender || "Not added"
-          )}
-        </p>
-
-        <p>
-          <strong>Date of Birth:</strong>{" "}
-          {isEditing ? (
-            <input
-              type="date"
-              name="dateOfBirth"
-              value={form.dateOfBirth ? form.dateOfBirth.substring(0, 10) : ""}
-              onChange={handleChange}
-              className="edit-input"
-            />
-          ) : profile.dateOfBirth ? (
-            profile.dateOfBirth.substring(0, 10)
-          ) : (
-            "Not added"
-          )}
-        </p>
-
-        <p>
-          <strong>Bio:</strong>{" "}
-          {isEditing ? (
-            <textarea
-              name="bio"
-              value={form.bio}
-              onChange={handleChange}
-              className="edit-textarea"
-            />
-          ) : (
-            profile.bio || "Not added"
-          )}
-        </p>
-      </div>
-
-      {/* ADDRESSES */}
-      <div className="profile-card">
-        <h3 className="card-title">Addresses</h3>
-
-        {profile.addresses.length === 0 && <p>No addresses added.</p>}
-
-        {profile.addresses.map((addr, i) => (
-          <div key={i} className="address-box">
-            <p className="address-label">
-              {addr.label}{" "}
-              {addr.isDefault && <span className="default-tag">Default</span>}
-            </p>
-            <p>{addr.street}</p>
-            <p>
-              {addr.city}, {addr.state}, {addr.country}
-            </p>
-            <p>Postal Code: {addr.postalCode}</p>
-
-            <div style={{ marginTop: "8px" }}>
-              <button
-                className="edit-btn"
-                onClick={() => handleEditAddress(i)}
-              >
-                Edit
+          {/* PROFILE CARD */}
+          <div className="account-card">
+            <div className="card-header">
+              <h2>Profile Information</h2>
+              <button className="link-btn" onClick={() => setIsEditing(!isEditing)}>
+                {isEditing ? "Cancel" : "Edit"}
               </button>
-              <button
-                className="edit-btn cancel-btn"
-                onClick={() => handleDeleteAddress(i)}
-                style={{ marginLeft: "8px" }}
-              >
-                Delete
-              </button>
-              {!addr.isDefault && (
-                <button
-                  className="edit-btn"
-                  onClick={() => handleDefaultAddress(i)}
-                  style={{ marginLeft: "8px" }}
-                >
-                  Set Default
-                </button>
-              )}
+            </div>
+
+            <div className="profile-section">
+              <img
+                src={
+                  profile.avatar ||
+                  "https://cdn-icons-png.flaticon.com/512/149/149071.png"
+                }
+                alt="Avatar"
+                className="avatar"
+              />
+
+              <div className="profile-details">
+                {isEditing ? (
+                  <input
+                    type="text"
+                    name="name"
+                    value={form.name}
+                    onChange={handleChange}
+                  />
+                ) : (
+                  <h3>{profile.name}</h3>
+                )}
+                <p>{profile.email}</p>
+                <span className="role-badge">{profile.role}</span>
+              </div>
             </div>
           </div>
-        ))}
 
-        {/* ADD NEW ADDRESS */}
-        {!showAddressForm && (
-          <button
-            className="edit-btn"
-            style={{ marginTop: "15px" }}
-            onClick={() => {
-              setAddressForm(emptyAddress);
-              setShowAddressForm(true);
-              setEditAddressIndex(null);
-            }}
-          >
-            + Add Address
-          </button>
-        )}
+          {/* BASIC INFO */}
+          <div className="account-card">
+            <h3 className="section-title">Basic Details</h3>
 
-        {/* ADDRESS FORM */}
-        {showAddressForm && (
-          <div className="address-form">
-            <input
-              type="text"
-              name="label"
-              placeholder="Label (Home, Work)"
-              value={addressForm.label}
-              onChange={handleAddressChange}
-              className="edit-input"
-            />
-            <input
-              type="text"
-              name="street"
-              placeholder="Street"
-              value={addressForm.street}
-              onChange={handleAddressChange}
-              className="edit-input"
-            />
-            <input
-              type="text"
-              name="city"
-              placeholder="City"
-              value={addressForm.city}
-              onChange={handleAddressChange}
-              className="edit-input"
-            />
-            <input
-              type="text"
-              name="state"
-              placeholder="State"
-              value={addressForm.state}
-              onChange={handleAddressChange}
-              className="edit-input"
-            />
-            <input
-              type="text"
-              name="country"
-              placeholder="Country"
-              value={addressForm.country}
-              onChange={handleAddressChange}
-              className="edit-input"
-            />
-            <input
-              type="text"
-              name="postalCode"
-              placeholder="Postal Code"
-              value={addressForm.postalCode}
-              onChange={handleAddressChange}
-              className="edit-input"
-            />
-            <label style={{ display: "block", marginTop: "10px" }}>
-              <input
-                type="checkbox"
-                name="isDefault"
-                checked={addressForm.isDefault}
-                onChange={handleAddressChange}
-              />
-              &nbsp; Set as default address
-            </label>
+            <div className="info-grid">
+              <div>
+                <label>Phone</label>
+                {isEditing ? (
+                  <input
+                    type="text"
+                    name="phone"
+                    value={form.phone}
+                    onChange={handleChange}
+                  />
+                ) : (
+                  <p>{profile.phone || "Not added"}</p>
+                )}
+              </div>
 
-            <button className="save-btn" onClick={handleSaveAddress}>
-              {editAddressIndex !== null ? "Save Changes" : "Add Address"}
-            </button>
+              <div>
+                <label>Gender</label>
+                {isEditing ? (
+                  <select
+                    name="gender"
+                    value={form.gender || ""}
+                    onChange={handleChange}
+                  >
+                    <option value="">Select</option>
+                    <option value="male">Male</option>
+                    <option value="female">Female</option>
+                  </select>
+                ) : (
+                  <p>{profile.gender || "Not added"}</p>
+                )}
+              </div>
+
+              <div>
+                <label>Date of Birth</label>
+                {isEditing ? (
+                  <input
+                    type="date"
+                    name="dateOfBirth"
+                    value={
+                      form.dateOfBirth
+                        ? form.dateOfBirth.substring(0, 10)
+                        : ""
+                    }
+                    onChange={handleChange}
+                  />
+                ) : (
+                  <p>
+                    {profile.dateOfBirth
+                      ? profile.dateOfBirth.substring(0, 10)
+                      : "Not added"}
+                  </p>
+                )}
+              </div>
+            </div>
+
+            {isEditing && (
+              <button className="primary-btn" onClick={handleSave}>
+                Save Changes
+              </button>
+            )}
           </div>
-        )}
-      </div>
 
-      {/* SAVE PROFILE BUTTON */}
-      {isEditing && (
-        <button className="save-btn" onClick={handleSave}>
-          Save Profile Changes
-        </button>
-      )}
+          {/* ADDRESSES */}
+          <div className="account-card">
+            <div className="card-header">
+              <h3>Saved Addresses</h3>
+              <button
+                className="primary-btn small"
+                onClick={() => {
+                  setAddressForm(emptyAddress);
+                  setShowAddressForm(true);
+                }}
+              >
+                + Add Address
+              </button>
+            </div>
+
+            <div className="address-grid">
+              {profile.addresses.map((addr, i) => (
+                <div key={i} className="address-card">
+                  <h4>
+                    {addr.label}
+                    {addr.isDefault && (
+                      <span className="default-chip">Default</span>
+                    )}
+                  </h4>
+                  <p>{addr.street}</p>
+                  <p>{addr.city}, {addr.state}</p>
+                  <p>{addr.country} - {addr.postalCode}</p>
+
+                  <div className="card-actions">
+                    <button onClick={() => handleEditAddress(i)}>Edit</button>
+                    <button onClick={() => handleDeleteAddress(i)}>
+                      Delete
+                    </button>
+                    {!addr.isDefault && (
+                      <button onClick={() => handleDefaultAddress(i)}>
+                        Set Default
+                      </button>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
+
   );
+
 }
