@@ -26,7 +26,7 @@ export default function UserPage() {
       setLoading(true);
 
       const res = await fetchAllUsers(searchTerm, 1, 10);
-
+      console.log("Fetched users:", res);
       // ✅ IMPORTANT FIX (based on backend response)
       setUsers(res?.data?.users || []);
     } catch (err) {
