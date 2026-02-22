@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../../api";
-import "../styles/myorder.css";
+import "../../styles/myorder.css";
 
 export default function MyOrders() {
   const [orders, setOrders] = useState([]);

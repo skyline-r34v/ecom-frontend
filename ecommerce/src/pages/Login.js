@@ -1,39 +1,54 @@
-import React from "react";
+import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Form, Input, Button, message } from "antd";
-import axios from "axios"                     // axios instance
+import axios from "axios";
 import "../styles/login.css";
 
 export default function Login() {
   const navigate = useNavigate();
+  const [loading, setLoading] = useState(false);
 
   const handleLogin = async (values) => {
     try {
-      // POST Login API
-      const res = await axios.post("https://s657g66h-7045.inc1.devtunnels.ms/api/users/login", {
-        email: values.email,
-        password: values.password,
-      });
+      setLoading(true);
 
-      // Show success message
-      message.success("Login successful!");
+      const res = await axios.post(
+        "https://ecom-backend-awcn.onrender.com/api/users/login",
+        {
+          email: values.email,
+          password: values.password,
+        }
+      );
 
-      // Save token
-      localStorage.setItem("token", res.data.data.token);
-      localStorage.setItem("name", res.data.data.user.name);
-      localStorage.setItem("role", res.data.data.user.role);
-      localStorage.setItem("email", res.data.data.user.email);
-      localStorage.setItem("userId", res.data.data.user._id);
-      localStorage.setItem("mobile",res.data.data.user.mobile)
-      
-      // Redirect
-      navigate("/");
+      const data = res?.data?.data;
 
+      if (!data) {
+        message.error("Invalid server response");
+        return;
+      }
+
+      if (data.isActive == true) {
+        message.success("Login successful!");
+
+        // Save user data safely
+        localStorage.setItem("token", data.token);
+        localStorage.setItem("name", data.user?.name || "");
+        localStorage.setItem("role", data.user?.role || "");
+        localStorage.setItem("email", data.user?.email || "");
+        localStorage.setItem("userId", data.user?._id || "");
+        localStorage.setItem("mobile", data.user?.mobile || "");
+
+        navigate("/");
+      } else {
+        message.error(
+          "Your account is deactivated. Please contact support."
+        );
+      }
     } catch (err) {
       console.error(err);
-
-      // Show backend error message
       message.error(err.response?.data?.message || "Login failed");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -45,7 +60,10 @@ export default function Login() {
         <Form.Item
           name="email"
           label="Email"
-          rules={[{ required: true, message: "Enter email" }]}
+          rules={[
+            { required: true, message: "Enter email" },
+            { type: "email", message: "Enter valid email" },
+          ]}
         >
           <Input placeholder="Enter email" />
         </Form.Item>
@@ -58,7 +76,7 @@ export default function Login() {
           <Input.Password placeholder="Enter password" />
         </Form.Item>
 
-        <Button type="primary" htmlType="submit" block>
+        <Button type="primary" htmlType="submit" block loading={loading}>
           Login
         </Button>
       </Form>

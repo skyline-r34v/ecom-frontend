@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import api from "../../api";
-import "../styles/checkout.css";
+import "../../styles/checkout.css";
 
 export default function Checkout() {
   const navigate = useNavigate();

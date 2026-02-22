@@ -5,12 +5,27 @@ import "../styles/categories.css";
 import api from "../api";
 import { useNavigate } from "react-router-dom";
 
-// FETCH USERS
+// ================= API CALLS =================
+
+// ✅ FETCH USERS (POST — matches backend)
 export const fetchAllUsers = async (searchTerm = "", page = 1, size = 10) => {
-  const data = { page, size, search: searchTerm };
-  const response = await api.post("/users/list", data);
+  const response = await api.post("/users/list", {
+    page,
+    size,
+    search: searchTerm,
+  });
   return response.data;
 };
+
+// ✅ UPDATE USER (POST — matches backend updateUser controller)
+export const updateUser = async (id, update) => {
+  return api.post("/users/update", {
+    id,
+    update,
+  });
+};
+
+// ================= PAGE =================
 
 export default function UserPage() {
   const [users, setUsers] = useState([]);
@@ -19,16 +34,13 @@ export default function UserPage() {
   const [searchTerm, setSearchTerm] = useState("");
 
   const navigate = useNavigate();
-  const role = localStorage.getItem("role");
 
+  // ✅ LOAD USERS
   const loadUsers = async () => {
     try {
       setLoading(true);
-
       const res = await fetchAllUsers(searchTerm, 1, 10);
-      console.log("Fetched users:", res);
-      // ✅ IMPORTANT FIX (based on backend response)
-      setUsers(res?.data?.users || []);
+      setUsers(res?.data || []);
     } catch (err) {
       setError("Failed to load users");
     } finally {
@@ -40,8 +52,22 @@ export default function UserPage() {
     loadUsers();
   }, [searchTerm]);
 
+  // ✅ VIEW USER PAGE
   const viewUser = (id) => {
     navigate(`/users/${id}`);
+  };
+
+  // ✅ ACTIVATE / DEACTIVATE USER — uses backend POST update format
+  const handleToggleStatus = async (user) => {
+    try {
+      await updateUser(user._id, {
+        isActive: !user.isActive,
+      });
+
+      loadUsers();
+    } catch (err) {
+      alert("Failed to update status");
+    }
   };
 
   return (
@@ -58,6 +84,7 @@ export default function UserPage() {
             <h1>Users</h1>
           </div>
 
+          {/* SEARCH */}
           <input
             type="text"
             className="category-search"
@@ -90,14 +117,33 @@ export default function UserPage() {
                   </p>
 
                   <p>
-                    <strong>Status:</strong>{" "}
-                    {user.isActive ? "Active" : "Inactive"}
+                    <strong>Status:</strong>
+                    {user.isActive ? " Active" : " Inactive"}
                   </p>
 
                   <p>
-                    <strong>Joined:</strong>{" "}
+                    <strong>Joined:</strong>
                     {new Date(user.createdAt).toLocaleDateString()}
                   </p>
+
+                  {/* ACTIVATE / DEACTIVATE */}
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleToggleStatus(user);
+                    }}
+                    style={{
+                      marginTop: "10px",
+                      padding: "6px 12px",
+                      background: user.isActive ? "#ff4d4f" : "#52c41a",
+                      color: "white",
+                      border: "none",
+                      borderRadius: "5px",
+                      cursor: "pointer",
+                    }}
+                  >
+                    {user.isActive ? "Deactivate" : "Activate"}
+                  </button>
                 </div>
               ))
             ) : (

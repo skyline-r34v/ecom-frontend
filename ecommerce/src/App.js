@@ -25,7 +25,7 @@ import OrderDetails from "./pages/OrderDetails";
 import Checkout from "./pages/Profile/Checkout";   // ✅ ADD THIS
 
 // Admin
-import AdminOrders from "./pages/AdminOrders";
+import AdminOrders from "./pages/Admin/User-Management/AdminOrders.js";
 
 // Brands
 import BrandCreate from "./pages/Brands/Create";
