@@ -13,7 +13,7 @@ export default function Login() {
       setLoading(true);
 
       const res = await axios.post(
-        "https://ecom-backend-awcn.onrender.com/api/users/login",
+        "https://ecom-backend-i74i.onrender.com/api/users/login",
         {
           email: values.email,
           password: values.password,
