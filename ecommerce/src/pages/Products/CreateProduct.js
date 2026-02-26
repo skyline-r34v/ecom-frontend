@@ -25,12 +25,11 @@ export default function AddProduct() {
 
   const [thumbnail, setThumbnail] = useState(null);
   const [images, setImages] = useState([]);
-
   const [categories, setCategories] = useState([]);
   const [brands, setBrands] = useState([]);
   const [loading, setLoading] = useState(false);
 
-  /* ================= FETCH CATEGORIES & BRANDS ================= */
+  /* ================= FETCH DATA ================= */
   useEffect(() => {
     fetchCategories();
     fetchBrands();
@@ -43,7 +42,7 @@ export default function AddProduct() {
         size: 100,
       });
       setCategories(res.data.data || []);
-    } catch {
+    } catch (err) {
       message.error("Failed to load categories");
     }
   };
@@ -55,7 +54,7 @@ export default function AddProduct() {
         size: 100,
       });
       setBrands(res.data.data || []);
-    } catch {
+    } catch (err) {
       message.error("Failed to load brands");
     }
   };
@@ -81,14 +80,12 @@ export default function AddProduct() {
   const handleImagesChange = (e) => {
     const selectedFiles = Array.from(e.target.files);
 
-    const invalidFile = selectedFiles.find(
-      (file) => file.size > MAX_IMAGE_SIZE
-    );
-
-    if (invalidFile) {
-      message.error("Each image must be less than 100 KB");
-      e.target.value = null;
-      return;
+    for (let file of selectedFiles) {
+      if (file.size > MAX_IMAGE_SIZE) {
+        message.error("Each image must be less than 100 KB");
+        e.target.value = null;
+        return;
+      }
     }
 
     setImages(selectedFiles);
@@ -98,14 +95,19 @@ export default function AddProduct() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (!thumbnail) {
-      message.error("Thumbnail is required");
-      return;
-    }
+    // Basic validations
+    if (!form.title.trim()) return message.error("Title is required");
+    if (!form.brand) return message.error("Brand is required");
+    if (!form.category) return message.error("Category is required");
+    if (!form.price) return message.error("Price is required");
+    if (!form.stock) return message.error("Stock is required");
+    if (!thumbnail) return message.error("Thumbnail is required");
 
-    if (!form.brand) {
-      message.error("Brand is required");
-      return;
+    if (
+      form.discountPrice &&
+      Number(form.discountPrice) >= Number(form.price)
+    ) {
+      return message.error("Discount price must be less than price");
     }
 
     try {
@@ -113,23 +115,40 @@ export default function AddProduct() {
 
       const formData = new FormData();
 
-      Object.keys(form).forEach((key) => {
-        formData.append(key, form[key]);
-      });
+      formData.append("title", form.title.trim());
+      formData.append("brand", form.brand);
+      formData.append("category", form.category);
+      formData.append("price", Number(form.price));
+      formData.append(
+        "discountPrice",
+        form.discountPrice ? Number(form.discountPrice) : 0
+      );
+      formData.append("description", form.description);
+      formData.append("specifications", form.specifications);
+      formData.append("stock", Number(form.stock));
+      formData.append("warranty", form.warranty);
+      formData.append("shippingInfo", form.shippingInfo);
+      formData.append("returnPolicy", form.returnPolicy);
 
       formData.append("thumbnail", thumbnail);
+
       images.forEach((img) => {
         formData.append("images", img);
       });
 
       await api.post("/products/create", formData, {
-        headers: { "Content-Type": "multipart/form-data" },
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
       });
 
       message.success("Product created successfully");
       navigate("/products");
     } catch (err) {
-      message.error(err.response?.data?.message || "Error creating product");
+      console.log("CREATE PRODUCT ERROR:", err);
+      message.error(
+        err.response?.data?.message || "Server error while creating product"
+      );
     } finally {
       setLoading(false);
     }
@@ -146,8 +165,9 @@ export default function AddProduct() {
       </div>
 
       <form className="add-product-form" onSubmit={handleSubmit}>
+        {/* Title */}
         <div className="form-group">
-          <label>Title</label>
+          <label>Title *</label>
           <input
             name="title"
             value={form.title}
@@ -156,14 +176,14 @@ export default function AddProduct() {
           />
         </div>
 
+        {/* Brand */}
         <div className="form-group">
-          <label>Brand</label>
+          <label>Brand *</label>
           <select
             name="brand"
             value={form.brand}
             onChange={handleChange}
-          
-            
+            required
           >
             <option value="">Select Brand</option>
             {brands.map((brand) => (
@@ -174,8 +194,9 @@ export default function AddProduct() {
           </select>
         </div>
 
+        {/* Category */}
         <div className="form-group">
-          <label>Category</label>
+          <label>Category *</label>
           <select
             name="category"
             value={form.category}
@@ -191,8 +212,9 @@ export default function AddProduct() {
           </select>
         </div>
 
+        {/* Price */}
         <div className="form-group">
-          <label>Price</label>
+          <label>Price *</label>
           <input
             type="number"
             name="price"
@@ -202,6 +224,7 @@ export default function AddProduct() {
           />
         </div>
 
+        {/* Discount */}
         <div className="form-group">
           <label>Discount Price</label>
           <input
@@ -212,26 +235,9 @@ export default function AddProduct() {
           />
         </div>
 
+        {/* Stock */}
         <div className="form-group">
-          <label>Description</label>
-          <textarea
-            name="description"
-            value={form.description}
-            onChange={handleChange}
-          />
-        </div>
-
-        <div className="form-group">
-          <label>Specifications</label>
-          <textarea
-            name="specifications"
-            value={form.specifications}
-            onChange={handleChange}
-          />
-        </div>
-
-        <div className="form-group">
-          <label>Stock</label>
+          <label>Stock *</label>
           <input
             type="number"
             name="stock"
@@ -241,45 +247,13 @@ export default function AddProduct() {
           />
         </div>
 
+        {/* Thumbnail */}
         <div className="form-group">
-          <label>Warranty</label>
-          <input
-            name="warranty"
-            value={form.warranty}
-            onChange={handleChange}
-          />
-        </div>
-
-        <div className="form-group">
-          <label>Shipping Info</label>
-          <textarea
-            name="shippingInfo"
-            value={form.shippingInfo}
-            onChange={handleChange}
-          />
-        </div>
-
-        <div className="form-group">
-          <label>Return Policy</label>
-          <textarea
-            name="returnPolicy"
-            value={form.returnPolicy}
-            onChange={handleChange}
-          />
-        </div>
-
-        <div className="form-group">
-          <label>Thumbnail (Max 100 KB)</label>
+          <label>Thumbnail (Max 100 KB) *</label>
           <input type="file" accept="image/*" onChange={handleThumbnailChange} />
-          {thumbnail && (
-            <img
-              src={URL.createObjectURL(thumbnail)}
-              alt="thumb"
-              className="preview-img"
-            />
-          )}
         </div>
 
+        {/* Images */}
         <div className="form-group">
           <label>Product Images (Each Max 100 KB)</label>
           <input
@@ -288,11 +262,6 @@ export default function AddProduct() {
             accept="image/*"
             onChange={handleImagesChange}
           />
-          <div className="image-preview">
-            {images.map((img, i) => (
-              <img key={i} src={URL.createObjectURL(img)} alt="preview" />
-            ))}
-          </div>
         </div>
 
         <button type="submit" disabled={loading} className="submit-btn">

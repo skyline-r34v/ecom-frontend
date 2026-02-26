@@ -1,7 +1,7 @@
+import { Button, Form, Input, message } from "antd";
+import axios from "axios";
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { Form, Input, Button, message } from "antd";
-import axios from "axios";
 import "../styles/login.css";
 
 export default function Login() {
@@ -13,7 +13,7 @@ export default function Login() {
       setLoading(true);
 
       const res = await axios.post(
-        "https://ecom-backend-i74i.onrender.com/api/users/login",
+        "https://s657g66h-7045.inc1.devtunnels.ms/api/users/login",
         {
           email: values.email,
           password: values.password,
@@ -27,13 +27,17 @@ export default function Login() {
         return;
       }
 
-      // Save user data safely
+      // Save user data
       localStorage.setItem("token", data.token);
       localStorage.setItem("name", data.user?.name || "");
       localStorage.setItem("role", data.user?.role || "");
       localStorage.setItem("email", data.user?.email || "");
       localStorage.setItem("userId", data.user?._id || "");
       localStorage.setItem("mobile", data.user?.mobile || "");
+      if(data.user?.isActive === false){
+        message.error("Your account is inactive. Please contact support.");
+        return;
+      }
 
       message.success("Login successful");
       navigate("/");
@@ -51,6 +55,7 @@ export default function Login() {
       <h2>Login</h2>
 
       <Form onFinish={handleLogin} layout="vertical">
+        {/* Email */}
         <Form.Item
           name="email"
           label="Email"
@@ -62,6 +67,7 @@ export default function Login() {
           <Input placeholder="Enter email" />
         </Form.Item>
 
+        {/* Password */}
         <Form.Item
           name="password"
           label="Password"
@@ -70,11 +76,20 @@ export default function Login() {
           <Input.Password placeholder="Enter password" />
         </Form.Item>
 
+        {/* Forgot Password */}
+        <div style={{ textAlign: "right", marginBottom: "15px" }}>
+          <Link to="/forgot-password" className="forgot-link">
+            Forgot Password?
+          </Link>
+        </div>
+
+        {/* Login Button */}
         <Button type="primary" htmlType="submit" block loading={loading}>
           Login
         </Button>
       </Form>
 
+      {/* Register Link */}
       <p className="login-register-text">
         New user? <Link to="/register">Register here</Link>
       </p>

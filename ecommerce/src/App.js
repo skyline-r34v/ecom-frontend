@@ -31,6 +31,7 @@ import AdminOrders from "./pages/Admin/User-Management/AdminOrders.js";
 import BrandCreate from "./pages/Brands/Create";
 import BrandList from "./pages/Brands/Lists";
 import BrandEdit from "./pages/Brands/Update";
+import ForgotPassword  from  "./pages/ForgotPassword.js";
 
 function App() {
   const role = localStorage.getItem("role"); // admin / customer
@@ -45,6 +46,7 @@ function App() {
         {/* ================= AUTH ================= */}
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
+        <Route path="/forgot-password" element={<ForgotPassword />} />
 
         {/* ================= PRODUCTS ================= */}
         <Route path="/products" element={<Product />} />
@@ -76,6 +78,8 @@ function App() {
         {/* ================= ADMIN ================= */}
         {role === "admin" && (
           <Route path="/admin/orders" element={<AdminOrders />} />
+
+          
         )}
 
       </Routes>
