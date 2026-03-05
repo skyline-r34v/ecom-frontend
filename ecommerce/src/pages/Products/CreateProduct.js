@@ -19,8 +19,10 @@ export default function AddProduct() {
     specifications: "",
     stock: "",
     warranty: "",
-    shippingInfo: "",
     returnPolicy: "",
+    pickupAddresses: [
+      { street: "", city: "", state: "", country: "", postalCode: "" }
+    ],
   });
 
   const [thumbnail, setThumbnail] = useState(null);
@@ -29,7 +31,6 @@ export default function AddProduct() {
   const [brands, setBrands] = useState([]);
   const [loading, setLoading] = useState(false);
 
-  /* ================= FETCH DATA ================= */
   useEffect(() => {
     fetchCategories();
     fetchBrands();
@@ -42,7 +43,7 @@ export default function AddProduct() {
         size: 100,
       });
       setCategories(res.data.data || []);
-    } catch (err) {
+    } catch {
       message.error("Failed to load categories");
     }
   };
@@ -54,16 +55,23 @@ export default function AddProduct() {
         size: 100,
       });
       setBrands(res.data.data || []);
-    } catch (err) {
+    } catch {
       message.error("Failed to load brands");
     }
   };
 
-  /* ================= HANDLERS ================= */
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
+  /* Pickup Address Handlers */
+  const handlePickupChange = (index, field, value) => {
+    const updated = [...form.pickupAddresses];
+    updated[index][field] = value;
+    setForm({ ...form, pickupAddresses: updated });
+  };
+
+  
   const handleThumbnailChange = (e) => {
     const file = e.target.files[0];
     if (!file) return;
@@ -91,11 +99,9 @@ export default function AddProduct() {
     setImages(selectedFiles);
   };
 
-  /* ================= SUBMIT ================= */
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // Basic validations
     if (!form.title.trim()) return message.error("Title is required");
     if (!form.brand) return message.error("Brand is required");
     if (!form.category) return message.error("Category is required");
@@ -115,20 +121,16 @@ export default function AddProduct() {
 
       const formData = new FormData();
 
-      formData.append("title", form.title.trim());
-      formData.append("brand", form.brand);
-      formData.append("category", form.category);
-      formData.append("price", Number(form.price));
-      formData.append(
-        "discountPrice",
-        form.discountPrice ? Number(form.discountPrice) : 0
-      );
-      formData.append("description", form.description);
-      formData.append("specifications", form.specifications);
-      formData.append("stock", Number(form.stock));
-      formData.append("warranty", form.warranty);
-      formData.append("shippingInfo", form.shippingInfo);
-      formData.append("returnPolicy", form.returnPolicy);
+      Object.keys(form).forEach((key) => {
+        if (key === "pickupAddresses") {
+          formData.append(
+            "pickupAddresses",
+            JSON.stringify(form.pickupAddresses)
+          );
+        } else {
+          formData.append(key, form[key]);
+        }
+      });
 
       formData.append("thumbnail", thumbnail);
 
@@ -137,15 +139,12 @@ export default function AddProduct() {
       });
 
       await api.post("/products/create", formData, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
+        headers: { "Content-Type": "multipart/form-data" },
       });
 
       message.success("Product created successfully");
       navigate("/products");
     } catch (err) {
-      console.log("CREATE PRODUCT ERROR:", err);
       message.error(
         err.response?.data?.message || "Server error while creating product"
       );
@@ -154,7 +153,6 @@ export default function AddProduct() {
     }
   };
 
-  /* ================= UI ================= */
   return (
     <div className="add-product-container">
       <div className="add-product-header">
@@ -165,103 +163,155 @@ export default function AddProduct() {
       </div>
 
       <form className="add-product-form" onSubmit={handleSubmit}>
-        {/* Title */}
-        <div className="form-group">
-          <label>Title *</label>
-          <input
-            name="title"
-            value={form.title}
-            onChange={handleChange}
-            required
-          />
+
+        {/* ================= BASIC INFO ================= */}
+        <h3 className="section-title">Basic Information</h3>
+        <div className="grid-2">
+          <div className="form-group">
+            <label>Title *</label>
+            <input name="title" value={form.title} onChange={handleChange} required />
+          </div>
+
+          <div className="form-group">
+            <label>Brand *</label>
+            <select name="brand" value={form.brand} onChange={handleChange} required>
+              <option value="">Select Brand</option>
+              {brands.map((brand) => (
+                <option key={brand._id} value={brand._id}>
+                  {brand.name}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div className="form-group">
+            <label>Category *</label>
+            <select name="category" value={form.category} onChange={handleChange} required>
+              <option value="">Select Category</option>
+              {categories.map((cat) => (
+                <option key={cat._id} value={cat._id}>
+                  {cat.name}
+                </option>
+              ))}
+            </select>
+          </div>
         </div>
 
-        {/* Brand */}
-        <div className="form-group">
-          <label>Brand *</label>
-          <select
-            name="brand"
-            value={form.brand}
-            onChange={handleChange}
-            required
-          >
-            <option value="">Select Brand</option>
-            {brands.map((brand) => (
-              <option key={brand._id} value={brand._id}>
-                {brand.name}
-              </option>
-            ))}
-          </select>
+        {/* ================= PRICING ================= */}
+        <h3 className="section-title">Pricing & Inventory</h3>
+        <div className="grid-2">
+          <div className="form-group">
+            <label>Price *</label>
+            <input type="number" name="price" value={form.price} onChange={handleChange} required />
+          </div>
+
+          <div className="form-group">
+            <label>Discount Price</label>
+            <input type="number" name="discountPrice" value={form.discountPrice} onChange={handleChange} />
+          </div>
+
+          <div className="form-group">
+            <label>Stock *</label>
+            <input type="number" name="stock" value={form.stock} onChange={handleChange} required />
+          </div>
         </div>
 
-        {/* Category */}
+        {/* ================= PRODUCT DETAILS ================= */}
+        <h3 className="section-title">Product Details</h3>
+
         <div className="form-group">
-          <label>Category *</label>
-          <select
-            name="category"
-            value={form.category}
-            onChange={handleChange}
-            required
-          >
-            <option value="">Select Category</option>
-            {categories.map((cat) => (
-              <option key={cat._id} value={cat._id}>
-                {cat.name}
-              </option>
-            ))}
-          </select>
+          <label>Description</label>
+          <textarea name="description" value={form.description} onChange={handleChange} />
         </div>
 
-        {/* Price */}
         <div className="form-group">
-          <label>Price *</label>
-          <input
-            type="number"
-            name="price"
-            value={form.price}
-            onChange={handleChange}
-            required
-          />
+          <label>Specifications (JSON or Text)</label>
+          <textarea name="specifications" value={form.specifications} onChange={handleChange} />
         </div>
 
-        {/* Discount */}
-        <div className="form-group">
-          <label>Discount Price</label>
-          <input
-            type="number"
-            name="discountPrice"
-            value={form.discountPrice}
-            onChange={handleChange}
-          />
+        <div className="grid-2">
+          <div className="form-group">
+            <label>Warranty</label>
+            <input name="warranty" value={form.warranty} onChange={handleChange} />
+          </div>
+
+          <div className="form-group">
+            <label>Return Policy</label>
+            <textarea name="returnPolicy" value={form.returnPolicy} onChange={handleChange} />
+          </div>
         </div>
 
-        {/* Stock */}
-        <div className="form-group">
-          <label>Stock *</label>
-          <input
-            type="number"
-            name="stock"
-            value={form.stock}
-            onChange={handleChange}
-            required
-          />
-        </div>
+        {/* ================= PICKUP ADDRESSES ================= */}
+        <h3 className="section-title">Pickup Addresses</h3>
 
-        {/* Thumbnail */}
+        {form.pickupAddresses.map((addr, index) => (
+          <div key={index} className="address-card">
+            <h4>Address {index + 1}</h4>
+
+            <div className="grid-2">
+              <input
+                type="text"
+                placeholder="Street"
+                value={addr.street}
+                onChange={(e) =>
+                  handlePickupChange(index, "street", e.target.value)
+                }
+              />
+
+              <input
+                type="text"
+                placeholder="City"
+                value={addr.city}
+                onChange={(e) =>
+                  handlePickupChange(index, "city", e.target.value)
+                }
+              />
+
+              <input
+                type="text"
+                placeholder="State"
+                value={addr.state}
+                onChange={(e) =>
+                  handlePickupChange(index, "state", e.target.value)
+                }
+              />
+
+              <input
+                type="text"
+                placeholder="Country"
+                value={addr.country}
+                onChange={(e) =>
+                  handlePickupChange(index, "country", e.target.value)
+                }
+              />
+
+              <input
+                type="text"
+                placeholder="Postal Code"
+                value={addr.postalCode}
+                onChange={(e) =>
+                  handlePickupChange(index, "postalCode", e.target.value)
+                }
+              />
+            </div>
+
+           
+          </div>
+        ))}
+
+      
+
+        {/* ================= MEDIA ================= */}
+        <h3 className="section-title">Media</h3>
+
         <div className="form-group">
           <label>Thumbnail (Max 100 KB) *</label>
           <input type="file" accept="image/*" onChange={handleThumbnailChange} />
         </div>
 
-        {/* Images */}
         <div className="form-group">
           <label>Product Images (Each Max 100 KB)</label>
-          <input
-            type="file"
-            multiple
-            accept="image/*"
-            onChange={handleImagesChange}
-          />
+          <input type="file" multiple accept="image/*" onChange={handleImagesChange} />
         </div>
 
         <button type="submit" disabled={loading} className="submit-btn">

@@ -67,7 +67,7 @@ function App() {
 
         {/* ================= ORDERS ================= */}
         <Route path="/checkout" element={<Checkout />} />  {/* ✅ REQUIRED */}
-        <Route path="/orders" element={<MyOrders />} />
+        <Route path="/my-orders" element={<MyOrders />} />
         <Route path="/orders/:id" element={<OrderDetails />} />
 
         {/* ================= BRANDS ================= */}
@@ -78,7 +78,7 @@ function App() {
         {/* ================= ADMIN ================= */}
         {role === "admin" && (
           <Route path="/admin/orders" element={<AdminOrders />} />
-
+          
           
         )}
 

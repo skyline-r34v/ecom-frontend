@@ -41,7 +41,7 @@ export default function Sidebar() {
         🛍️ <span>Products</span>
       </div>
 
-      <div className="sidebar-item" onClick={() => navigate("/orders")}>
+      <div className="sidebar-item" onClick={() => navigate("/admin/orders")}>
         📦 <span>Orders</span>
       </div>
 

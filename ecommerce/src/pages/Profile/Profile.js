@@ -117,7 +117,6 @@ export default function ProfilePage() {
     }
   };
 
-  // DELETE ADDRESS
   const handleDeleteAddress = async (index) => {
     if (!window.confirm("Are you sure you want to delete this address?")) return;
 
@@ -132,7 +131,6 @@ export default function ProfilePage() {
     }
   };
 
-  // EDIT ADDRESS
   const handleEditAddress = (index) => {
     setAddressForm(profile.addresses[index]);
     setEditAddressIndex(index);
