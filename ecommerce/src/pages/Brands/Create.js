@@ -1,13 +1,17 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import api from "../../api";
 import "../../styles/createbrand.css";
 
 export default function BrandCreate() {
+  const navigate = useNavigate();
+
   const [form, setForm] = useState({
     name: "",
     description: "",
     website: "",
   });
+
   const [logo, setLogo] = useState(null);
   const [loading, setLoading] = useState(false);
 
@@ -23,6 +27,7 @@ export default function BrandCreate() {
       fd.append("name", form.name);
       fd.append("description", form.description);
       fd.append("website", form.website);
+
       if (logo) fd.append("logo", logo);
 
       await api.post("/brands/create", fd);
@@ -31,6 +36,8 @@ export default function BrandCreate() {
 
       setForm({ name: "", description: "", website: "" });
       setLogo(null);
+
+      navigate("/brands"); // redirect to brand list page
     } catch (error) {
       alert("Failed to create brand ❌");
       console.error(error);
@@ -41,6 +48,12 @@ export default function BrandCreate() {
 
   return (
     <div className="create-brand-page">
+
+      {/* BACK BUTTON */}
+      <button className="back-btn" onClick={() => navigate(-1)}>
+        ← Back
+      </button>
+
       <div className="create-brand-card">
         <h2>Create Brand</h2>
 

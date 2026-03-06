@@ -5,8 +5,10 @@ import "../styles/orderDetails.css";
 
 export default function OrderDetails() {
   const { id } = useParams();
+
   const [order, setOrder] = useState(null);
   const [loading, setLoading] = useState(true);
+
   const [cancelReason, setCancelReason] = useState("");
   const [customReason, setCustomReason] = useState("");
 
@@ -19,7 +21,8 @@ export default function OrderDetails() {
 
   // ================= FETCH ORDER =================
   useEffect(() => {
-    api.get(`/orders/${id}`)
+    api
+      .get(`/orders/${id}`)
       .then((res) => {
         setOrder(res.data.data || res.data);
       })
@@ -30,13 +33,15 @@ export default function OrderDetails() {
       .finally(() => setLoading(false));
   }, [id]);
 
-  // ================= ACTIONS =================
+  // ================= CANCEL ORDER =================
   const handleCancel = async () => {
     let reason = cancelReason;
+
     if (!reason) {
       alert("Please select a reason");
       return;
     }
+
     if (reason === "Other") {
       if (!customReason.trim()) {
         alert("Please write your reason");
@@ -46,7 +51,10 @@ export default function OrderDetails() {
     }
 
     try {
-      await api.post(`/orders/${id}/cancel`, { reason });
+      await api.post(`/orders/${id}/cancel`, {
+        reason,
+        pickingAddress: order?.detail?.pickUpaddresses,
+      });
 
       alert("Order cancelled");
 
@@ -55,14 +63,18 @@ export default function OrderDetails() {
         orderStatus: "CANCELLED",
         cancellationReason: reason,
       }));
-    } catch {
+    } catch (err) {
+      console.error(err);
       alert("Unable to cancel order");
     }
   };
 
+  // ================= RETURN ORDER =================
   const handleReturn = async () => {
     try {
-      await api.post(`/orders/${id}/return`);
+      await api.post(`/orders/${id}/return`, {
+        pickingAddress: order?.detail?.pickUpaddresses,
+      });
 
       alert("Return requested");
 
@@ -70,7 +82,8 @@ export default function OrderDetails() {
         ...prev,
         orderStatus: "RETURN_REQUESTED",
       }));
-    } catch {
+    } catch (err) {
+      console.error(err);
       alert("Unable to request return");
     }
   };
@@ -82,20 +95,36 @@ export default function OrderDetails() {
     <div className="order-container">
       <h2 className="order-title">Order Details</h2>
 
+      {/* ORDER INFO */}
       <div className="order-info">
-        <p><strong>Order ID:</strong> {order._id}</p>
-        <p><strong>Status:</strong> {order.orderStatus}</p>
+        <p>
+          <strong>Order ID:</strong> {order._id}
+        </p>
+
+        <p>
+          <strong>Status:</strong> {order.orderStatus}
+        </p>
+
         {order.cancellationReason && (
-          <p><strong>Cancellation Reason:</strong> {order.cancellationReason}</p>
+          <p>
+            <strong>Cancellation Reason:</strong> {order.cancellationReason}
+          </p>
         )}
-        <p><strong>Total:</strong> ₹{order.pricing?.grandTotal}</p>
+
+        <p>
+          <strong>Total:</strong> ₹{order.pricing?.grandTotal}
+        </p>
       </div>
 
       <hr />
 
+      {/* PRODUCTS */}
+      <h3>Items</h3>
+
       {order.items?.map((item) => (
         <div key={item.product} className="order-item">
           <img src={item.thumbnail} alt={item.title} />
+
           <div>
             <p>{item.title}</p>
             <p>Qty: {item.quantity}</p>
@@ -106,6 +135,22 @@ export default function OrderDetails() {
 
       <hr />
 
+      {/* PICKUP ADDRESS */}
+      {order?.detail?.pickUpaddresses && (
+        <div className="pickup-address">
+          <h3>Pickup Address</h3>
+
+          <p>{order.detail.pickUpaddresses.street}</p>
+          <p>{order.detail.pickUpaddresses.city}</p>
+          <p>{order.detail.pickUpaddresses.state}</p>
+          <p>{order.detail.pickUpaddresses.country}</p>
+          <p>{order.detail.pickUpaddresses.postalCode}</p>
+        </div>
+      )}
+
+      <hr />
+
+      {/* ACTION BUTTONS */}
       <div className="order-actions">
         {order.orderStatus === "PLACED" && (
           <div className="cancel-container">
@@ -115,6 +160,7 @@ export default function OrderDetails() {
               onChange={(e) => setCancelReason(e.target.value)}
             >
               <option value="">Select Reason</option>
+
               {reasonOptions.map((reason, idx) => (
                 <option key={idx} value={reason}>
                   {reason}

@@ -53,7 +53,7 @@ export default function BrandList() {
             <h2 className="brand-title">Brands</h2>
             <button
               className="add-brand-btn"
-              onClick={() => navigate("/brands/add")}
+              onClick={() => navigate("/brands/create")}
             >
               + Add Brand
             </button>

@@ -1,23 +1,24 @@
 import React, { useState, useEffect } from "react";
 import Sidebar from "../components/Sidebar";
 import Navbar from "../components/Navbar";
-import "../styles/categories.css";
+import "../styles/User.css";
 import api from "../api";
 import { useNavigate } from "react-router-dom";
 
-// ================= API CALLS =================
+/* ================= API CALLS ================= */
 
-// ✅ FETCH USERS (POST — matches backend)
+// Fetch users
 export const fetchAllUsers = async (searchTerm = "", page = 1, size = 10) => {
   const response = await api.post("/users/list", {
     page,
     size,
     search: searchTerm,
   });
+
   return response.data;
 };
 
-// ✅ UPDATE USER (POST — matches backend updateUser controller)
+// Update user
 export const updateUser = async (id, update) => {
   return api.post("/users/update", {
     id,
@@ -25,7 +26,7 @@ export const updateUser = async (id, update) => {
   });
 };
 
-// ================= PAGE =================
+/* ================= PAGE ================= */
 
 export default function UserPage() {
   const [users, setUsers] = useState([]);
@@ -35,11 +36,14 @@ export default function UserPage() {
 
   const navigate = useNavigate();
 
-  // ✅ LOAD USERS
+  /* ================= LOAD USERS ================= */
+
   const loadUsers = async () => {
     try {
       setLoading(true);
+
       const res = await fetchAllUsers(searchTerm, 1, 10);
+
       setUsers(res?.data || []);
     } catch (err) {
       setError("Failed to load users");
@@ -52,12 +56,14 @@ export default function UserPage() {
     loadUsers();
   }, [searchTerm]);
 
-  // ✅ VIEW USER PAGE
+  /* ================= VIEW USER ================= */
+
   const viewUser = (id) => {
     navigate(`/users/${id}`);
   };
 
-  // ✅ ACTIVATE / DEACTIVATE USER — uses backend POST update format
+  /* ================= TOGGLE USER STATUS ================= */
+
   const handleToggleStatus = async (user) => {
     try {
       await updateUser(user._id, {
@@ -70,6 +76,8 @@ export default function UserPage() {
     }
   };
 
+  /* ================= UI ================= */
+
   return (
     <div>
       <Navbar />
@@ -80,6 +88,8 @@ export default function UserPage() {
         </aside>
 
         <main className="category-row-content">
+
+          {/* HEADER */}
           <div className="category-header-row">
             <h1>Users</h1>
           </div>
@@ -93,6 +103,7 @@ export default function UserPage() {
             onChange={(e) => setSearchTerm(e.target.value)}
           />
 
+          {/* USER GRID */}
           <div className="category-grid">
             {loading ? (
               <div className="grid-loader-container">
@@ -101,10 +112,9 @@ export default function UserPage() {
             ) : users.length > 0 ? (
               users.map((user) => (
                 <div
-                  className="category-card"
+                  className="category-card user-card"
                   key={user._id}
                   onClick={() => viewUser(user._id)}
-                  style={{ cursor: "pointer" }}
                 >
                   <h3>{user.name}</h3>
 
@@ -117,29 +127,29 @@ export default function UserPage() {
                   </p>
 
                   <p>
-                    <strong>Status:</strong>
-                    {user.isActive ? " Active" : " Inactive"}
+                    <strong>Status:</strong>{" "}
+                    <span
+                      className={`user-status ${
+                        user.isActive ? "active" : "inactive"
+                      }`}
+                    >
+                      {user.isActive ? "Active" : "Inactive"}
+                    </span>
                   </p>
 
                   <p>
-                    <strong>Joined:</strong>
+                    <strong>Joined:</strong>{" "}
                     {new Date(user.createdAt).toLocaleDateString()}
                   </p>
 
-                  {/* ACTIVATE / DEACTIVATE */}
+                  {/* ACTION BUTTON */}
                   <button
+                    className={`user-toggle-btn ${
+                      user.isActive ? "deactivate" : "activate"
+                    }`}
                     onClick={(e) => {
                       e.stopPropagation();
                       handleToggleStatus(user);
-                    }}
-                    style={{
-                      marginTop: "10px",
-                      padding: "6px 12px",
-                      background: user.isActive ? "#ff4d4f" : "#52c41a",
-                      color: "white",
-                      border: "none",
-                      borderRadius: "5px",
-                      cursor: "pointer",
                     }}
                   >
                     {user.isActive ? "Deactivate" : "Activate"}

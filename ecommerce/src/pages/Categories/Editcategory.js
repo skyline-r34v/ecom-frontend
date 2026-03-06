@@ -4,7 +4,7 @@ import "../../styles/craetecategory.css";
 import { useNavigate, useParams } from "react-router-dom";
 
 export default function EditCategory() {
-  const { id } = useParams(); // /categories/:id
+  const { id } = useParams();
   const navigate = useNavigate();
 
   const [loading, setLoading] = useState(true);
@@ -19,15 +19,15 @@ export default function EditCategory() {
     isActive: true,
   });
 
-  /* ===============================
-     GET CATEGORY DETAILS
-     POST /categories/:id
-  =============================== */
+  // Fetch category details
   const fetchCategory = async () => {
     try {
       const res = await api.get(`/categories/${id}`);
-      const cat = res.data.data;
-      console.log(id)
+
+      console.log("API Response:", res.data);
+
+      const cat = res.data.data || res.data;
+
       setForm({
         name: cat.name || "",
         slug: cat.slug || "",
@@ -38,7 +38,8 @@ export default function EditCategory() {
         isActive: cat.isActive !== false,
       });
     } catch (err) {
-      alert("Category not found vvvvvvvv");
+      console.error(err);
+      alert("Category not found");
       navigate("/category");
     } finally {
       setLoading(false);
@@ -46,23 +47,17 @@ export default function EditCategory() {
   };
 
   useEffect(() => {
-    fetchCategory();
+    if (id) {
+      fetchCategory();
+    }
   }, [id]);
 
-  /* ===============================
-     UPDATE CATEGORY
-     POST /categories/update
-     BODY:
-     {
-       id: "",
-       update: { ... }
-     }
-  =============================== */
+  // Update category
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     const payload = {
-      id,
+      id: id,
       update: {
         name: form.name,
         slug: form.slug,
@@ -79,12 +74,14 @@ export default function EditCategory() {
       alert("Category Updated Successfully");
       navigate("/category");
     } catch (err) {
+      console.error(err);
       alert(err.response?.data?.message || "Update failed");
     }
   };
 
-  if (loading)
+  if (loading) {
     return <p className="loading-state-container">Loading category...</p>;
+  }
 
   return (
     <div className="category-container">
@@ -95,7 +92,9 @@ export default function EditCategory() {
           type="text"
           placeholder="Category Name"
           value={form.name}
-          onChange={(e) => setForm({ ...form, name: e.target.value })}
+          onChange={(e) =>
+            setForm({ ...form, name: e.target.value })
+          }
           required
         />
 
@@ -103,7 +102,9 @@ export default function EditCategory() {
           type="text"
           placeholder="Slug"
           value={form.slug}
-          onChange={(e) => setForm({ ...form, slug: e.target.value })}
+          onChange={(e) =>
+            setForm({ ...form, slug: e.target.value })
+          }
         />
 
         <textarea
@@ -118,11 +119,18 @@ export default function EditCategory() {
           type="text"
           placeholder="Image URL"
           value={form.image}
-          onChange={(e) => setForm({ ...form, image: e.target.value })}
+          onChange={(e) =>
+            setForm({ ...form, image: e.target.value })
+          }
         />
 
         {form.image && (
-          <img src={form.image} className="preview-img" alt="preview" />
+          <img
+            src={form.image}
+            alt="preview"
+            className="preview-img"
+            style={{ width: "120px", marginTop: "10px" }}
+          />
         )}
 
         <label className="switch-label">

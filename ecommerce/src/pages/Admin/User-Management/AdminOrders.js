@@ -1,7 +1,12 @@
 import React, { useEffect, useState } from "react";
 import api from "../../../api";
+import { useNavigate } from "react-router-dom";
+import "../../../styles/AdminOrders.css";
 
 export default function AdminOrders() {
+
+  const navigate = useNavigate();
+
   const [orders, setOrders] = useState([]);
   const [page, setPage] = useState(1);
   const [size] = useState(5);
@@ -17,7 +22,6 @@ export default function AdminOrders() {
         size,
       });
 
-      // 🔥 FIX: extract correct fields
       const orderArray = res.data.data || [];
       const meta = res.data.meta || {};
 
@@ -26,7 +30,7 @@ export default function AdminOrders() {
 
     } catch (error) {
       console.error("Error fetching orders:", error);
-      setOrders([]); // prevent crash
+      setOrders([]);
     } finally {
       setLoading(false);
     }
@@ -37,31 +41,66 @@ export default function AdminOrders() {
   }, [page]);
 
   return (
-    <div style={{ padding: 30 }}>
-      <h2>Admin Orders</h2>
+    <div className="orders-container">
 
-      {loading && <p>Loading...</p>}
+      <div className="orders-header">
 
-      {!loading && orders.length === 0 && <p>No orders found</p>}
+        <button
+          className="back-btn"
+          onClick={() => navigate(-1)}
+        >
+          ← Back
+        </button>
 
-      {Array.isArray(orders) &&
-        orders.map((order) => (
-          <div
-            key={order._id}
-            style={{
-              border: "1px solid #ccc",
-              padding: 15,
-              marginBottom: 10,
-            }}
-          >
-            <p><b>Order:</b> {order._id}</p>
-            <p><b>User:</b> {order.user}</p>
-            <p><b>Status:</b> {order.orderStatus}</p>
-            <p><b>Total:</b> ₹{order.pricing?.grandTotal}</p>
-          </div>
-        ))}
+        <h2>Orders</h2>
 
-      <div style={{ marginTop: 20 }}>
+      </div>
+
+      <div className="orders-card">
+
+        {loading && <p className="loading">Loading orders...</p>}
+
+        {!loading && orders.length === 0 && (
+          <p className="empty">No orders found</p>
+        )}
+
+        {!loading && orders.length > 0 && (
+
+          <table className="orders-table">
+
+            <thead>
+              <tr>
+                <th>Order ID</th>
+                <th>User</th>
+                <th>Status</th>
+                <th>Total</th>
+              </tr>
+            </thead>
+
+            <tbody>
+              {orders.map((order) => (
+                <tr key={order._id}>
+                  <td>{order._id}</td>
+                  <td>{order.user}</td>
+
+                  <td>
+                    <span className={`status ${order.orderStatus}`}>
+                      {order.orderStatus}
+                    </span>
+                  </td>
+
+                  <td>₹{order.pricing?.grandTotal}</td>
+                </tr>
+              ))}
+            </tbody>
+
+          </table>
+        )}
+
+      </div>
+
+      <div className="pagination">
+
         <button
           onClick={() => setPage((prev) => prev - 1)}
           disabled={page === 1}
@@ -69,7 +108,7 @@ export default function AdminOrders() {
           Previous
         </button>
 
-        <span style={{ margin: "0 10px" }}>
+        <span>
           Page {page} of {totalPages}
         </span>
 
@@ -79,7 +118,9 @@ export default function AdminOrders() {
         >
           Next
         </button>
+
       </div>
+
     </div>
   );
 }

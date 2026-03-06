@@ -92,36 +92,51 @@ export default function Checkout() {
 
   const placeOrder = async () => {
     try {
+  
       const selectedAddr = addresses.find(
         (a) => a?._id === selectedAddressId
       );
-
+  
       if (!selectedAddr) {
         return alert("Please select an address");
       }
-
+  
       const shippingAddress = {
         ...selectedAddr,
         fullName: userName || selectedAddr.fullName,
         phone: mobile || selectedAddr.phone,
       };
-
+  
+      /* ===== BUILD ORDER ITEMS WITH PICKUP ADDRESS ===== */
+  
+      const orderItems = cartItems.map((item) => ({
+        product: item.product?._id,
+        quantity: item.quantity,
+        price: item.product?.discountPrice ?? item.product?.price,
+  
+        pickingAddress:
+          item?.productDetail?.pickUpaddresses ||
+          item?.product?.detail?.pickUpaddresses ||
+          null,
+      }));
+  
+  
       const res = await api.post("/orders/create", {
         shippingAddress,
         payment,
-        items: cartItems,
+        items: orderItems,
         total,
       });
-
+  
       if (res.data?.success) {
         navigate("/orders");
       }
+  
     } catch (error) {
       console.error(error);
       alert("Order failed");
     }
   };
-
   /* ===================== UI ===================== */
   return (
     <div className="checkout-container">

@@ -12,66 +12,45 @@ export default function ProductDetails() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
-  // ================= WISHLIST =================
   const [isWishlisted, setIsWishlisted] = useState(false);
-
-  // ================= PAYMENT =================
   const [isPaymentOpen, setIsPaymentOpen] = useState(false);
   const [quantity, setQuantity] = useState(1);
   const [paymentMethod, setPaymentMethod] = useState("credit-card");
 
-  // ================= FETCH PRODUCT =================
   useEffect(() => {
     const fetchProduct = async () => {
       try {
         const res = await api.get(`/products/${id}`);
         const data = res.data.message;
-
         setProduct(data);
         setActiveImage(data.thumbnail);
-
-        // if backend sends wishlist status
-        if (data.isWishlisted) {
-          setIsWishlisted(true);
-        }
+        setIsWishlisted(data.isWishlisted || false);
       } catch (err) {
-        if (err.response?.status === 401) {
-          navigate("/login");
-        } else {
-          setError("Unable to load product details");
-        }
+        if (err.response?.status === 401) navigate("/login");
+        else setError("Unable to load product details");
       } finally {
         setLoading(false);
       }
     };
-
     fetchProduct();
   }, [id, navigate]);
 
-  // ================= ADD TO CART =================
   const handleAddToCart = async () => {
     try {
-      const res = await api.post("/users/cart", {
-        productId: id,
-        quantity: 1,
-      });
-
+      const res = await api.post("/users/cart", { productId: id, quantity: 1 });
       if (res.data.success) {
         alert("Product added to cart ✅");
         navigate("/cart");
-      } else {
-        alert(res.data.message);
-      }
+      } else alert(res.data.message);
     } catch {
       alert("Failed to add product to cart");
     }
   };
 
-  // ================= WISHLIST TOGGLE =================
   const toggleWishlist = async () => {
     try {
       if (isWishlisted) {
-        await api.post(`/wishlist/delete`);
+        await api.post(`/wishlists/delete`, { productId: id });
         setIsWishlisted(false);
         alert("Removed from wishlist 💔");
       } else {
@@ -84,10 +63,8 @@ export default function ProductDetails() {
     }
   };
 
-  // ================= BUY NOW =================
   const handleBuyNow = () => setIsPaymentOpen(true);
 
-  // ================= PAY NOW =================
   const handlePayNow = () => {
     alert(
       `Payment successful! ₹${
@@ -106,12 +83,11 @@ export default function ProductDetails() {
 
   return (
     <div className="product-details-page">
-      {/* ================= PRODUCT CARD ================= */}
       <div className="product-card">
         {/* ================= IMAGE PANEL ================= */}
         <div className="image-panel">
           <span className={`stock-badge ${product.isActive ? "in" : "out"}`}>
-            {product.isActive ? "Available" : "Unavailable"}
+            {product.isActive ? "In Stock" : "Out of Stock"}
           </span>
 
           <img src={activeImage} alt={product.title} className="main-image" />
@@ -135,13 +111,11 @@ export default function ProductDetails() {
         <div className="info-panel">
           <div className="title-row">
             <h1>{product.title}</h1>
-
-            {/* ❤️ LIKE / WISHLIST */}
             <button
               className={`wishlist-btn ${isWishlisted ? "active" : ""}`}
               onClick={toggleWishlist}
             >
-              {isWishlisted ? "❤️" : "❤️"}
+              {isWishlisted ? "❤️" : "🤍"}
             </button>
           </div>
 
@@ -149,13 +123,20 @@ export default function ProductDetails() {
           <p><strong>Brand:</strong> {product.brand.name}</p>
           <p><strong>Category:</strong> {product.category?.name}</p>
 
+          {/* Ratings */}
           <div className="rating">
-            ⭐⭐⭐⭐☆ <span>(4.3 / 5 · 124 reviews)</span>
+            {product.reviews?.length
+              ? `⭐ ${(
+                  product.reviews.reduce((a, r) => a + r.rating, 0) /
+                  product.reviews.length
+                ).toFixed(1)} (${product.reviews.length} reviews)`
+              : "No Ratings"}
           </div>
 
+          {/* Price */}
           <div className="price">
-            ₹{product.discountPrice}
-            <del> ₹{product.price}</del>
+            ₹{product.discountPrice ?? product.price}
+            {product.discountPrice && <del> ₹{product.price}</del>}
           </div>
 
           <p className="short-desc">{detail?.description}</p>
@@ -168,7 +149,6 @@ export default function ProductDetails() {
             >
               Add to Cart
             </button>
-
             <button
               className="buy-now-btn"
               onClick={handleBuyNow}
@@ -180,10 +160,10 @@ export default function ProductDetails() {
 
           <div className="meta">
             <p><strong>Status:</strong> {product.isActive ? "Available" : "Unavailable"}</p>
-            <p><strong>Stock:</strong> {detail?.stock}</p>
-            <p><strong>Warranty:</strong> {detail?.warranty}</p>
-            <p><strong>Shipping:</strong> {detail?.shippingInfo}</p>
-            <p><strong>Return Policy:</strong> {detail?.returnPolicy}</p>
+            <p><strong>Stock:</strong> {detail?.stock ?? "N/A"}</p>
+            <p><strong>Warranty:</strong> {detail?.warranty ?? "N/A"}</p>
+            <p><strong>Shipping:</strong> {detail?.shippingInfo ?? "N/A"}</p>
+            <p><strong>Return Policy:</strong> {detail?.returnPolicy ?? "N/A"}</p>
           </div>
         </div>
       </div>
@@ -198,7 +178,7 @@ export default function ProductDetails() {
               <img src={activeImage} alt={product.title} />
               <div className="drawer-product-info">
                 <h3>{product.title}</h3>
-                <p>Price: ₹{product.discountPrice}</p>
+                <p>Price: ₹{product.discountPrice ?? product.price}</p>
                 <div className="quantity-selector">
                   <button onClick={() => setQuantity(q => Math.max(1, q - 1))}>-</button>
                   <span>{quantity}</span>
@@ -207,18 +187,43 @@ export default function ProductDetails() {
               </div>
             </div>
 
+            <div className="payment-options">
+              <h4>Select Payment Method</h4>
+              <label>
+                <input
+                  type="radio"
+                  value="credit-card"
+                  checked={paymentMethod === "credit-card"}
+                  onChange={(e) => setPaymentMethod(e.target.value)}
+                /> Credit Card
+              </label>
+              <label>
+                <input
+                  type="radio"
+                  value="upi"
+                  checked={paymentMethod === "upi"}
+                  onChange={(e) => setPaymentMethod(e.target.value)}
+                /> UPI
+              </label>
+              <label>
+                <input
+                  type="radio"
+                  value="cod"
+                  checked={paymentMethod === "cod"}
+                  onChange={(e) => setPaymentMethod(e.target.value)}
+                /> Cash on Delivery
+              </label>
+            </div>
+
             <button className="checkout-btn" onClick={handlePayNow}>
               Pay Now ₹{(product.discountPrice ?? product.price) * quantity}
             </button>
-
-            <button className="close-drawer" onClick={() => setIsPaymentOpen(false)}>
-              ✕
-            </button>
+            <button className="close-drawer" onClick={() => setIsPaymentOpen(false)}>✕</button>
           </div>
         </div>
       )}
 
-      {/* ================= DESCRIPTION ================= */}
+      {/* ================= DESCRIPTION & SPECIFICATIONS ================= */}
       {detail?.description && (
         <section className="details-section">
           <h3>Product Description</h3>
@@ -226,7 +231,6 @@ export default function ProductDetails() {
         </section>
       )}
 
-      {/* ================= SPECIFICATIONS ================= */}
       {detail?.specifications && (
         <section className="details-section">
           <h3>Specifications</h3>
@@ -243,7 +247,7 @@ export default function ProductDetails() {
         </section>
       )}
 
-      {/* ================= CATEGORY ================= */}
+      {/* CATEGORY & CREATOR */}
       <section className="details-section">
         <h3>Category Details</h3>
         <ul>
@@ -251,17 +255,11 @@ export default function ProductDetails() {
           <li><strong>Description:</strong> {product.category?.description}</li>
           <li><strong>Active:</strong> {product.category?.isActive ? "Yes" : "No"}</li>
         </ul>
-
         {product.category?.image && (
-          <img
-            src={product.category.image}
-            alt={product.category.name}
-            className="category-image"
-          />
+          <img src={product.category.image} alt={product.category.name} className="category-image" />
         )}
       </section>
 
-      {/* ================= CREATED BY ================= */}
       <section className="details-section">
         <h3>Created By</h3>
         <ul>

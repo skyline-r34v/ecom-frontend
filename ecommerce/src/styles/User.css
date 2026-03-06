@@ -1,0 +1,96 @@
+/* ================= USER CARD ================= */
+
+.user-card {
+    background: #ffffff;
+    border-radius: 8px;
+    border: 1px solid #e5e7eb;
+    padding: 12px 14px;
+    text-align: left;
+    transition: all 0.2s ease;
+    line-height: 1.3;
+  }
+  
+  .user-card:hover {
+    border-color: #2563eb;
+    box-shadow: 0 3px 8px rgba(0,0,0,0.05);
+  }
+  
+  /* ================= USER NAME ================= */
+  
+  .user-card h3 {
+    font-size: 15px;
+    font-weight: 600;
+    color: #111827;
+    margin: 0 0 4px 0;
+  }
+  
+  /* ================= USER INFO ================= */
+  
+  .user-card p {
+    font-size: 13px;
+    color: #4b5563;
+    margin: 1px 0;
+  }
+  
+  .user-card p strong {
+    color: #111827;
+  }
+  
+  /* ================= STATUS BADGE ================= */
+  
+  .user-status {
+    display: inline-block;
+    padding: 2px 7px;
+    border-radius: 5px;
+    font-size: 11px;
+    font-weight: 500;
+  }
+  
+  .user-status.active {
+    background: #dcfce7;
+    color: #15803d;
+  }
+  
+  .user-status.inactive {
+    background: #fee2e2;
+    color: #b91c1c;
+  }
+  
+  /* ================= BUTTON ================= */
+  
+  .user-toggle-btn {
+    margin-top: 6px;
+    padding: 5px 9px;
+    border-radius: 5px;
+    border: none;
+    font-size: 11px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: 0.2s;
+  }
+  
+  .user-toggle-btn.activate {
+    background: #22c55e;
+    color: white;
+  }
+  
+  .user-toggle-btn.activate:hover {
+    background: #16a34a;
+  }
+  
+  .user-toggle-btn.deactivate {
+    background: #ef4444;
+    color: white;
+  }
+  
+  .user-toggle-btn.deactivate:hover {
+    background: #dc2626;
+  }
+  
+  /* ================= GRID ================= */
+  
+  .category-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+    gap: 14px;
+  }

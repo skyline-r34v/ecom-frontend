@@ -2,12 +2,14 @@ import React, { useEffect, useState } from "react";
 import "../../styles/profile.css";
 import api from "../../api";
 import Navbar from "../../components/Navbar";
+
 export default function ProfilePage() {
   const [profile, setProfile] = useState(null);
   const [error, setError] = useState("");
   const [isEditing, setIsEditing] = useState(false);
 
   const [showAddressForm, setShowAddressForm] = useState(false);
+
   const emptyAddress = {
     label: "",
     street: "",
@@ -22,13 +24,15 @@ export default function ProfilePage() {
   const [addressForm, setAddressForm] = useState(emptyAddress);
   const [editAddressIndex, setEditAddressIndex] = useState(null);
 
-  // Load Profile
+  // LOAD PROFILE
   useEffect(() => {
     const userId = localStorage.getItem("userId");
+
     if (!userId) {
       setError("User not logged in.");
       return;
     }
+
     api
       .post("/users/profile", { userId })
       .then((res) => {
@@ -42,12 +46,15 @@ export default function ProfilePage() {
       .catch(() => setError("Failed to fetch profile."));
   }, []);
 
+  // PROFILE INPUT CHANGE
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
+  // ADDRESS INPUT CHANGE
   const handleAddressChange = (e) => {
     const { name, value, type, checked } = e.target;
+
     setAddressForm({
       ...addressForm,
       [name]: type === "checkbox" ? checked : value,
@@ -58,6 +65,7 @@ export default function ProfilePage() {
   const handleSave = async () => {
     try {
       const userId = localStorage.getItem("userId");
+
       const payload = {
         userId,
         name: form.name,
@@ -65,9 +73,11 @@ export default function ProfilePage() {
         gender: form.gender,
         dateOfBirth: form.dateOfBirth,
         bio: form.bio,
-        addresses: profile.addresses,
+        addresses: profile.addresses || [],
       };
+
       const res = await api.post("/users/profile", payload);
+
       if (res.data.success) {
         setProfile(res.data.data);
         setIsEditing(false);
@@ -77,23 +87,21 @@ export default function ProfilePage() {
     }
   };
 
-  // ADD OR EDIT ADDRESS
+  // SAVE ADDRESS
   const handleSaveAddress = async () => {
     if (!addressForm.label || !addressForm.street) {
       alert("Label and Street are required");
       return;
     }
 
-    let updatedAddresses = [...profile.addresses];
+    let updatedAddresses = [...(profile.addresses || [])];
 
-    // If editing existing address
     if (editAddressIndex !== null) {
       updatedAddresses[editAddressIndex] = addressForm;
     } else {
       updatedAddresses.push(addressForm);
     }
 
-    // Ensure only one default address
     if (addressForm.isDefault) {
       updatedAddresses = updatedAddresses.map((addr, idx) => ({
         ...addr,
@@ -102,10 +110,13 @@ export default function ProfilePage() {
     }
 
     const userId = localStorage.getItem("userId");
-    const payload = { userId, addresses: updatedAddresses };
 
     try {
-      const res = await api.post("/users/profile", payload);
+      const res = await api.post("/users/profile", {
+        userId,
+        addresses: updatedAddresses,
+      });
+
       if (res.data.success) {
         setProfile(res.data.data);
         setShowAddressForm(false);
@@ -117,20 +128,27 @@ export default function ProfilePage() {
     }
   };
 
+  // DELETE ADDRESS
   const handleDeleteAddress = async (index) => {
-    if (!window.confirm("Are you sure you want to delete this address?")) return;
+    if (!window.confirm("Delete this address?")) return;
 
     const updatedAddresses = profile.addresses.filter((_, i) => i !== index);
 
     const userId = localStorage.getItem("userId");
+
     try {
-      const res = await api.post("/users/profile", { userId, addresses: updatedAddresses });
+      const res = await api.post("/users/profile", {
+        userId,
+        addresses: updatedAddresses,
+      });
+
       if (res.data.success) setProfile(res.data.data);
-    } catch (err) {
+    } catch {
       alert("Failed to delete address.");
     }
   };
 
+  // EDIT ADDRESS
   const handleEditAddress = (index) => {
     setAddressForm(profile.addresses[index]);
     setEditAddressIndex(index);
@@ -143,11 +161,17 @@ export default function ProfilePage() {
       ...addr,
       isDefault: i === index,
     }));
+
     const userId = localStorage.getItem("userId");
+
     try {
-      const res = await api.post("/users/profile", { userId, addresses: updatedAddresses });
+      const res = await api.post("/users/profile", {
+        userId,
+        addresses: updatedAddresses,
+      });
+
       if (res.data.success) setProfile(res.data.data);
-    } catch (err) {
+    } catch {
       alert("Failed to update default address.");
     }
   };
@@ -158,8 +182,10 @@ export default function ProfilePage() {
   return (
     <div>
       <Navbar />
+
       <div className="account-wrapper">
-        {/* LEFT SIDEBAR */}
+
+        {/* SIDEBAR */}
         <div className="account-sidebar">
           <h3>Your Account</h3>
           <ul>
@@ -170,14 +196,18 @@ export default function ProfilePage() {
           </ul>
         </div>
 
-        {/* RIGHT CONTENT */}
+        {/* CONTENT */}
         <div className="account-content">
 
-          {/* PROFILE CARD */}
+          {/* PROFILE */}
           <div className="account-card">
             <div className="card-header">
               <h2>Profile Information</h2>
-              <button className="link-btn" onClick={() => setIsEditing(!isEditing)}>
+
+              <button
+                className="link-btn"
+                onClick={() => setIsEditing(!isEditing)}
+              >
                 {isEditing ? "Cancel" : "Edit"}
               </button>
             </div>
@@ -188,7 +218,7 @@ export default function ProfilePage() {
                   profile.avatar ||
                   "https://cdn-icons-png.flaticon.com/512/149/149071.png"
                 }
-                alt="Avatar"
+                alt="avatar"
                 className="avatar"
               />
 
@@ -197,30 +227,32 @@ export default function ProfilePage() {
                   <input
                     type="text"
                     name="name"
-                    value={form.name}
+                    value={form.name || ""}
                     onChange={handleChange}
                   />
                 ) : (
                   <h3>{profile.name}</h3>
                 )}
+
                 <p>{profile.email}</p>
                 <span className="role-badge">{profile.role}</span>
               </div>
             </div>
           </div>
 
-          {/* BASIC INFO */}
+          {/* BASIC DETAILS */}
           <div className="account-card">
             <h3 className="section-title">Basic Details</h3>
 
             <div className="info-grid">
               <div>
                 <label>Phone</label>
+
                 {isEditing ? (
                   <input
                     type="text"
                     name="phone"
-                    value={form.phone}
+                    value={form.phone || ""}
                     onChange={handleChange}
                   />
                 ) : (
@@ -230,6 +262,7 @@ export default function ProfilePage() {
 
               <div>
                 <label>Gender</label>
+
                 {isEditing ? (
                   <select
                     name="gender"
@@ -247,6 +280,7 @@ export default function ProfilePage() {
 
               <div>
                 <label>Date of Birth</label>
+
                 {isEditing ? (
                   <input
                     type="date"
@@ -279,10 +313,12 @@ export default function ProfilePage() {
           <div className="account-card">
             <div className="card-header">
               <h3>Saved Addresses</h3>
+
               <button
                 className="primary-btn small"
                 onClick={() => {
                   setAddressForm(emptyAddress);
+                  setEditAddressIndex(null);
                   setShowAddressForm(true);
                 }}
               >
@@ -291,7 +327,7 @@ export default function ProfilePage() {
             </div>
 
             <div className="address-grid">
-              {profile.addresses.map((addr, i) => (
+              {(profile.addresses || []).map((addr, i) => (
                 <div key={i} className="address-card">
                   <h4>
                     {addr.label}
@@ -299,15 +335,20 @@ export default function ProfilePage() {
                       <span className="default-chip">Default</span>
                     )}
                   </h4>
+
                   <p>{addr.street}</p>
                   <p>{addr.city}, {addr.state}</p>
                   <p>{addr.country} - {addr.postalCode}</p>
 
                   <div className="card-actions">
-                    <button onClick={() => handleEditAddress(i)}>Edit</button>
+                    <button onClick={() => handleEditAddress(i)}>
+                      Edit
+                    </button>
+
                     <button onClick={() => handleDeleteAddress(i)}>
                       Delete
                     </button>
+
                     {!addr.isDefault && (
                       <button onClick={() => handleDefaultAddress(i)}>
                         Set Default
@@ -317,11 +358,101 @@ export default function ProfilePage() {
                 </div>
               ))}
             </div>
+
+            {/* ADDRESS FORM */}
+            {showAddressForm && (
+              <div className="address-form">
+
+                <h3>
+                  {editAddressIndex !== null
+                    ? "Edit Address"
+                    : "Add Address"}
+                </h3>
+
+                <input
+                  type="text"
+                  name="label"
+                  placeholder="Label (Home/Work)"
+                  value={addressForm.label}
+                  onChange={handleAddressChange}
+                />
+
+                <input
+                  type="text"
+                  name="street"
+                  placeholder="Street"
+                  value={addressForm.street}
+                  onChange={handleAddressChange}
+                />
+
+                <input
+                  type="text"
+                  name="city"
+                  placeholder="City"
+                  value={addressForm.city}
+                  onChange={handleAddressChange}
+                />
+
+                <input
+                  type="text"
+                  name="state"
+                  placeholder="State"
+                  value={addressForm.state}
+                  onChange={handleAddressChange}
+                />
+
+                <input
+                  type="text"
+                  name="country"
+                  placeholder="Country"
+                  value={addressForm.country}
+                  onChange={handleAddressChange}
+                />
+
+                <input
+                  type="text"
+                  name="postalCode"
+                  placeholder="Postal Code"
+                  value={addressForm.postalCode}
+                  onChange={handleAddressChange}
+                />
+
+                <label>
+                  <input
+                    type="checkbox"
+                    name="isDefault"
+                    checked={addressForm.isDefault}
+                    onChange={handleAddressChange}
+                  />
+                  Set as Default
+                </label>
+
+                <div className="form-actions">
+                  <button
+                    className="primary-btn"
+                    onClick={handleSaveAddress}
+                  >
+                    Save Address
+                  </button>
+
+                  <button
+                    className="secondary-btn"
+                    onClick={() => {
+                      setShowAddressForm(false);
+                      setAddressForm(emptyAddress);
+                      setEditAddressIndex(null);
+                    }}
+                  >
+                    Cancel
+                  </button>
+                </div>
+
+              </div>
+            )}
           </div>
+
         </div>
       </div>
     </div>
-
   );
-
 }

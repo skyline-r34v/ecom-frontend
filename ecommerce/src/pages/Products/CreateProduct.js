@@ -4,7 +4,7 @@ import api from "../../api";
 import { useNavigate } from "react-router-dom";
 import { message } from "antd";
 
-const MAX_IMAGE_SIZE = 100 * 1024; // 100 KB
+const MAX_IMAGE_SIZE = 100 * 1024; // 100KB
 
 export default function AddProduct() {
   const navigate = useNavigate();
@@ -20,9 +20,13 @@ export default function AddProduct() {
     stock: "",
     warranty: "",
     returnPolicy: "",
-    pickupAddresses: [
-      { street: "", city: "", state: "", country: "", postalCode: "" }
-    ],
+    pickUpaddresses: {
+      street: "",
+      city: "",
+      state: "",
+      country: "",
+      postalCode: "",
+    },
   });
 
   const [thumbnail, setThumbnail] = useState(null);
@@ -38,10 +42,7 @@ export default function AddProduct() {
 
   const fetchCategories = async () => {
     try {
-      const res = await api.post("/categories/list", {
-        page: 1,
-        size: 100,
-      });
+      const res = await api.post("/categories/list", { page: 1, size: 100 });
       setCategories(res.data.data || []);
     } catch {
       message.error("Failed to load categories");
@@ -50,10 +51,7 @@ export default function AddProduct() {
 
   const fetchBrands = async () => {
     try {
-      const res = await api.post("/brands/list", {
-        page: 1,
-        size: 100,
-      });
+      const res = await api.post("/brands/list", { page: 1, size: 100 });
       setBrands(res.data.data || []);
     } catch {
       message.error("Failed to load brands");
@@ -64,34 +62,37 @@ export default function AddProduct() {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
-  /* Pickup Address Handlers */
-  const handlePickupChange = (index, field, value) => {
-    const updated = [...form.pickupAddresses];
-    updated[index][field] = value;
-    setForm({ ...form, pickupAddresses: updated });
+  /* Pickup Address Change */
+  const handlePickupChange = (field, value) => {
+    setForm({
+      ...form,
+      pickUpaddresses: {
+        ...form.pickUpaddresses,
+        [field]: value,
+      },
+    });
   };
 
-  
+  /* Thumbnail Upload */
   const handleThumbnailChange = (e) => {
     const file = e.target.files[0];
     if (!file) return;
 
     if (file.size > MAX_IMAGE_SIZE) {
       message.error("Thumbnail must be less than 100 KB");
-      e.target.value = null;
       return;
     }
 
     setThumbnail(file);
   };
 
+  /* Multiple Images Upload */
   const handleImagesChange = (e) => {
     const selectedFiles = Array.from(e.target.files);
 
     for (let file of selectedFiles) {
       if (file.size > MAX_IMAGE_SIZE) {
         message.error("Each image must be less than 100 KB");
-        e.target.value = null;
         return;
       }
     }
@@ -103,35 +104,35 @@ export default function AddProduct() {
     e.preventDefault();
 
     if (!form.title.trim()) return message.error("Title is required");
-    if (!form.brand) return message.error("Brand is required");
-    if (!form.category) return message.error("Category is required");
     if (!form.price) return message.error("Price is required");
     if (!form.stock) return message.error("Stock is required");
     if (!thumbnail) return message.error("Thumbnail is required");
-
-    if (
-      form.discountPrice &&
-      Number(form.discountPrice) >= Number(form.price)
-    ) {
-      return message.error("Discount price must be less than price");
-    }
 
     try {
       setLoading(true);
 
       const formData = new FormData();
 
-      Object.keys(form).forEach((key) => {
-        if (key === "pickupAddresses") {
-          formData.append(
-            "pickupAddresses",
-            JSON.stringify(form.pickupAddresses)
-          );
-        } else {
-          formData.append(key, form[key]);
-        }
-      });
+      /* Basic fields */
+      formData.append("title", form.title);
+      formData.append("brand", form.brand);
+      formData.append("category", form.category);
+      formData.append("price", form.price);
+      formData.append("discountPrice", form.discountPrice);
+      formData.append("description", form.description);
+      formData.append("specifications", form.specifications);
+      formData.append("stock", form.stock);
+      formData.append("warranty", form.warranty);
+      formData.append("returnPolicy", form.returnPolicy);
 
+      /* Pickup Address (MATCHES BACKEND MODEL) */
+      formData.append("pickUpaddresses[street]", form.pickUpaddresses.street);
+      formData.append("pickUpaddresses[city]", form.pickUpaddresses.city);
+      formData.append("pickUpaddresses[state]", form.pickUpaddresses.state);
+      formData.append("pickUpaddresses[country]", form.pickUpaddresses.country);
+      formData.append("pickUpaddresses[postalCode]", form.pickUpaddresses.postalCode);
+
+      /* Images */
       formData.append("thumbnail", thumbnail);
 
       images.forEach((img) => {
@@ -144,6 +145,7 @@ export default function AddProduct() {
 
       message.success("Product created successfully");
       navigate("/products");
+
     } catch (err) {
       message.error(
         err.response?.data?.message || "Server error while creating product"
@@ -164,159 +166,135 @@ export default function AddProduct() {
 
       <form className="add-product-form" onSubmit={handleSubmit}>
 
-        {/* ================= BASIC INFO ================= */}
         <h3 className="section-title">Basic Information</h3>
+
         <div className="grid-2">
           <div className="form-group">
             <label>Title *</label>
-            <input name="title" value={form.title} onChange={handleChange} required />
+            <input name="title" value={form.title} onChange={handleChange} />
           </div>
 
           <div className="form-group">
-            <label>Brand *</label>
-            <select name="brand" value={form.brand} onChange={handleChange} required>
+            <label>Brand</label>
+            <select name="brand" value={form.brand} onChange={handleChange}>
               <option value="">Select Brand</option>
-              {brands.map((brand) => (
-                <option key={brand._id} value={brand._id}>
-                  {brand.name}
+              {brands.map((b) => (
+                <option key={b._id} value={b._id}>
+                  {b.name}
                 </option>
               ))}
             </select>
           </div>
 
           <div className="form-group">
-            <label>Category *</label>
-            <select name="category" value={form.category} onChange={handleChange} required>
+            <label>Category</label>
+            <select name="category" value={form.category} onChange={handleChange}>
               <option value="">Select Category</option>
-              {categories.map((cat) => (
-                <option key={cat._id} value={cat._id}>
-                  {cat.name}
+              {categories.map((c) => (
+                <option key={c._id} value={c._id}>
+                  {c.name}
                 </option>
               ))}
             </select>
           </div>
         </div>
 
-        {/* ================= PRICING ================= */}
-        <h3 className="section-title">Pricing & Inventory</h3>
+        <h3 className="section-title">Pricing</h3>
+
         <div className="grid-2">
-          <div className="form-group">
-            <label>Price *</label>
-            <input type="number" name="price" value={form.price} onChange={handleChange} required />
-          </div>
+          <input
+            type="number"
+            name="price"
+            placeholder="Price"
+            value={form.price}
+            onChange={handleChange}
+          />
 
-          <div className="form-group">
-            <label>Discount Price</label>
-            <input type="number" name="discountPrice" value={form.discountPrice} onChange={handleChange} />
-          </div>
+          <input
+            type="number"
+            name="discountPrice"
+            placeholder="Discount Price"
+            value={form.discountPrice}
+            onChange={handleChange}
+          />
 
-          <div className="form-group">
-            <label>Stock *</label>
-            <input type="number" name="stock" value={form.stock} onChange={handleChange} required />
-          </div>
+          <input
+            type="number"
+            name="stock"
+            placeholder="Stock"
+            value={form.stock}
+            onChange={handleChange}
+          />
         </div>
 
-        {/* ================= PRODUCT DETAILS ================= */}
         <h3 className="section-title">Product Details</h3>
 
-        <div className="form-group">
-          <label>Description</label>
-          <textarea name="description" value={form.description} onChange={handleChange} />
-        </div>
+        <textarea
+          name="description"
+          placeholder="Description"
+          value={form.description}
+          onChange={handleChange}
+        />
 
-        <div className="form-group">
-          <label>Specifications (JSON or Text)</label>
-          <textarea name="specifications" value={form.specifications} onChange={handleChange} />
-        </div>
+        <textarea
+          name="specifications"
+          placeholder="Specifications"
+          value={form.specifications}
+          onChange={handleChange}
+        />
+
+        <h3 className="section-title">Pickup Address</h3>
 
         <div className="grid-2">
-          <div className="form-group">
-            <label>Warranty</label>
-            <input name="warranty" value={form.warranty} onChange={handleChange} />
-          </div>
 
-          <div className="form-group">
-            <label>Return Policy</label>
-            <textarea name="returnPolicy" value={form.returnPolicy} onChange={handleChange} />
-          </div>
+          <input
+            placeholder="Street"
+            value={form.pickUpaddresses.street}
+            onChange={(e) => handlePickupChange("street", e.target.value)}
+          />
+
+          <input
+            placeholder="City"
+            value={form.pickUpaddresses.city}
+            onChange={(e) => handlePickupChange("city", e.target.value)}
+          />
+
+          <input
+            placeholder="State"
+            value={form.pickUpaddresses.state}
+            onChange={(e) => handlePickupChange("state", e.target.value)}
+          />
+
+          <input
+            placeholder="Country"
+            value={form.pickUpaddresses.country}
+            onChange={(e) => handlePickupChange("country", e.target.value)}
+          />
+
+          <input
+            placeholder="Postal Code"
+            value={form.pickUpaddresses.postalCode}
+            onChange={(e) => handlePickupChange("postalCode", e.target.value)}
+          />
+
         </div>
 
-        {/* ================= PICKUP ADDRESSES ================= */}
-        <h3 className="section-title">Pickup Addresses</h3>
-
-        {form.pickupAddresses.map((addr, index) => (
-          <div key={index} className="address-card">
-            <h4>Address {index + 1}</h4>
-
-            <div className="grid-2">
-              <input
-                type="text"
-                placeholder="Street"
-                value={addr.street}
-                onChange={(e) =>
-                  handlePickupChange(index, "street", e.target.value)
-                }
-              />
-
-              <input
-                type="text"
-                placeholder="City"
-                value={addr.city}
-                onChange={(e) =>
-                  handlePickupChange(index, "city", e.target.value)
-                }
-              />
-
-              <input
-                type="text"
-                placeholder="State"
-                value={addr.state}
-                onChange={(e) =>
-                  handlePickupChange(index, "state", e.target.value)
-                }
-              />
-
-              <input
-                type="text"
-                placeholder="Country"
-                value={addr.country}
-                onChange={(e) =>
-                  handlePickupChange(index, "country", e.target.value)
-                }
-              />
-
-              <input
-                type="text"
-                placeholder="Postal Code"
-                value={addr.postalCode}
-                onChange={(e) =>
-                  handlePickupChange(index, "postalCode", e.target.value)
-                }
-              />
-            </div>
-
-           
-          </div>
-        ))}
-
-      
-
-        {/* ================= MEDIA ================= */}
-        <h3 className="section-title">Media</h3>
+        <h3 className="section-title">Images</h3>
 
         <div className="form-group">
-          <label>Thumbnail (Max 100 KB) *</label>
-          <input type="file" accept="image/*" onChange={handleThumbnailChange} />
+          <label>Thumbnail (Max 100KB)</label>
+          <input type="file" onChange={handleThumbnailChange} />
         </div>
 
         <div className="form-group">
-          <label>Product Images (Each Max 100 KB)</label>
-          <input type="file" multiple accept="image/*" onChange={handleImagesChange} />
+          <label>Product Images</label>
+          <input type="file" multiple onChange={handleImagesChange} />
         </div>
 
         <button type="submit" disabled={loading} className="submit-btn">
           {loading ? "Creating..." : "Add Product"}
         </button>
+
       </form>
     </div>
   );

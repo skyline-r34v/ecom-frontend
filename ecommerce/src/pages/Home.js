@@ -4,28 +4,26 @@ import api from "../api";
 import Navbar from "../components/Navbar";
 import "../styles/home.css";
 
-/* ================= HERO BANNERS (SHOES) ================= */
+/* HERO BANNERS */
+
 const banners = [
-  "https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Fwww.stuff.tv%2Fwp-content%2Fuploads%2Fsites%2F2%2F2023%2F04%2Fbest-running-shoes-lead.jpg&f=1&nofb=1&ipt=0d284b33741d412ef0fe0735909c3f8c8c0d06e52a8f293185bb03c1719f2492",
-  "https://images.unsplash.com/photo-1506544777-64cfbe1142df?w=900&auto=format&fit=crop&q=60",
-  "https://images.unsplash.com/photo-1595341888016-a392ef81b7de?w=900&auto=format&fit=crop&q=60",
+  "https://images.unsplash.com/photo-1542291026-7eec264c27ff",
+  "https://images.unsplash.com/photo-1595341888016-a392ef81b7de",
+  "https://images.unsplash.com/photo-1505740420928-5e560c06d30e",
 ];
 
-/* ================= RATING ================= */
-const Rating = ({ reviews = [] }) => {
-  if (!reviews.length) {
-    return <div className="fk-rating no-rating">No ratings</div>;
-  }
+/* RATING */
 
-  const avg = reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length;
-  const fullStars = Math.floor(avg);
+const Rating = ({ reviews = [] }) => {
+  if (!reviews.length) return <div className="fk-rating">No ratings</div>;
+
+  const avg = reviews.reduce((a, r) => a + r.rating, 0) / reviews.length;
+  const full = Math.floor(avg);
 
   return (
     <div className="fk-rating">
       {[...Array(5)].map((_, i) => (
-        <span key={i} className={i < fullStars ? "" : "star-muted"}>
-          ⭐
-        </span>
+        <span key={i}>{i < full ? "⭐" : "☆"}</span>
       ))}
       <span className="rating-text">
         {avg.toFixed(1)} ({reviews.length})
@@ -42,112 +40,121 @@ export default function Home() {
   const [allCategories, setAllCategories] = useState([]);
   const [products, setProducts] = useState([]);
   const [brands, setBrands] = useState([]);
+
   const [slideIndex, setSlideIndex] = useState(0);
-  const [loadingProducts, setLoadingProducts] = useState(false);
-  const [search, setSearch] = useState("");
   const [wishlist, setWishlist] = useState([]);
+
+  /* FLASH SALE TIMER */
+
+  const [timeLeft, setTimeLeft] = useState(3600);
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setTimeLeft((p) => (p > 0 ? p - 1 : 0));
+    }, 1000);
+
+    return () => clearInterval(timer);
+  }, []);
+
+  const hours = Math.floor(timeLeft / 3600);
+  const minutes = Math.floor((timeLeft % 3600) / 60);
+  const seconds = timeLeft % 60;
 
   const categoryParam = params.get("category");
   const searchParam = params.get("search");
 
-  /* ================= FETCH CATEGORIES & BRANDS ================= */
+  /* FETCH DATA */
+
   useEffect(() => {
-    api.get("/categories/with-subcategories")
-      .then(res => setCategories(res.data.data || []))
-      .catch(console.error);
+    api.get("/categories/with-subcategories").then((res) => {
+      setCategories(res.data.data || []);
+    });
 
-    api.post("/categories/list", { page: 1, size: 20 })
-      .then(res => setAllCategories(res.data.data || []))
-      .catch(console.error);
+    api.post("/categories/list", { page: 1, size: 20 }).then((res) => {
+      setAllCategories(res.data.data || []);
+    });
 
-    api.post("/brands/list", { page: 1, size: 20 })
-      .then(res => setBrands(res.data.data || []))
-      .catch(console.error);
+    api.post("/brands/list", { page: 1, size: 20 }).then((res) => {
+      setBrands(res.data.data || []);
+    });
   }, []);
 
-  /* ================= FETCH PRODUCTS ================= */
   useEffect(() => {
-    setLoadingProducts(true);
-    api.post("/products/list", {
-      page: 1,
-      size: 50,
-      category: categoryParam || undefined,
-      search: searchParam || undefined,
-    })
-      .then(res => setProducts(res.data.data || []))
-      .finally(() => setLoadingProducts(false));
+    api
+      .post("/products/list", {
+        page: 1,
+        size: 50,
+        category: categoryParam || undefined,
+        search: searchParam || undefined,
+      })
+      .then((res) => setProducts(res.data.data || []));
   }, [categoryParam, searchParam]);
 
-  /* ================= HERO SLIDER ================= */
+  /* HERO AUTO SLIDE */
+
   useEffect(() => {
     const timer = setInterval(() => {
-      setSlideIndex(prev => (prev + 1) % banners.length);
+      setSlideIndex((p) => (p + 1) % banners.length);
     }, 4000);
+
     return () => clearInterval(timer);
   }, []);
 
-  /* ================= GROUP PRODUCTS BY CATEGORY ================= */
+  /* GROUP PRODUCTS */
+
   const productsByCategory = products.reduce((acc, p) => {
-    const name = p.category?.name || "Footwear";
+    const name = p.category?.name || "Products";
+
     if (!acc[name]) acc[name] = [];
+
     acc[name].push(p);
+
     return acc;
   }, {});
 
-  /* ================= WISHLIST ================= */
-  const toggleWishlist = async (id) => {
-    try {
-      if (wishlist.includes(id)) {
-        await api.post(`/wishlist/delete`);
-        setWishlist(prev => prev.filter(x => x !== id));
-      } else {
-        await api.post("/wishlists/create", { productId: id });
-        setWishlist(prev => [...prev, id]);
-      }
-    } catch {
-      alert("Wishlist update failed");
+  /* WISHLIST */
+
+  const toggleWishlist = (id) => {
+    if (wishlist.includes(id)) {
+      setWishlist((prev) => prev.filter((x) => x !== id));
+    } else {
+      setWishlist((prev) => [...prev, id]);
     }
   };
 
   return (
     <div className="onekart-home">
-      <Navbar search={search} setSearch={setSearch} />
+      <Navbar />
 
-      {/* ================= CATEGORY HOVER ================= */}
-      <section className="category-hover-bar">
-        <div className="category-hover-container">
-          {categories.map(cat => (
-            <div key={cat._id} className="category-hover-item">
-              <span
-                className="category-name"
-                onClick={() =>
-                  navigate(`/products?category=${cat._id}`)
-                }
-              >
-                {cat.name}
-              </span>
+      {/* MEGA MENU */}
 
-              {cat.subCategories?.length > 0 && (
-                <div className="subcategory-dropdown">
-                  {cat.subCategories.map(sub => (
-                    <div
-                      key={sub._id}
-                      className="subcategory-item"
-                      onClick={() =>
-                        navigate(`/products?subcategory=${sub._id}`)
-                      }
-                    >
-                      {sub.name}
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-          ))}
-        </div>
-      </section>
+      <div className="mega-menu">
+        {categories.map((cat) => (
+          <div key={cat._id} className="mega-item">
+            <span onClick={() => navigate(`/products?category=${cat._id}`)}>
+              {cat.name}
+            </span>
 
-      {/* ================= HERO ================= */}
+            {cat.subcategories?.length > 0 && (
+              <div className="mega-dropdown">
+                {cat.subcategories.map((sub) => (
+                  <p
+                    key={sub._id}
+                    onClick={() =>
+                      navigate(`/products?subcategory=${sub._id}`)
+                    }
+                  >
+                    {sub.name}
+                  </p>
+                ))}
+              </div>
+            )}
+          </div>
+        ))}
+      </div>
+
+      {/* HERO */}
+
       <section className="hero-slider">
         <div
           className="hero-track"
@@ -155,157 +162,169 @@ export default function Home() {
         >
           {banners.map((img, i) => (
             <div key={i} className="hero-slide">
-              <img src={img} alt="shoes banner" />
+              <img src={img} alt="banner" />
+
               <div className="hero-content">
-                <span className="badge">Exclusive Shoe Deals</span>
-                <h1>Step Into Style & Comfort</h1>
-                <p>
-                  Discover premium sneakers, running shoes, and everyday
-                  footwear from top brands.
-                </p>
-                <div className="hero-actions">
-                  <button onClick={() => navigate("/products")}>
-                    Shop Shoes
-                  </button>
-                  <button
-                    className="ghost"
-                    onClick={() => navigate("/products")}
-                  >
-                    Explore Collection
-                  </button>
-                </div>
+                <h1>Step Into Comfort</h1>
+                <p>Discover premium sneakers</p>
+
+                <button onClick={() => navigate("/products")}>
+                  Shop Now
+                </button>
               </div>
             </div>
           ))}
         </div>
       </section>
 
-      {/* ================= SHOP BY CATEGORY ================= */}
-      <section className="all-category-list">
-        <h2 className="section-title">Shop by Shoe Category</h2>
-        <div className="all-category-grid">
-          {allCategories.map(cat => (
+      {/* CATEGORY SLIDER */}
+
+      <section className="category-row">
+        <h2>Shop By Category</h2>
+
+        <div className="category-slider">
+          {allCategories.map((cat) => (
             <div
               key={cat._id}
-              className="all-category-card"
-              onClick={() =>
-                navigate(`/products?category=${cat._id}`)
-              }
+              className="category-small-card"
+              onClick={() => navigate(`/products?category=${cat._id}`)}
             >
-              <img
-                src={cat.image || "https://via.placeholder.com/80"}
-                alt={cat.name}
-              />
-              <span>{cat.name}</span>
+              <img src={cat.image} alt={cat.name} />
+              <p>{cat.name}</p>
             </div>
           ))}
         </div>
       </section>
 
-      {/* ================= SHOP BY BRAND ================= */}
-      <section className="brand-section">
-        <h2 className="section-title">Top Shoe Brands</h2>
-        <div className="brand-grid">
-          {brands.map(brand => (
+      {/* BRANDS */}
+
+      <section className="brands-row">
+        <h2>Top Brands</h2>
+
+        <div className="brand-slider">
+          {brands.map((brand) => (
             <div
               key={brand._id}
-              className="brand-card"
-              onClick={() =>
-                navigate(`/products?brand=${brand._id}`)
-              }
+              className="brand-logo"
+              onClick={() => navigate(`/products?brand=${brand._id}`)}
             >
-              <img
-                src={brand.logo || "https://via.placeholder.com/80"}
-                alt={brand.name}
-              />
-              <span>{brand.name}</span>
+              <img src={brand.logo} alt={brand.name} />
             </div>
           ))}
         </div>
       </section>
 
-      {/* ================= PRODUCTS ================= */}
-      {loadingProducts ? (
-        <p style={{ padding: 40 }}>Loading shoes...</p>
-      ) : (
-        Object.keys(productsByCategory).map(catName => (
-          <section className="product-row" key={catName}>
-            <div className="row-head">
-              <h2>{catName}</h2>
-              <button
-                className="link"
-                onClick={() =>
-                  navigate(
-                    `/products?category=${productsByCategory[catName][0]?.category?._id}`
-                  )
-                }
+      {/* FLASH SALE */}
+
+      <section className="flash-sale">
+        <div className="flash-head">
+          <h2>⚡ Flash Sale</h2>
+
+          <div className="countdown">
+            {hours}:{minutes}:{seconds}
+          </div>
+        </div>
+
+        <div className="deal-grid">
+          {products.slice(0, 6).map((p) => (
+            <div
+              key={p._id}
+              className="deal-card"
+              onClick={() => navigate(`/products/${p._id}`)}
+            >
+              <img src={p.images?.[0]} alt={p.title} />
+              <p>{p.title}</p>
+              <div className="price">
+                ₹{p.discountPrice || p.price}
+              </div>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* PRODUCT ROWS */}
+
+      {Object.keys(productsByCategory).map((catName) => (
+        <section className="product-row" key={catName}>
+          <div className="row-head">
+            <h2>{catName}</h2>
+          </div>
+
+          <div className="home-product-grid">
+            {productsByCategory[catName].map((p) => (
+              <div
+                key={p._id}
+                className="fk-card"
+                onClick={() => navigate(`/products/${p._id}`)}
               >
-                View All Shoes
-              </button>
-            </div>
-
-            <div className="home-product-grid">
-              {productsByCategory[catName].slice(0, 5).map(p => (
-                <div
-                  key={p._id}
-                  className="fk-card"
-                  onClick={() =>
-                    navigate(`/products/${p._id}`)
-                  }
-                >
-                  <div className="fk-img-box">
-                    <img
-                      src={
-                        p.images?.[0] ||
-                        p.thumbnail ||
-                        "https://via.placeholder.com/180"
-                      }
-                      alt={p.title}
-                    />
-                  </div>
-
-                  <div className="fk-info">
-                    <p className="fk-title">{p.title}</p>
-                    <Rating reviews={p.reviews} />
-                    <div className="fk-price">
-                      ₹{p.discountPrice || p.price}
-                      {p.discountPrice && <del>₹{p.price}</del>}
-                    </div>
-                  </div>
-
-                  <div className="fk-card-actions">
-                    <button
-                      className="fk-cart-btn"
-                      onClick={e => {
-                        e.stopPropagation();
-                        alert("Added to cart");
-                      }}
-                    >
-                      ADD TO CART
-                    </button>
-                    <button
-                      className={`fk-wishlist-btn ${
-                        wishlist.includes(p._id)
-                          ? "active"
-                          : ""
-                      }`}
-                      onClick={e => {
-                        e.stopPropagation();
-                        toggleWishlist(p._id);
-                      }}
-                    >
-                      ❤️
-                    </button>
-                  </div>
+                <div className="fk-img-box">
+                  <img src={p.images?.[0]} alt={p.title} />
                 </div>
-              ))}
-            </div>
-          </section>
-        ))
-      )}
+
+                <button
+                  className={`fk-wishlist-btn ${
+                    wishlist.includes(p._id) ? "active" : ""
+                  }`}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    toggleWishlist(p._id);
+                  }}
+                >
+                  {wishlist.includes(p._id) ? "❤️" : "🤍"}
+                </button>
+
+                <p className="fk-title">{p.title}</p>
+
+                <Rating reviews={p.reviews} />
+
+                <div className="fk-price">
+                  ₹{p.discountPrice || p.price}
+                </div>
+
+                <button
+                  className="fk-cart-btn"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    alert("Added to cart");
+                  }}
+                >
+                  Add to Cart
+                </button>
+              </div>
+            ))}
+          </div>
+        </section>
+      ))}
+
+      {/* FOOTER */}
 
       <footer className="onekart-footer">
-        © 2025 OneKart • Step Better. Walk Smarter.
+        <div className="footer-grid">
+          <div>
+            <h4>About</h4>
+            <p>Premium footwear marketplace</p>
+          </div>
+
+          <div>
+            <h4>Support</h4>
+            <p>Help Center</p>
+            <p>Returns</p>
+          </div>
+
+          <div>
+            <h4>Company</h4>
+            <p>About Us</p>
+            <p>Careers</p>
+          </div>
+
+          <div>
+            <h4>Follow</h4>
+            <p>Instagram</p>
+            <p>Facebook</p>
+          </div>
+        </div>
+
+        <div className="footer-bottom">© 2025 OneKart</div>
       </footer>
     </div>
   );

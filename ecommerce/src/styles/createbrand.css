@@ -1,150 +1,129 @@
-/* ================= PAGE BACKGROUND ================= */
 .create-brand-page {
-  min-height: 100vh;
-  background:
-    radial-gradient(circle at top left, #c7d2fe, transparent 45%),
-    radial-gradient(circle at bottom right, #fde68a, transparent 45%),
-    linear-gradient(135deg, #f8fafc, #eef2ff);
-
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  padding: 40px 20px;
+  max-width: 1000px;
+  margin: auto;
+  padding: 30px;
+  font-family: "Poppins", sans-serif;
 }
 
-/* ================= GLASS CARD ================= */
+/* CARD */
+
 .create-brand-card {
-  width: 100%;
-  max-width: 560px;
-
-  background: rgba(255, 255, 255, 0.55);
-  backdrop-filter: blur(18px);
-  -webkit-backdrop-filter: blur(18px);
-
-  border-radius: 20px;
-  padding: 36px;
-
-  border: 1px solid rgba(255, 255, 255, 0.35);
-
-  box-shadow:
-    0 30px 60px rgba(0, 0, 0, 0.12),
-    inset 0 1px 0 rgba(255, 255, 255, 0.6);
-
-  animation: glassFade 0.5s ease;
+  background: white;
+  padding: 30px;
+  border-radius: 10px;
+  border: 1px solid #e5e7eb;
 }
 
-/* ================= ANIMATION ================= */
-@keyframes glassFade {
-  from {
-    opacity: 0;
-    transform: translateY(18px) scale(0.98);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0) scale(1);
-  }
-}
-
-/* ================= TITLE ================= */
 .create-brand-card h2 {
-  font-size: 26px;
-  font-weight: 800;
-  color: #0f172a;
-  margin-bottom: 28px;
   text-align: center;
-  letter-spacing: -0.3px;
+  margin-bottom: 25px;
+  color: #1f2937;
 }
 
-/* ================= FORM ================= */
+/* FORM */
+
 .create-brand-form {
-  display: flex;
-  flex-direction: column;
-  gap: 18px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
 }
 
-/* ================= INPUTS ================= */
 .create-brand-form input,
 .create-brand-form textarea {
-  padding: 14px 16px;
-  font-size: 15px;
-  border-radius: 12px;
-  border: 1px solid rgba(203, 213, 225, 0.8);
-  background: rgba(255, 255, 255, 0.65);
-  color: #0f172a;
-  outline: none;
-
-  transition:
-    border-color 0.25s ease,
-    box-shadow 0.25s ease,
-    background 0.25s ease;
+  padding: 10px;
+  border-radius: 6px;
+  border: 1px solid #d1d5db;
+  background: #fafafa;
+  font-size: 14px;
+  transition: all 0.2s ease;
 }
 
 .create-brand-form textarea {
-  min-height: 110px;
-  resize: vertical;
+  min-height: 100px;
+  grid-column: span 2;
+  resize: none;
+}
+.back-btn {
+  background: none;
+  border: none;
+  color: #2563eb;
+  cursor: pointer;
+  margin-bottom: 15px;
+  font-size: 14px;
+  font-weight: 500;
 }
 
-/* ================= PLACEHOLDER ================= */
-.create-brand-form input::placeholder,
-.create-brand-form textarea::placeholder {
-  color: #64748b;
+.back-btn:hover {
+  text-decoration: underline;
 }
+/* INPUT FOCUS */
 
-/* ================= FOCUS ================= */
 .create-brand-form input:focus,
 .create-brand-form textarea:focus {
-  background: rgba(255, 255, 255, 0.85);
-  border-color: #6366f1;
-  box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.25);
+  outline: none;
+  border-color: #2563eb;
+  background: white;
 }
 
-/* ================= FILE INPUT ================= */
+/* FILE INPUT */
+
 .create-brand-form input[type="file"] {
-  background: rgba(255, 255, 255, 0.5);
-  border: 1px dashed #a5b4fc;
+  grid-column: span 2;
+  background: white;
+  border: 1px dashed #d1d5db;
+  padding: 12px;
   cursor: pointer;
 }
 
-/* ================= BUTTON ================= */
+/* BUTTON */
+
 .create-brand-form button {
-  margin-top: 8px;
-  padding: 14px;
-  border-radius: 14px;
+  grid-column: span 2;
+  background: #2563eb;
+  color: white;
+  padding: 12px;
   border: none;
+  border-radius: 6px;
+  font-size: 15px;
+  font-weight: 600;
   cursor: pointer;
-
-  font-size: 16px;
-  font-weight: 700;
-  letter-spacing: 0.2px;
-
-  background: linear-gradient(135deg, #4f46e5, #6366f1);
-  color: #ffffff;
-
-  transition:
-    transform 0.25s ease,
-    box-shadow 0.25s ease,
-    filter 0.25s ease;
+  transition: 0.2s;
 }
 
-.create-brand-form button:hover:not(:disabled) {
-  transform: translateY(-3px);
-  box-shadow: 0 18px 35px rgba(99, 102, 241, 0.45);
-  filter: brightness(1.05);
+.create-brand-form button:hover {
+  background: #1d4ed8;
 }
 
 .create-brand-form button:disabled {
-  opacity: 0.6;
+  background: #9ca3af;
   cursor: not-allowed;
 }
 
-/* ================= MOBILE ================= */
-@media (max-width: 480px) {
-  .create-brand-card {
-    padding: 26px;
-    border-radius: 18px;
+/* BACK BUTTON */
+
+.back-btn {
+  background: none;
+  border: none;
+  color: #2563eb;
+  cursor: pointer;
+  margin-bottom: 15px;
+  font-size: 14px;
+}
+
+.back-btn:hover {
+  text-decoration: underline;
+}
+
+/* RESPONSIVE */
+
+@media (max-width: 768px) {
+  .create-brand-form {
+    grid-template-columns: 1fr;
   }
 
-  .create-brand-card h2 {
-    font-size: 22px;
+  .create-brand-form textarea,
+  .create-brand-form input[type="file"],
+  .create-brand-form button {
+    grid-column: span 1;
   }
 }

@@ -20,7 +20,6 @@
   box-shadow: 0 30px 60px rgba(0, 0, 0, 0.1);
   margin-bottom: 48px;
   position: relative;
-  overflow: hidden;
   transition: all 0.35s ease;
 }
 
@@ -446,6 +445,8 @@
     gap: 12px;
   }
 }
+
+/* ===================== WISHLIST ===================== */
 .title-row {
   display: flex;
   align-items: center;

@@ -32,6 +32,7 @@ import BrandCreate from "./pages/Brands/Create";
 import BrandList from "./pages/Brands/Lists";
 import BrandEdit from "./pages/Brands/Update";
 import ForgotPassword  from  "./pages/ForgotPassword.js";
+import EditProduct from "./pages/Products/EditProduct.js";
 
 function App() {
   const role = localStorage.getItem("role"); // admin / customer
@@ -52,6 +53,7 @@ function App() {
         <Route path="/products" element={<Product />} />
         <Route path="/products/:id" element={<ProductDetails />} />
         <Route path="/products/add" element={<Createproduct />} />
+        <Route path="/products/edit/:id" element={<EditProduct />} />
 
         {/* ================= CATEGORIES ================= */}
         <Route path="/category" element={<Category />} />

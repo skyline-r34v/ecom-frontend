@@ -5,6 +5,12 @@ const useCartStore = create((set, get) => ({
 
   addToCart: (product) =>
     set((state) => {
+
+      const pickingAddress =
+        product?.productDetail?.pickUpaddresses ||
+        product?.detail?.pickUpaddresses ||
+        null;
+
       const exists = state.products.find(
         (item) => item._id === product._id
       );
@@ -20,9 +26,28 @@ const useCartStore = create((set, get) => ({
       }
 
       return {
-        products: [...state.products, { ...product, quantity: 1 }],
+        products: [
+          ...state.products,
+          {
+            ...product,
+            quantity: 1,
+            pickingAddress, // ✅ store pickup address
+          },
+        ],
       };
     }),
+
+  removeFromCart: (id) =>
+    set((state) => ({
+      products: state.products.filter((item) => item._id !== id),
+    })),
+
+  updateQuantity: (id, qty) =>
+    set((state) => ({
+      products: state.products.map((item) =>
+        item._id === id ? { ...item, quantity: qty } : item
+      ),
+    })),
 
   clearCart: () => set({ products: [] }),
 

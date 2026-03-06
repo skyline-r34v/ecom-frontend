@@ -14,24 +14,23 @@ export default function CategoryPage() {
     name: "",
     slug: "",
     description: "",
-    image: null, // FILE
+    image: null,
     parentCategory: "",
     isFeatured: false,
     sortOrder: 0,
     isActive: true,
   });
 
-  /* =======================
-     FETCH CATEGORIES
-  ======================= */
+  /* FETCH CATEGORIES */
   const fetchCategories = async () => {
     try {
       const res = await api.post("/categories/list", {
         page: 1,
         size: 100,
       });
+
       setCategories(res.data.data || []);
-    } catch (error) {
+    } catch {
       message.error("Failed to load categories");
     }
   };
@@ -40,14 +39,12 @@ export default function CategoryPage() {
     fetchCategories();
   }, []);
 
-  /* =======================
-     CREATE CATEGORY
-  ======================= */
+  /* CREATE CATEGORY */
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     if (!form.name || !form.slug) {
-      message.warning("Category name and slug are required");
+      message.warning("Category name and slug required");
       return;
     }
 
@@ -55,6 +52,7 @@ export default function CategoryPage() {
       setLoading(true);
 
       const formData = new FormData();
+
       formData.append("name", form.name);
       formData.append("slug", form.slug);
       formData.append("description", form.description);
@@ -64,14 +62,15 @@ export default function CategoryPage() {
       formData.append("isActive", form.isActive);
 
       if (form.image) {
-        formData.append("image", form.image); // MUST MATCH BACKEND
+        formData.append("image", form.image);
       }
 
       await api.post("/categories/create", formData, {
         headers: { "Content-Type": "multipart/form-data" },
       });
 
-      message.success("Category Created Successfully");
+      message.success("Category Created");
+
       fetchCategories();
 
       setForm({
@@ -91,9 +90,7 @@ export default function CategoryPage() {
     }
   };
 
-  /* =======================
-     DELETE CATEGORY
-  ======================= */
+  /* DELETE CATEGORY */
   const deleteCategory = async (id) => {
     if (!window.confirm("Delete this category?")) return;
 
@@ -108,114 +105,122 @@ export default function CategoryPage() {
 
   return (
     <div className="category-container">
-      {/* BACK BUTTON */}
+
       <button className="back-btn" onClick={() => navigate(-1)}>
         ← Back
       </button>
 
       <h2 className="cat-title">Manage Categories</h2>
 
-      {/* =======================
-          CREATE CATEGORY FORM
-      ======================= */}
+      {/* CATEGORY FORM */}
+
       <form className="category-form" onSubmit={handleSubmit}>
         <h3>Create Category</h3>
 
-        <input
-          placeholder="Category Name"
-          value={form.name}
-          onChange={(e) =>
-            setForm({ ...form, name: e.target.value })
-          }
-          required
-        />
-
-        <input
-          placeholder="Slug"
-          value={form.slug}
-          onChange={(e) =>
-            setForm({ ...form, slug: e.target.value })
-          }
-          required
-        />
-
-        <textarea
-          placeholder="Description"
-          value={form.description}
-          onChange={(e) =>
-            setForm({ ...form, description: e.target.value })
-          }
-        />
-
-        {/* IMAGE UPLOAD */}
-        <input
-          type="file"
-          accept="image/*"
-          onChange={(e) =>
-            setForm({ ...form, image: e.target.files[0] })
-          }
-        />
-
-        {/* IMAGE PREVIEW */}
-        {form.image && (
-          <img
-            src={URL.createObjectURL(form.image)}
-            className="preview-img"
-            alt="preview"
-          />
-        )}
-
-        {/* PARENT CATEGORY */}
-        <select
-          value={form.parentCategory}
-          onChange={(e) =>
-            setForm({ ...form, parentCategory: e.target.value })
-          }
-        >
-          <option value="">No Parent Category</option>
-          {categories.map((cat) => (
-            <option key={cat._id} value={cat._id}>
-              {cat.name}
-            </option>
-          ))}
-        </select>
-
-        {/* FEATURED */}
-        <label className="switch-label">
+        <div className="form-group">
+          <label>Category Name</label>
           <input
-            type="checkbox"
-            checked={form.isFeatured}
+            value={form.name}
             onChange={(e) =>
-              setForm({ ...form, isFeatured: e.target.checked })
+              setForm({ ...form, name: e.target.value })
             }
           />
-          Featured
-        </label>
+        </div>
 
-        {/* SORT ORDER */}
-        <input
-          type="number"
-          placeholder="Sort Order"
-          value={form.sortOrder}
-          onChange={(e) =>
-            setForm({
-              ...form,
-              sortOrder: Number(e.target.value),
-            })
-          }
-        />
-
-        {/* ACTIVE */}
-        <label className="switch-label">
+        <div className="form-group">
+          <label>Slug</label>
           <input
-            type="checkbox"
-            checked={form.isActive}
+            value={form.slug}
             onChange={(e) =>
-              setForm({ ...form, isActive: e.target.checked })
+              setForm({ ...form, slug: e.target.value })
             }
           />
-          Active
-        </label>
+        </div>
+
+        <div className="form-group full">
+          <label>Description</label>
+          <textarea
+            value={form.description}
+            onChange={(e) =>
+              setForm({ ...form, description: e.target.value })
+            }
+          />
+        </div>
+
+        <div className="form-group">
+          <label>Upload Image</label>
+          <input
+            type="file"
+            onChange={(e) =>
+              setForm({ ...form, image: e.target.files[0] })
+            }
+          />
+
+          {form.image && (
+            <img
+              src={URL.createObjectURL(form.image)}
+              className="preview-img"
+              alt="preview"
+            />
+          )}
+        </div>
+
+        <div className="form-group">
+          <label>Parent Category</label>
+          <select
+            value={form.parentCategory}
+            onChange={(e) =>
+              setForm({ ...form, parentCategory: e.target.value })
+            }
+          >
+            <option value="">No Parent Category</option>
+            {categories.map((cat) => (
+              <option key={cat._id} value={cat._id}>
+                {cat.name}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        <div className="form-group">
+          <label>Sort Order</label>
+          <input
+            type="number"
+            value={form.sortOrder}
+            onChange={(e) =>
+              setForm({
+                ...form,
+                sortOrder: Number(e.target.value),
+              })
+            }
+          />
+        </div>
+
+        <div className="form-group switch">
+          <label>
+            <input
+              type="checkbox"
+              checked={form.isFeatured}
+              onChange={(e) =>
+                setForm({ ...form, isFeatured: e.target.checked })
+              }
+            />
+            Featured Category
+          </label>
+        </div>
+
+        <div className="form-group switch">
+          <label>
+            <input
+              type="checkbox"
+              checked={form.isActive}
+              onChange={(e) =>
+                setForm({ ...form, isActive: e.target.checked })
+              }
+            />
+            Active
+          </label>
+        </div>
 
         <button
           className="btn-submit"
@@ -226,14 +231,14 @@ export default function CategoryPage() {
         </button>
       </form>
 
-      {/* =======================
-          CATEGORY LIST
-      ======================= */}
+      {/* CATEGORY LIST */}
+
       <h3 className="section-title">All Categories</h3>
 
       <div className="category-list">
         {categories.map((cat) => (
           <div className="cat-card" key={cat._id}>
+
             <img
               src={
                 cat.image ||
@@ -244,13 +249,16 @@ export default function CategoryPage() {
             />
 
             <div className="cat-info">
+
               <h4>{cat.name}</h4>
+
               <p className="slug">/{cat.slug}</p>
+
               <p>{cat.description || "No description"}</p>
 
               {cat.parentCategory && (
-                <p className="parent-text">
-                  Parent:{" "}
+                <p className="parent">
+                  Parent:
                   {
                     categories.find(
                       (c) => c._id === cat.parentCategory
@@ -259,14 +267,8 @@ export default function CategoryPage() {
                 </p>
               )}
 
-              {cat.isFeatured && (
-                <span className="featured-tag">Featured</span>
-              )}
-              {!cat.isActive && (
-                <span className="inactive-tag">Inactive</span>
-              )}
-
               <div className="cat-actions">
+
                 <button
                   className="edit-btn"
                   onClick={() =>
@@ -282,7 +284,9 @@ export default function CategoryPage() {
                 >
                   Delete
                 </button>
+
               </div>
+
             </div>
           </div>
         ))}
