@@ -92,46 +92,42 @@ export default function Checkout() {
 
   const placeOrder = async () => {
     try {
-  
       const selectedAddr = addresses.find(
         (a) => a?._id === selectedAddressId
       );
-  
+
       if (!selectedAddr) {
         return alert("Please select an address");
       }
-  
+
+      
       const shippingAddress = {
         ...selectedAddr,
         fullName: userName || selectedAddr.fullName,
         phone: mobile || selectedAddr.phone,
       };
-  
-      /* ===== BUILD ORDER ITEMS WITH PICKUP ADDRESS ===== */
-  
-      const orderItems = cartItems.map((item) => ({
-        product: item.product?._id,
-        quantity: item.quantity,
-        price: item.product?.discountPrice ?? item.product?.price,
-  
-        pickingAddress:
-          item?.productDetail?.pickUpaddresses ||
-          item?.product?.detail?.pickUpaddresses ||
-          null,
-      }));
-  
-  
+
+      /* ================= GET PICKUP ADDRESS ================= */
+
+      const pickingAddress =
+        cartItems?.[0]?.productDetail?.pickUpaddresses ||
+        cartItems?.[0]?.product?.detail?.pickUpaddresses ||
+        null;
+
+      if (!pickingAddress) {
+        return alert("Pickup address missing");
+      }
+
       const res = await api.post("/orders/create", {
         shippingAddress,
-        payment,
-        items: orderItems,
-        total,
+        pickingAddress,
+        payment
       });
-  
+
       if (res.data?.success) {
-        navigate("/orders");
+        navigate("/my-orders");
       }
-  
+
     } catch (error) {
       console.error(error);
       alert("Order failed");
@@ -200,9 +196,8 @@ export default function Checkout() {
             .map((addr) => (
               <div
                 key={addr._id}
-                className={`address-card ${
-                  selectedAddressId === addr._id ? "selected" : ""
-                }`}
+                className={`address-card ${selectedAddressId === addr._id ? "selected" : ""
+                  }`}
                 onClick={() => handleSelectAddress(addr._id)}
               >
                 <p>
