@@ -62,7 +62,7 @@ export default function ProductDetails() {
       alert("Wishlist action failed");
     }
   };
-
+  
   const handleBuyNow = () => setIsPaymentOpen(true);
 
   const handlePayNow = () => {
@@ -107,8 +107,8 @@ export default function ProductDetails() {
           </div>
         </div>
 
-        {/* ================= INFO PANEL ================= */}
         <div className="info-panel">
+        
           <div className="title-row">
             <h1>{product.title}</h1>
             <button
@@ -168,7 +168,6 @@ export default function ProductDetails() {
         </div>
       </div>
 
-      {/* ================= PAYMENT DRAWER ================= */}
       {isPaymentOpen && (
         <div className="drawer-backdrop" onClick={() => setIsPaymentOpen(false)}>
           <div className="drawer" onClick={(e) => e.stopPropagation()}>
