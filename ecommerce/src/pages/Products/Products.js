@@ -4,7 +4,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import api from "../../api";
 import Sidebar from "../../components/Sidebar";
 import Navbar from "../../components/Navbar";
-import "../../styles/products.css"; // keep CSS import
+import "../../styles/products.css";
 
 export default function Product() {
   const navigate = useNavigate();
@@ -12,6 +12,7 @@ export default function Product() {
 
   const params = new URLSearchParams(location.search);
   const categoryId = params.get("category");
+  const role = localStorage.getItem("role");
 
   const PRODUCTS_PER_PAGE = 9;
 
@@ -19,12 +20,10 @@ export default function Product() {
   const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
-
   const [currency, setCurrency] = useState("INR");
   const [conversionRate, setConversionRate] = useState(0.012);
   const [searchTerm, setSearchTerm] = useState("");
 
-  /* ================= FETCH PRODUCTS ================= */
   const fetchProducts = async (pageNumber = 1, search = "") => {
     try {
       setLoading(true);
@@ -33,7 +32,7 @@ export default function Product() {
         page: pageNumber,
         size: PRODUCTS_PER_PAGE,
         category: categoryId || undefined,
-        search,
+        search: search || undefined
       });
 
       setProducts(res.data?.data || []);
@@ -53,7 +52,6 @@ export default function Product() {
     }
   };
 
-  /* ================= CURRENCY ================= */
   const fetchConversionRate = async () => {
     try {
       const res = await fetch(
@@ -71,18 +69,15 @@ export default function Product() {
     fetchConversionRate();
   }, [categoryId]);
 
-  /* ================= SEARCH ================= */
   const handleSearch = () => {
     fetchProducts(1, searchTerm);
   };
 
-  /* ================= PRICE FORMAT ================= */
   const formatPrice = (price) =>
     currency === "INR"
       ? `₹${price}`
       : `$${(price * conversionRate).toFixed(2)}`;
 
-  /* ================= DELETE ================= */
   const handleDelete = async (id) => {
     if (!window.confirm("Are you sure you want to delete this product?")) return;
 
@@ -95,12 +90,63 @@ export default function Product() {
     }
   };
 
-  /* ================= ADD TO CART ================= */
-  const handleAddToCart = (product) => {
-    message.success(`${product.title} added to cart`);
+  const handleAddToCart = async (product) => {
+    try {
+      const token = localStorage.getItem("token");
+
+      if (!token) {
+        message.warning("Please login to add items to cart");
+        navigate("/login");
+        return;
+      }
+
+      const res = await api.post("/users/cart", {
+        productId: product._id,
+        quantity: 1,
+      });
+
+      if (res.data?.success) {
+        message.success(`${product.title} added to cart 🛒`);
+      } else {
+        message.error(res.data?.message || "Failed to add product");
+      }
+
+    } catch (err) {
+      console.error(err);
+
+      if (err.response?.status === 401) {
+        message.warning("Session expired. Please login again.");
+        localStorage.removeItem("token");
+        navigate("/login");
+      } else {
+        message.error("Unable to add product to cart");
+      }
+    }
   };
 
-  /* ================= LOADING ================= */
+  const handleBuyNow = (product) => {
+    const token = localStorage.getItem("token");
+
+    if (!token) {
+      message.warning("Please login to buy products");
+      navigate("/login");
+      return;
+    }
+
+    const data = {
+      buyNow: true,
+      product,
+      quantity: 1
+    };
+
+    // store for refresh safety
+    localStorage.setItem("checkoutData", JSON.stringify(data));
+
+    navigate("/checkout", {
+      state: data
+    });
+  };
+
   if (loading) {
     return <h2 className="loading-text">Loading Products...</h2>;
   }
@@ -113,6 +159,7 @@ export default function Product() {
         <Sidebar />
 
         <div className="product-content">
+
           {/* HEADER */}
           <div className="page-header">
             <div className="page-left">
@@ -134,12 +181,14 @@ export default function Product() {
                 Show {currency === "INR" ? "USD" : "INR"}
               </button>
 
-              <button
-                className="add-product-btn"
-                onClick={() => navigate("/products/add")}
-              >
-                + Add Product
-              </button>
+              {role === "admin" && (
+                <button
+                  className="add-product-btn"
+                  onClick={() => navigate("/products/add")}
+                >
+                  + Add Product
+                </button>
+              )}
             </div>
           </div>
 
@@ -155,46 +204,72 @@ export default function Product() {
             <button onClick={handleSearch}>Search</button>
           </div>
 
-          {/* GRID */}
           <div className="home-product-grid">
             {products.length ? (
               products.map((p) => (
                 <div className="fk-card" key={p._id}>
-                  <div className="fk-img-box" onClick={() => navigate(`/products/${p._id}`)}>
+
+                  <div
+                    className="fk-img-box"
+                    onClick={() => navigate(`/products/${p._id}`)}
+                  >
                     <img src={p.thumbnail} alt={p.title} />
                   </div>
 
                   <div className="fk-info">
                     <h3 className="fk-title">{p.title}</h3>
+
                     <div className="fk-rating">
                       ⭐ 4.5 <span>(100 reviews)</span>
                     </div>
 
                     <div className="fk-price">
                       {formatPrice(p.discountPrice || p.price)}
-                      {p.discountPrice && <del>{formatPrice(p.price)}</del>}
-                      {p.discountPrice && <span className="fk-off">OFF</span>}
+                      {p.discountPrice && (
+                        <>
+                          <del>{formatPrice(p.price)}</del>
+                          <span className="fk-off">OFF</span>
+                        </>
+                      )}
                     </div>
 
-                    <button className="fk-cart-btn" onClick={() => handleAddToCart(p)}>
-                      Add to Cart
-                    </button>
+                    {role !== "admin" && (
+                      <div className="product-actions">
+                        <button
+                          className="fk-cart-btn"
+                          onClick={() => handleAddToCart(p)}
+                        >
+                          Add to Cart
+                        </button>
 
-                    <div className="product-actions" style={{marginTop: '8px'}}>
-                      <button
-                        className="edit-btn"
-                        onClick={() => navigate(`/products/edit/${p._id}`)}
-                      >
-                        Edit
-                      </button>
+                        <button
+                          className="fk-buy-btn"
+                          onClick={() => handleBuyNow(p)}
+                        >
+                          Buy Now
+                        </button>
+                      </div>
+                    )}
 
-                      <button
-                        className="delete-btn"
-                        onClick={() => handleDelete(p._id)}
-                      >
-                        Delete
-                      </button>
-                    </div>
+                    {role === "admin" && (
+                      <div className="product-actions">
+                        <button
+                          className="edit-btn"
+                          onClick={() =>
+                            navigate(`/products/edit/${p._id}`)
+                          }
+                        >
+                          Edit
+                        </button>
+
+                        <button
+                          className="delete-btn"
+                          onClick={() => handleDelete(p._id)}
+                        >
+                          Delete
+                        </button>
+                      </div>
+                    )}
                   </div>
                 </div>
               ))
@@ -231,6 +306,7 @@ export default function Product() {
               </button>
             </div>
           )}
+
         </div>
       </div>
     </>

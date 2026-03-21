@@ -19,7 +19,7 @@ import EditCategory from "./pages/Categories/Editcategory";
 import Profile from "./pages/Profile/Profile";
 
 // Cart & Orders
-import Cart from "./components/Cart";
+import Cart from "./pages/Profile/Cart";
 import MyOrders from "./pages/Profile/MyOrders";
 import OrderDetails from "./pages/OrderDetails";
 import Checkout from "./pages/Profile/Checkout";   // ✅ ADD THIS

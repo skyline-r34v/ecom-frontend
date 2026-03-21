@@ -73,7 +73,7 @@
 
 /* =========================
    SEARCH BAR
-========================= */
+========================= 
 .nav-search {
   display: flex;
   align-items: center;
@@ -110,7 +110,7 @@
 
 .nav-search input::placeholder {
   color: var(--muted);
-}
+}  */
 
 /* =========================
    NAV ACTIONS

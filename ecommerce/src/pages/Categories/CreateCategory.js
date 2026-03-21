@@ -70,19 +70,8 @@ export default function CategoryPage() {
       });
 
       message.success("Category Created");
-
-      fetchCategories();
-
-      setForm({
-        name: "",
-        slug: "",
-        description: "",
-        image: null,
-        parentCategory: "",
-        isFeatured: false,
-        sortOrder: 0,
-        isActive: true,
-      });
+      navigate("/category");
+      
     } catch (err) {
       message.error(err.response?.data?.message || "Create failed");
     } finally {

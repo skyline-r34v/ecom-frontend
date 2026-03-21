@@ -45,14 +45,12 @@ export default function Home() {
   const [wishlist, setWishlist] = useState([]);
 
   /* FLASH SALE TIMER */
-
   const [timeLeft, setTimeLeft] = useState(3600);
 
   useEffect(() => {
     const timer = setInterval(() => {
       setTimeLeft((p) => (p > 0 ? p - 1 : 0));
     }, 1000);
-
     return () => clearInterval(timer);
   }, []);
 
@@ -104,11 +102,8 @@ export default function Home() {
 
   const productsByCategory = products.reduce((acc, p) => {
     const name = p.category?.name || "Products";
-
     if (!acc[name]) acc[name] = [];
-
     acc[name].push(p);
-
     return acc;
   }, {});
 
@@ -126,18 +121,21 @@ export default function Home() {
     <div className="onekart-home">
       <Navbar />
 
-      {/* MEGA MENU */}
-
-      <div className="mega-menu">
+      {/* ✅ CATEGORY DROPDOWN NAVBAR */}
+      <div className="navbar-categories">
         {categories.map((cat) => (
-          <div key={cat._id} className="mega-item">
-            <span onClick={() => navigate(`/products?category=${cat._id}`)}>
+          <div key={cat._id} className="nav-item">
+            <span
+              className="nav-link"
+              onClick={() => navigate(`/products?category=${cat._id}`)}
+            >
               {cat.name}
             </span>
 
-            {cat.subcategories?.length > 0 && (
-              <div className="mega-dropdown">
-                {cat.subcategories.map((sub) => (
+            {/* ✅ FIXED: subCategories */}
+            {cat.subCategories?.length > 0 && (
+              <div className="dropdown">
+                {cat.subCategories.map((sub) => (
                   <p
                     key={sub._id}
                     onClick={() =>
@@ -163,11 +161,9 @@ export default function Home() {
           {banners.map((img, i) => (
             <div key={i} className="hero-slide">
               <img src={img} alt="banner" />
-
               <div className="hero-content">
                 <h1>Step Into Comfort</h1>
                 <p>Discover premium sneakers</p>
-
                 <button onClick={() => navigate("/products")}>
                   Shop Now
                 </button>
@@ -181,7 +177,6 @@ export default function Home() {
 
       <section className="category-row">
         <h2>Shop By Category</h2>
-
         <div className="category-slider">
           {allCategories.map((cat) => (
             <div
@@ -200,7 +195,6 @@ export default function Home() {
 
       <section className="brands-row">
         <h2>Top Brands</h2>
-
         <div className="brand-slider">
           {brands.map((brand) => (
             <div
@@ -219,7 +213,6 @@ export default function Home() {
       <section className="flash-sale">
         <div className="flash-head">
           <h2>⚡ Flash Sale</h2>
-
           <div className="countdown">
             {hours}:{minutes}:{seconds}
           </div>
@@ -234,9 +227,7 @@ export default function Home() {
             >
               <img src={p.images?.[0]} alt={p.title} />
               <p>{p.title}</p>
-              <div className="price">
-                ₹{p.discountPrice || p.price}
-              </div>
+              <div className="price">₹{p.discountPrice || p.price}</div>
             </div>
           ))}
         </div>

@@ -21,7 +21,7 @@ export default function ProductDetails() {
     const fetchProduct = async () => {
       try {
         const res = await api.get(`/products/${id}`);
-        const data = res.data.message;
+        const data = res.data.data;
         setProduct(data);
         setActiveImage(data.thumbnail);
         setIsWishlisted(data.isWishlisted || false);
@@ -37,13 +37,26 @@ export default function ProductDetails() {
 
   const handleAddToCart = async () => {
     try {
-      const res = await api.post("/users/cart", { productId: id, quantity: 1 });
+      const token = localStorage.getItem("token");
+
+      if (!token) {
+        alert("Login required to add items to cart");
+        navigate("/login");
+        return;
+      }
+
+      const res = await api.post("/users/cart", {
+        productId: id,
+        quantity
+      });
+
       if (res.data.success) {
-        alert("Product added to cart ✅");
-        navigate("/cart");
-      } else alert(res.data.message);
-    } catch {
-      alert("Failed to add product to cart");
+        alert("Item added to cart successfully 🛒");
+      }
+
+    } catch (err) {
+      console.error(err);
+      alert("Unable to add product to cart");
     }
   };
 
@@ -62,13 +75,33 @@ export default function ProductDetails() {
       alert("Wishlist action failed");
     }
   };
-  
-  const handleBuyNow = () => setIsPaymentOpen(true);
+
+  const handleBuyNow = () => {
+    const token = localStorage.getItem("token");
+
+    if (!token) {
+      alert("Please login to continue");
+      navigate("/login");
+      return;
+    }
+
+    const data = {
+      buyNow: true,
+      product: product,
+      quantity: quantity
+    };
+
+    // store for refresh safety
+    localStorage.setItem("checkoutData", JSON.stringify(data));
+
+    navigate("/checkout", {
+      state: data
+    });
+  };
 
   const handlePayNow = () => {
     alert(
-      `Payment successful! ₹${
-        (product.discountPrice ?? product.price) * quantity
+      `Payment successful! ₹${(product.discountPrice ?? product.price) * quantity
       } paid via ${paymentMethod}`
     );
     setIsPaymentOpen(false);
@@ -108,7 +141,7 @@ export default function ProductDetails() {
         </div>
 
         <div className="info-panel">
-        
+
           <div className="title-row">
             <h1>{product.title}</h1>
             <button
@@ -127,9 +160,9 @@ export default function ProductDetails() {
           <div className="rating">
             {product.reviews?.length
               ? `⭐ ${(
-                  product.reviews.reduce((a, r) => a + r.rating, 0) /
-                  product.reviews.length
-                ).toFixed(1)} (${product.reviews.length} reviews)`
+                product.reviews.reduce((a, r) => a + r.rating, 0) /
+                product.reviews.length
+              ).toFixed(1)} (${product.reviews.length} reviews)`
               : "No Ratings"}
           </div>
 

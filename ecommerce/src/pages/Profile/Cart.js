@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import api from "../api";
-import "../styles/cart.css";
+import api from "../../api";
+import "../../styles/cart.css";
 
 const Cart = () => {
   const [cart, setCart] = useState(null);

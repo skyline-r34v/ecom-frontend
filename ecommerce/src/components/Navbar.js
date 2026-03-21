@@ -13,26 +13,41 @@ import "../styles/navbar.css";
 
 export default function Navbar() {
   const navigate = useNavigate();
-  const isLoggedIn = Boolean(localStorage.getItem("token"));
 
-  // Internal state for search
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+
+  // search states
   const [search, setSearch] = useState("");
   const [suggestions, setSuggestions] = useState([]);
 
+  // check login status
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+
+    if (token && token !== "undefined" && token !== "null") {
+      setIsLoggedIn(true);
+    } else {
+      setIsLoggedIn(false);
+    }
+  }, []);
+
+  // search suggestions
   useEffect(() => {
     if (!search || search.length < 2) {
       setSuggestions([]);
       return;
     }
 
-    const delayDebounce = setTimeout(() => {
+    const debounce = setTimeout(() => {
       api
         .post("/products/list", { page: 1, size: 5, search })
-        .then((res) => setSuggestions(res.data?.data || []))
+        .then((res) => {
+          setSuggestions(res.data?.data || []);
+        })
         .catch(() => setSuggestions([]));
     }, 300);
 
-    return () => clearTimeout(delayDebounce);
+    return () => clearTimeout(debounce);
   }, [search]);
 
   const handleSelect = (id) => {
@@ -42,7 +57,8 @@ export default function Navbar() {
   };
 
   const handleLogout = () => {
-    localStorage.clear();
+    localStorage.removeItem("token");
+    setIsLoggedIn(false);
     navigate("/");
   };
 
@@ -54,6 +70,7 @@ export default function Navbar() {
         OneKart
       </div>
 
+      {/* Search
       <div className="nav-search">
         <FaSearch />
         <input
@@ -76,25 +93,50 @@ export default function Navbar() {
                 className="suggestion-item"
                 onClick={() => handleSelect(p._id)}
               >
-                <img src={p.images?.[0] || "/placeholder.png"} alt={p.title || "Product"} />
+                <img
+                  src={p.images?.[0] || "/placeholder.png"}
+                  alt={p.title || "Product"}
+                />
                 <span>{p.title || "Untitled Product"}</span>
               </div>
             ))}
           </div>
         )}
-      </div>
+      </div> */}
 
+      {/* Right Actions */}
       <div className="nav-actions">
-        <FaInfoCircle title="About Us" onClick={() => navigate("/about")} className="nav-icon" />
+        <FaInfoCircle
+          title="About Us"
+          onClick={() => navigate("/about")}
+          className="nav-icon"
+        />
 
         {isLoggedIn ? (
           <>
-            <FaUser title="Profile" onClick={() => navigate("/profile")} className="nav-icon" />
-            <FaShoppingCart title="Cart" onClick={() => navigate("/cart")} className="nav-icon" />
-            <FaSignOutAlt title="Logout" onClick={handleLogout} className="logout-icon" />
+            <FaUser
+              title="Profile"
+              onClick={() => navigate("/profile")}
+              className="nav-icon"
+            />
+
+            <FaShoppingCart
+              title="Cart"
+              onClick={() => navigate("/cart")}
+              className="nav-icon"
+            />
+
+            <FaSignOutAlt
+              title="Logout"
+              onClick={handleLogout}
+              className="logout-icon"
+            />
           </>
         ) : (
-          <button className="login-link" onClick={() => navigate("/login")}>
+          <button
+            className="login-link"
+            onClick={() => navigate("/login")}
+          >
             Login
           </button>
         )}

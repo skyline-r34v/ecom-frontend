@@ -11,14 +11,51 @@ export default function Checkout() {
   const userName = localStorage.getItem("name");
   const mobile = localStorage.getItem("mobile");
 
-  const { cartItems = [], total = 0 } = location.state || {};
+  /* ===================== HANDLE BOTH FLOWS ===================== */
+
+  const savedData = JSON.parse(localStorage.getItem("checkoutData"));
+
+  const {
+    cartItems = [],
+    total = 0,
+    buyNow = savedData?.buyNow || false,
+    product = savedData?.product || null,
+    quantity = savedData?.quantity || 1
+  } = location.state || {};
+
+  /* ===================== FINAL ITEMS ===================== */
+
+  let finalItems = [];
+
+  if (buyNow && product) {
+    finalItems = [
+      {
+        product,
+        quantity
+      }
+    ];
+  } else {
+    finalItems = cartItems;
+  }
+
+  /* ===================== TOTAL ===================== */
+
+  const finalTotal = finalItems.reduce(
+    (sum, item) =>
+      sum +
+      (item.product?.discountPrice ?? item.product?.price) *
+        item.quantity,
+    0
+  );
 
   /* ===================== STATE ===================== */
+
   const [addresses, setAddresses] = useState([]);
   const [selectedAddressId, setSelectedAddressId] = useState(null);
   const [addingNew, setAddingNew] = useState(false);
 
   const [newAddress, setNewAddress] = useState({
+    label: "",
     fullName: "",
     phone: "",
     street: "",
@@ -26,11 +63,13 @@ export default function Checkout() {
     state: "",
     postalCode: "",
     country: "India",
+    isDefault: false
   });
 
   const [payment, setPayment] = useState({ method: "COD" });
 
   /* ===================== FETCH ADDRESSES ===================== */
+
   useEffect(() => {
     if (!userId) return;
 
@@ -55,27 +94,48 @@ export default function Checkout() {
   }, [userId]);
 
   /* ===================== HANDLERS ===================== */
+
   const handleSelectAddress = (id) => {
     setSelectedAddressId(id);
   };
 
   const handleNewAddressChange = (e) => {
-    setNewAddress({ ...newAddress, [e.target.name]: e.target.value });
+    const { name, value, type, checked } = e.target;
+
+    setNewAddress({
+      ...newAddress,
+      [name]: type === "checkbox" ? checked : value
+    });
   };
+
+  /* ===================== ADD NEW ADDRESS ===================== */
 
   const addNewAddress = async () => {
     try {
+      if (!newAddress.label || !newAddress.street || !newAddress.city) {
+        return alert("Please fill required fields");
+      }
+
+      const updatedAddresses = [...addresses, newAddress];
+
       const res = await api.post("/users/profile", {
         userId,
-        address: newAddress,
+        addresses: updatedAddresses
       });
 
-      if (res.data?.success && res.data?.address) {
-        setAddresses((prev) => [...prev, res.data.address]);
-        setSelectedAddressId(res.data.address._id);
+      if (res.data?.success) {
+        const updated = res.data.data.addresses;
+
+        setAddresses(updated);
+
+        const addedAddress = updated[updated.length - 1];
+
+        setSelectedAddressId(addedAddress._id);
+
         setAddingNew(false);
 
         setNewAddress({
+          label: "",
           fullName: "",
           phone: "",
           street: "",
@@ -83,12 +143,16 @@ export default function Checkout() {
           state: "",
           postalCode: "",
           country: "India",
+          isDefault: false
         });
       }
     } catch (error) {
+      console.error(error);
       alert("Failed to add address");
     }
   };
+
+  /* ===================== PLACE ORDER ===================== */
 
   const placeOrder = async () => {
     try {
@@ -100,18 +164,15 @@ export default function Checkout() {
         return alert("Please select an address");
       }
 
-      
       const shippingAddress = {
         ...selectedAddr,
         fullName: userName || selectedAddr.fullName,
-        phone: mobile || selectedAddr.phone,
+        phone: mobile || selectedAddr.phone
       };
 
-      /* ================= GET PICKUP ADDRESS ================= */
-
       const pickingAddress =
-        cartItems?.[0]?.productDetail?.pickUpaddresses ||
-        cartItems?.[0]?.product?.detail?.pickUpaddresses ||
+        finalItems?.[0]?.productDetail?.pickUpaddresses ||
+        finalItems?.[0]?.product?.detail?.pickUpaddresses ||
         null;
 
       if (!pickingAddress) {
@@ -119,136 +180,98 @@ export default function Checkout() {
       }
 
       const res = await api.post("/orders/create", {
+        items: finalItems, // ✅ IMPORTANT
         shippingAddress,
         pickingAddress,
         payment
       });
 
       if (res.data?.success) {
+        localStorage.removeItem("checkoutData"); // cleanup
         navigate("/my-orders");
       }
-
     } catch (error) {
       console.error(error);
       alert("Order failed");
     }
   };
+
   /* ===================== UI ===================== */
+
   return (
     <div className="checkout-container">
       <h2 className="checkout-title">Checkout</h2>
 
       <div className="checkout-layout">
+
         {/* ================= ORDER SUMMARY ================= */}
+
         <div className="checkout-summary">
           <h3>Order Summary</h3>
 
-          {cartItems
-            .filter((item) => item && item.product)
-            .map((item, index) => (
-              <div
-                key={item.product?._id || index}
-                className="summary-item"
-              >
-                <img
-                  src={item.product?.thumbnail}
-                  alt={item.product?.title}
-                />
+          {finalItems.map((item, index) => (
+            <div key={item.product?._id || index} className="summary-item">
+              <img
+                src={item.product?.thumbnail}
+                alt={item.product?.title}
+              />
 
-                <div className="summary-info">
-                  <h4>{item.product?.title}</h4>
+              <div className="summary-info">
+                <h4>{item.product?.title}</h4>
 
-                  <p>
-                    <b>Brand:</b> {item.product?.brand || "N/A"}
-                  </p>
-                  <p>
-                    <b>Category:</b> {item.product?.category || "N/A"}
-                  </p>
-                  <p>
-                    <b>Price:</b> ₹
-                    {item.product?.discountPrice ??
-                      item.product?.price}
-                  </p>
-                  <p>
-                    <b>Quantity:</b> {item.quantity}
-                  </p>
-                  <p className="subtotal">
-                    <b>Subtotal:</b> ₹
-                    {(item.product?.discountPrice ??
-                      item.product?.price) * item.quantity}
-                  </p>
-                </div>
+                <p>₹ {item.product?.discountPrice ?? item.product?.price}</p>
+                <p>Qty: {item.quantity}</p>
+
+                <p className="subtotal">
+                  ₹
+                  {(item.product?.discountPrice ??
+                    item.product?.price) * item.quantity}
+                </p>
               </div>
-            ))}
+            </div>
+          ))}
 
           <div className="summary-total">
             <span>Total</span>
-            <span>₹ {total}</span>
+            <span>₹ {finalTotal}</span>
           </div>
         </div>
 
-        {/* ================= SHIPPING ADDRESS ================= */}
+        {/* ================= ADDRESS + PAYMENT ================= */}
+
         <div className="checkout-form">
+
           <h3>Shipping Address</h3>
 
-          {addresses
-            .filter((addr) => addr && addr._id)
-            .map((addr) => (
-              <div
-                key={addr._id}
-                className={`address-card ${selectedAddressId === addr._id ? "selected" : ""
-                  }`}
-                onClick={() => handleSelectAddress(addr._id)}
-              >
-                <p>
-                  <b>{addr.fullName}</b> - {addr.phone}
-                </p>
-                <p>{addr.street}</p>
-                <p>
-                  {addr.city}, {addr.state}, {addr.postalCode}
-                </p>
-                <p>{addr.country}</p>
-              </div>
-            ))}
-
-          {/* ================= ADD NEW ADDRESS ================= */}
-          {addingNew ? (
-            <div className="new-address-form">
-              {Object.keys(newAddress).map((key) => (
-                <input
-                  key={key}
-                  name={key}
-                  placeholder={key.replace(/([A-Z])/g, " $1")}
-                  value={newAddress[key]}
-                  onChange={handleNewAddressChange}
-                />
-              ))}
-              <button className="checkout-btn" onClick={addNewAddress}>
-                Save Address
-              </button>
-            </div>
-          ) : (
-            <button
-              className="checkout-btn"
-              onClick={() => setAddingNew(true)}
+          {addresses.map((addr) => (
+            <div
+              key={addr._id}
+              className={`address-card ${
+                selectedAddressId === addr._id ? "selected" : ""
+              }`}
+              onClick={() => handleSelectAddress(addr._id)}
             >
-              + Add New Address
-            </button>
-          )}
+              <p><b>{addr.label}</b> | {addr.fullName}</p>
+              <p>{addr.street}</p>
+              <p>{addr.city}</p>
+            </div>
+          ))}
 
-          {/* ================= PAYMENT ================= */}
+          <button
+            className="checkout-btn"
+            onClick={() => setAddingNew(true)}
+          >
+            + Add Address
+          </button>
+
           <select
-            className="checkout-select"
             value={payment.method}
             onChange={(e) =>
               setPayment({ method: e.target.value })
             }
           >
-            <option value="COD">Cash on Delivery</option>
+            <option value="COD">COD</option>
             <option value="UPI">UPI</option>
-            <option value="CARD">Card</option>
-            <option value="NET_BANKING">Net Banking</option>
-            <option value="WALLET">Wallet</option>
           </select>
 
           <button className="checkout-btn" onClick={placeOrder}>
