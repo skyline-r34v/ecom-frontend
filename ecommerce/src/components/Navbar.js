@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from "react";
 import {
   FaBars,
-  FaSearch,
   FaShoppingCart,
   FaUser,
   FaSignOutAlt,
@@ -49,12 +48,6 @@ export default function Navbar() {
 
     return () => clearTimeout(debounce);
   }, [search]);
-
-  const handleSelect = (id) => {
-    setSearch("");
-    setSuggestions([]);
-    navigate(`/products/${id}`);
-  };
 
   const handleLogout = () => {
     localStorage.removeItem("token");

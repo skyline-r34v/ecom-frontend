@@ -38,13 +38,11 @@ export default function Checkout() {
     finalItems = cartItems;
   }
 
-  /* ===================== TOTAL ===================== */
-
   const finalTotal = finalItems.reduce(
     (sum, item) =>
       sum +
       (item.product?.discountPrice ?? item.product?.price) *
-        item.quantity,
+      item.quantity,
     0
   );
 
@@ -67,6 +65,7 @@ export default function Checkout() {
   });
 
   const [payment, setPayment] = useState({ method: "COD" });
+  const [loadingPayment, setLoadingPayment] = useState(false);
 
   /* ===================== FETCH ADDRESSES ===================== */
 
@@ -107,8 +106,6 @@ export default function Checkout() {
       [name]: type === "checkbox" ? checked : value
     });
   };
-
-  /* ===================== ADD NEW ADDRESS ===================== */
 
   const addNewAddress = async () => {
     try {
@@ -152,6 +149,112 @@ export default function Checkout() {
     }
   };
 
+  /* ===================== RAZORPAY ===================== */
+
+  const handleRazorpayPayment = async () => {
+    try {
+      if (!finalItems.length) {
+        return alert("No items to checkout");
+      }
+
+      if (!window.Razorpay) {
+        alert("Razorpay SDK not loaded. Please refresh.");
+        return;
+      }
+
+      setLoadingPayment(true);
+
+      const selectedAddr = addresses.find(
+        (a) => a?._id === selectedAddressId
+      );
+
+      if (!selectedAddr) {
+        return alert("Please select an address");
+      }
+
+      const shippingAddress = {
+        ...selectedAddr,
+        fullName: userName || selectedAddr.fullName,
+        phone: mobile || selectedAddr.phone
+      };
+
+      const pickingAddress =
+        finalItems?.[0]?.productDetail?.pickUpaddresses ||
+        finalItems?.[0]?.product?.detail?.pickUpaddresses ||
+        finalItems?.[0]?.pickingAddress ||
+        null;
+
+      if (!pickingAddress) {
+        return alert("Pickup address missing");
+      }
+
+      const { data } = await api.post("/payments/create-order", {
+        amount: finalTotal
+      });
+
+      const order = data.order;
+
+      const options = {
+        key: "rzp_live_SUNPDgjWZkSH6U", // ✅ put your test key
+        amount: order.amount,
+        currency: "INR",
+        name: "OneKart",
+        description: "Order Payment",
+        order_id: order.id,
+
+        handler: async function (response) {
+          try {
+            const verifyRes = await api.post("/payments/verify-payment", {
+              ...response,
+              orderData: {
+                userId,
+                items: finalItems,
+                shippingAddress,
+                pickingAddress
+              }
+            });
+
+            if (verifyRes.data.success) {
+              alert("Payment successful 🎉");
+              localStorage.removeItem("checkoutData");
+              navigate("/my-orders");
+            } else {
+              alert("Payment verification failed");
+            }
+
+          } catch (err) {
+            console.error(err);
+            alert("Verification error");
+          }
+        },
+
+        prefill: {
+          name: userName,
+          contact: mobile
+        },
+
+        theme: {
+          color: "#3399cc"
+        }
+      };
+
+      const rzp = new window.Razorpay(options);
+
+      rzp.on("payment.failed", function (response) {
+        console.error(response.error);
+        alert("Payment failed ❌");
+      });
+
+      rzp.open();
+
+    } catch (error) {
+      console.error(error);
+      alert("Payment failed");
+    } finally {
+      setLoadingPayment(false);
+    }
+  };
+
   /* ===================== PLACE ORDER ===================== */
 
   const placeOrder = async () => {
@@ -173,6 +276,7 @@ export default function Checkout() {
       const pickingAddress =
         finalItems?.[0]?.productDetail?.pickUpaddresses ||
         finalItems?.[0]?.product?.detail?.pickUpaddresses ||
+        finalItems?.[0]?.pickingAddress ||
         null;
 
       if (!pickingAddress) {
@@ -180,14 +284,14 @@ export default function Checkout() {
       }
 
       const res = await api.post("/orders/create", {
-        items: finalItems, // ✅ IMPORTANT
+        items: finalItems,
         shippingAddress,
         pickingAddress,
         payment
       });
 
       if (res.data?.success) {
-        localStorage.removeItem("checkoutData"); // cleanup
+        localStorage.removeItem("checkoutData");
         navigate("/my-orders");
       }
     } catch (error) {
@@ -195,8 +299,6 @@ export default function Checkout() {
       alert("Order failed");
     }
   };
-
-  /* ===================== UI ===================== */
 
   return (
     <div className="checkout-container">
@@ -246,9 +348,8 @@ export default function Checkout() {
           {addresses.map((addr) => (
             <div
               key={addr._id}
-              className={`address-card ${
-                selectedAddressId === addr._id ? "selected" : ""
-              }`}
+              className={`address-card ${selectedAddressId === addr._id ? "selected" : ""
+                }`}
               onClick={() => handleSelectAddress(addr._id)}
             >
               <p><b>{addr.label}</b> | {addr.fullName}</p>
@@ -271,11 +372,21 @@ export default function Checkout() {
             }
           >
             <option value="COD">COD</option>
-            <option value="UPI">UPI</option>
+            <option value="RAZORPAY">Pay Online</option>
           </select>
 
-          <button className="checkout-btn" onClick={placeOrder}>
-            Place Order
+          <button
+            className="checkout-btn"
+            disabled={loadingPayment}
+            onClick={() => {
+              if (payment.method === "COD") {
+                placeOrder();
+              } else {
+                handleRazorpayPayment();
+              }
+            }}
+          >
+            {loadingPayment ? "Processing..." : "Place Order"}
           </button>
         </div>
       </div>
