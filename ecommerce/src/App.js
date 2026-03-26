@@ -34,6 +34,10 @@ import BrandEdit from "./pages/Brands/Update";
 import ForgotPassword  from  "./pages/ForgotPassword.js";
 import EditProduct from "./pages/Products/EditProduct.js";
 
+//Transport
+import TransporterDashboard from "./pages/Transport/TransporterDashboard";
+import DriverDashboard from "./pages/Transport/DriverDashboard";
+
 function App() {
   const role = localStorage.getItem("role"); // admin / customer
 
@@ -83,6 +87,10 @@ function App() {
           
           
         )}
+
+        {/*================= TRANSPORT ================= */}
+        <Route path="/transporter-dashboard" element={<TransporterDashboard />} />
+        <Route path="/driver-dashboard" element={<DriverDashboard />} />
 
       </Routes>
     </BrowserRouter>

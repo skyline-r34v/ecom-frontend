@@ -401,8 +401,8 @@
 
 .navbar-categories {
   display: flex;
-  gap: 25px;
-  padding: 12px 20px;
+  gap: 18px;
+  padding: 5px;
   background: #fff;
   border-bottom: 1px solid #eee;
 }
@@ -425,7 +425,6 @@
   min-width: 180px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
   border-radius: 6px;
-
   opacity: 0;
   visibility: hidden;
   transform: translateY(10px);
@@ -442,7 +441,7 @@
 
 /* SUBCATEGORY ITEM */
 .dropdown p {
-  padding: 10px 15px;
+  padding: 5px;
   cursor: pointer;
   font-size: 14px;
 }

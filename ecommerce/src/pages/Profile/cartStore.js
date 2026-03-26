@@ -31,7 +31,7 @@ const useCartStore = create((set, get) => ({
           {
             ...product,
             quantity: 1,
-            pickingAddress, // ✅ store pickup address
+            pickingAddress, 
           },
         ],
       };

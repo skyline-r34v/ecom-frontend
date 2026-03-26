@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import api from "../../api";
-import "../../styles/craetecategory.css";
+import "../../styles/createcategory.css";
 import { useNavigate } from "react-router-dom";
 import { message } from "antd";
 
