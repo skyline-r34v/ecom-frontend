@@ -31,7 +31,7 @@ import AdminOrders from "./pages/Admin/User-Management/AdminOrders.js";
 import BrandCreate from "./pages/Brands/Create";
 import BrandList from "./pages/Brands/Lists";
 import BrandEdit from "./pages/Brands/Update";
-import ForgotPassword  from  "./pages/ForgotPassword.js";
+import ForgotPassword from "./pages/ForgotPassword.js";
 import EditProduct from "./pages/Products/EditProduct.js";
 
 //Transport
@@ -84,13 +84,17 @@ function App() {
         {/* ================= ADMIN ================= */}
         {role === "admin" && (
           <Route path="/admin/orders" element={<AdminOrders />} />
-          
-          
+
+
         )}
 
         {/*================= TRANSPORT ================= */}
-        <Route path="/transporter-dashboard" element={<TransporterDashboard />} />
-        <Route path="/driver-dashboard" element={<DriverDashboard />} />
+        {role === "transporter" && (
+          <Route path="/transporter-dashboard" element={<TransporterDashboard />} />
+        )}
+        {role === "delivery" && (
+          <Route path="/driver-dashboard" element={<DriverDashboard />} />
+        )}
 
       </Routes>
     </BrowserRouter>
