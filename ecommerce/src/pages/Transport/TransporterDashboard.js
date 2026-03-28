@@ -3,6 +3,7 @@ import api from "../../api";
 import CreateTransportForm from "./CreateTransportForm";
 import AssignDriver from "./AssignDriver";
 import DeliveryCard from "./DeliveryCard";
+import Navbar from "../../components/Navbar";
 
 export default function TransporterDashboard() {
   const [deliveries, setDeliveries] = useState([]);
@@ -22,6 +23,7 @@ export default function TransporterDashboard() {
 
   return (
     <div>
+      <Navbar />
       <h2>Transporter Dashboard</h2>
 
       <CreateTransportForm refresh={fetchDeliveries} />

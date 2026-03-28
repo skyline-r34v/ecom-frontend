@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import api from "../../api";
 import DeliveryCard from "./DeliveryCard";
+import Navbar from "../../components/Navbar";
 
 export default function DriverDashboard() {
   const [deliveries, setDeliveries] = useState([]);
@@ -20,6 +21,7 @@ export default function DriverDashboard() {
 
   return (
     <div>
+      <Navbar />
       <h2>Driver Dashboard</h2>
 
       {deliveries.map((d) => (
