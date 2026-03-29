@@ -231,3 +231,75 @@
     font-size: 13px;
   }
 }
+/* Cart *//* NAVBAR BASE (optional upgrade) */
+.noon-navbar {
+  background: #131921; /* Amazon dark */
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 20px;
+}
+
+/* NAV ACTIONS */
+.nav-actions {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+/* CART CONTAINER */
+.cart-container {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  cursor: pointer;
+  padding: 5px 10px;
+  border-radius: 4px;
+  transition: 0.2s;
+}
+
+.cart-container:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+/* CART ICON */
+.cart-main-icon {
+  font-size: 22px;
+  color: #ffffff;
+}
+
+/* CART TEXT */
+.cart-text {
+  font-size: 14px;
+  font-weight: 500;
+}
+
+/* BADGE */
+.cart-count {
+  position: absolute;
+  top: -5px;
+  left: 14px; /* 👈 Amazon style (not right!) */
+
+  background: #f08804; /* Amazon orange */
+  color: black;
+
+  font-size: 11px;
+  font-weight: 700;
+
+  min-width: 18px;
+  height: 18px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 50%;
+}
+
+/* ICONS */
+.nav-icon {
+  font-size: 18px;
+  cursor: pointer;
+}

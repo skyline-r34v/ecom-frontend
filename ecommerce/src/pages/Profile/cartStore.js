@@ -31,7 +31,7 @@ const useCartStore = create((set, get) => ({
           {
             ...product,
             quantity: 1,
-            pickingAddress, 
+            pickingAddress,
           },
         ],
       };
@@ -58,6 +58,25 @@ const useCartStore = create((set, get) => ({
         (item.discountPrice ?? item.price) * item.quantity,
       0
     ),
+
+  cartCount: () =>
+    get().products.reduce((sum, item) => sum + item.quantity, 0),
+
+  setCart: (items) =>
+    set({
+      products: items.map((item) => ({
+        _id: item.product._id,                 // ✅ IMPORTANT
+        title: item.product.title,
+        price: item.product.price,
+        discountPrice: item.product.discountPrice,
+        images: item.product.images,
+        thumbnail: item.product.thumbnail,
+
+        quantity: item.quantity,               // ✅ IMPORTANT
+
+        pickingAddress: item.productDetail?.pickUpaddresses,
+      })),
+    }),
 }));
 
 export default useCartStore;

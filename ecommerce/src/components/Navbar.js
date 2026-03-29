@@ -6,6 +6,7 @@ import {
   FaSignOutAlt,
   FaInfoCircle,
 } from "react-icons/fa";
+import useCartStore from "../pages/Profile/cartStore";
 import { useNavigate } from "react-router-dom";
 import api from "../api";
 import "../styles/navbar.css";
@@ -15,39 +16,43 @@ export default function Navbar() {
 
   const [isLoggedIn, setIsLoggedIn] = useState(false);
 
-  // search states
-  const [search, setSearch] = useState("");
-  const [suggestions, setSuggestions] = useState([]);
+  // Zustand
+  const setCart = useCartStore((state) => state.setCart);
+  const products = useCartStore((state) => state.products);
 
-  // check login status
+  // ✅ derive count from products (safe + reactive)
+  const cartCount = products.reduce(
+    (sum, item) => sum + (item.quantity || 0),
+    0
+  );
+
+  // ✅ check login + fetch cart
   useEffect(() => {
     const token = localStorage.getItem("token");
 
     if (token && token !== "undefined" && token !== "null") {
       setIsLoggedIn(true);
+
+      fetchCart();
     } else {
       setIsLoggedIn(false);
     }
   }, []);
 
-  // search suggestions
-  useEffect(() => {
-    if (!search || search.length < 2) {
-      setSuggestions([]);
-      return;
+  // ✅ separate function (clean + reusable)
+  const fetchCart = async () => {
+    try {
+      const res = await api.post("/users/cart", {});
+
+      const items = res?.data?.cart?.items || [];
+
+      if (!Array.isArray(items)) return;
+
+      setCart(items); // 🔥 hydrate Zustand
+    } catch (err) {
+      console.log("Cart fetch error:", err);
     }
-
-    const debounce = setTimeout(() => {
-      api
-        .post("/products/list", { page: 1, size: 5, search })
-        .then((res) => {
-          setSuggestions(res.data?.data || []);
-        })
-        .catch(() => setSuggestions([]));
-    }, 300);
-
-    return () => clearTimeout(debounce);
-  }, [search]);
+  };
 
   const handleLogout = () => {
     localStorage.removeItem("token");
@@ -63,41 +68,6 @@ export default function Navbar() {
         OneKart
       </div>
 
-      {/* Search
-      <div className="nav-search">
-        <FaSearch />
-        <input
-          placeholder="Search products"
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          onKeyDown={(e) => {
-            if (e.key === "Enter") {
-              setSuggestions([]);
-              navigate(`/products?search=${search}`);
-            }
-          }}
-        />
-
-        {Array.isArray(suggestions) && suggestions.length > 0 && (
-          <div className="search-suggestions">
-            {suggestions.map((p) => (
-              <div
-                key={p._id}
-                className="suggestion-item"
-                onClick={() => handleSelect(p._id)}
-              >
-                <img
-                  src={p.images?.[0] || "/placeholder.png"}
-                  alt={p.title || "Product"}
-                />
-                <span>{p.title || "Untitled Product"}</span>
-              </div>
-            ))}
-          </div>
-        )}
-      </div> */}
-
-      {/* Right Actions */}
       <div className="nav-actions">
         <FaInfoCircle
           title="About Us"
@@ -112,12 +82,16 @@ export default function Navbar() {
               onClick={() => navigate("/profile")}
               className="nav-icon"
             />
+            {/* / ================= CART ICON WITH COUNT ================= */}
+            <div className="cart-container" onClick={() => navigate("/cart")}>
+              <FaShoppingCart className="cart-main-icon" />
 
-            <FaShoppingCart
-              title="Cart"
-              onClick={() => navigate("/cart")}
-              className="nav-icon"
-            />
+              {/* <span className="cart-text">Cart</span> */}
+
+              {cartCount > 0 && (
+                <span className="cart-count">{cartCount}</span>
+              )}
+            </div>
 
             <FaSignOutAlt
               title="Logout"
