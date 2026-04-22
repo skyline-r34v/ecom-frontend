@@ -16,7 +16,7 @@ export default function AddProduct() {
     price: "",
     discountPrice: "",
     description: "",
-    specifications: "",
+    specifications: [{ key: "", value: "" }],
     stock: "",
     warranty: "",
     returnPolicy: "",
@@ -61,7 +61,24 @@ export default function AddProduct() {
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
+  const handleSpecChange = (index, field, value) => {
+    const updatedSpecs = [...form.specifications];
+    updatedSpecs[index][field] = value;
 
+    setForm({ ...form, specifications: updatedSpecs });
+  };
+
+  const addSpec = () => {
+    setForm({
+      ...form,
+      specifications: [...form.specifications, { key: "", value: "" }],
+    });
+  };
+
+  const removeSpec = (index) => {
+    const updatedSpecs = form.specifications.filter((_, i) => i !== index);
+    setForm({ ...form, specifications: updatedSpecs });
+  };
   /* Pickup Address Change */
   const handlePickupChange = (field, value) => {
     setForm({
@@ -120,7 +137,10 @@ export default function AddProduct() {
       formData.append("price", form.price);
       formData.append("discountPrice", form.discountPrice);
       formData.append("description", form.description);
-      formData.append("specifications", form.specifications);
+      formData.append(
+        "specifications",
+        JSON.stringify(form.specifications)
+      );
       formData.append("stock", form.stock);
       formData.append("warranty", form.warranty);
       formData.append("returnPolicy", form.returnPolicy);
@@ -236,12 +256,36 @@ export default function AddProduct() {
           onChange={handleChange}
         />
 
-        <textarea
-          name="specifications"
-          placeholder="Specifications"
-          value={form.specifications}
-          onChange={handleChange}
-        />
+        <h3 className="section-title">Specifications</h3>
+
+        {form.specifications.map((spec, index) => (
+          <div key={index} className="spec-row">
+            <input
+              placeholder="Key (e.g. RAM)"
+              value={spec.key}
+              onChange={(e) =>
+                handleSpecChange(index, "key", e.target.value)
+              }
+            />
+
+            <input
+              placeholder="Value (e.g. 16GB)"
+              value={spec.value}
+              onChange={(e) =>
+                handleSpecChange(index, "value", e.target.value)
+              }
+            />
+
+            <button type="button" onClick={() => removeSpec(index)}>
+              ❌
+            </button>
+          </div>
+        ))}
+
+        <button type="button" onClick={addSpec}>
+          + Add Specification
+        </button>
+
 
         <h3 className="section-title">Pickup Address</h3>
 

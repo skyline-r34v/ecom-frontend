@@ -1,21 +1,20 @@
-/* LOGIN PAGE */
+/* REGISTER PAGE */
 
-.login-page {
-  min-height: 100vh;
+.register-page {
+  min-height: 70vh;
   background: #f5f6fa;
 }
 
-/* MAIN SECTION */
-
-.login-wrapper {
-  min-height: calc(100vh - 70px);
+.register-wrapper {
+  min-height: calc(90vh - 70px);
   display: flex;
   align-items: center;
   justify-content: center;
+  padding: 10px 10px;
   background: linear-gradient(135deg, #f8f9fb, #eef1f5);
 }
 
-.login-container {
+.register-container {
   width: 100%;
   max-width: 1050px;
   display: grid;
@@ -28,76 +27,79 @@
 
 /* LEFT SIDE */
 
-.login-left {
+.register-left {
   background: linear-gradient(135deg, #ff9900, #ffb52e);
   color: #fff;
   padding: 60px 50px;
   display: flex;
   flex-direction: column;
   justify-content: center;
-  position: relative;
 }
 
-.login-left h1 {
+.register-left h1 {
   font-size: 42px;
   font-weight: 700;
   margin-bottom: 16px;
   color: #fff;
 }
 
-.login-left p {
+.register-left p {
   font-size: 16px;
   line-height: 1.8;
   color: rgba(255, 255, 255, 0.95);
   max-width: 420px;
 }
 
-.login-left .login-features {
+.register-features {
   margin-top: 35px;
 }
 
-.login-left .login-features div {
+.register-features div {
   margin-bottom: 16px;
   font-size: 15px;
   font-weight: 500;
 }
 
-.login-left .login-features span {
+.register-features span {
   margin-right: 10px;
   font-size: 18px;
 }
 
 /* RIGHT SIDE */
 
-.login-right {
-  padding: 55px 45px;
-  background: #fff;
+.register-right {
+  padding: 0px 30px;
   display: flex;
   flex-direction: column;
   justify-content: center;
+  background: #fff;
 }
 
-.login-right h2 {
+.register-right h2 {
   font-size: 32px;
   font-weight: 700;
   color: #1f1f1f;
-  margin-bottom: 10px;
+  margin-bottom: 2px;
 }
 
-.login-subtitle {
-  color: #777;
+.register-subtitle {
   font-size: 15px;
-  margin-bottom: 30px;
+  color: #777;
+  margin-bottom: 28px;
 }
 
-.login-right .ant-form-item-label > label {
+.register-right .ant-form-item {
+  margin-bottom: 18px;
+}
+
+.register-right .ant-form-item-label > label {
   font-size: 14px;
   font-weight: 600;
   color: #333;
 }
 
-.login-right .ant-input,
-.login-right .ant-input-password {
+.register-right .ant-input,
+.register-right .ant-input-password {
   height: 52px;
   border-radius: 12px;
   border: 1px solid #dcdfe4;
@@ -106,93 +108,77 @@
   transition: all 0.3s ease;
 }
 
-.login-right .ant-input:hover,
-.login-right .ant-input-password:hover,
-.login-right .ant-input:focus,
-.login-right .ant-input-password:focus,
-.login-right .ant-input-affix-wrapper-focused {
+.register-right .ant-input:hover,
+.register-right .ant-input-password:hover,
+.register-right .ant-input:focus,
+.register-right .ant-input-password:focus,
+.register-right .ant-input-affix-wrapper-focused {
   border-color: #ff9900;
-  box-shadow: 0 0 0 3px rgba(255, 153, 0, 0.12);
   background: #fff;
+  box-shadow: 0 0 0 3px rgba(255, 153, 0, 0.12);
 }
 
-.forgot-link {
-  color: #ff9900;
-  font-size: 14px;
-  font-weight: 500;
-  text-decoration: none;
-}
-
-.forgot-link:hover {
-  color: #e68a00;
-  text-decoration: underline;
-}
-
-/* BUTTON */
-
-.login-right .ant-btn-primary {
+.register-right .ant-btn-primary {
   height: 52px;
   border-radius: 12px;
-  background: #ff9900;
   border: none;
+  background: #ff9900;
   font-size: 16px;
   font-weight: 600;
-  margin-top: 10px;
+  margin-top: 8px;
   transition: all 0.3s ease;
 }
 
-.login-right .ant-btn-primary:hover,
-.login-right .ant-btn-primary:focus {
+.register-right .ant-btn-primary:hover,
+.register-right .ant-btn-primary:focus {
   background: #e68a00 !important;
   transform: translateY(-1px);
   box-shadow: 0 8px 18px rgba(255, 153, 0, 0.25);
 }
 
-/* REGISTER TEXT */
-
-.login-register-text {
+.register-login-text {
   text-align: center;
-  margin-top: 22px;
-  font-size: 14px;
+  margin-top: 20px;
   color: #666;
+  font-size: 14px;
 }
 
-.login-register-text a {
+.register-login-text a {
   color: #ff9900;
   font-weight: 600;
   text-decoration: none;
 }
 
-.login-register-text a:hover {
+.register-login-text a:hover {
   text-decoration: underline;
 }
 
 /* RESPONSIVE */
 
 @media (max-width: 900px) {
-  .login-container {
+  .register-container {
     grid-template-columns: 1fr;
   }
 
-  .login-left {
+  .register-left {
     display: none;
   }
 
-  .login-right {
+  .register-right {
     padding: 40px 25px;
   }
 }
 
 @media (max-width: 500px) {
-  .login-wrapper {
+  .register-wrapper {
     padding: 20px 12px;
   }
 
-  .login-right h2 {
-    font-size: 26px;
+  .register-right {
+    padding: 30px 20px;
   }
 
-  .login-right {
-    padding: 30px 20px;
+  .register-right h2 {
+    font-size: 26px;
   }
 }

@@ -1,6 +1,7 @@
 import { Button, Form, Input, message } from "antd";
 import axios from "axios";
 import React, { useState } from "react";
+import Navbar from "../components/NavbarL";
 import { Link, useNavigate } from "react-router-dom";
 import "../styles/login.css";
 
@@ -34,7 +35,7 @@ export default function Login() {
       localStorage.setItem("email", data.user?.email || "");
       localStorage.setItem("userId", data.user?._id || "");
       localStorage.setItem("mobile", data.user?.mobile || "");
-      if(data.user?.isActive === false){
+      if (data.user?.isActive === false) {
         message.error("Your account is inactive. Please contact support.");
         return;
       }
@@ -51,48 +52,70 @@ export default function Login() {
   };
 
   return (
-    <div className="login-container">
-      <h2>Login</h2>
+    <div className="login-page">
+      <Navbar />
 
-      <Form onFinish={handleLogin} layout="vertical">
-        {/* Email */}
-        <Form.Item
-          name="email"
-          label="Email"
-          rules={[
-            { required: true, message: "Enter email" },
-            { type: "email", message: "Enter valid email" },
-          ]}
-        >
-          <Input placeholder="Enter email" />
-        </Form.Item>
+      <div className="login-wrapper">
+        <div className="login-container">
+          <div className="login-left">
+            <h1>Welcome Back</h1>
+            <p>
+              Login to continue shopping premium products, manage your orders,
+              wishlist, and enjoy exclusive offers.
+            </p>
 
-        {/* Password */}
-        <Form.Item
-          name="password"
-          label="Password"
-          rules={[{ required: true, message: "Enter password" }]}
-        >
-          <Input.Password placeholder="Enter password" />
-        </Form.Item>
+            <div className="login-features">
+              <div><span>✔</span> Secure Login</div>
+              <div><span>✔</span> Fast Checkout</div>
+              <div><span>✔</span> Easy Order Tracking</div>
+              <div><span>✔</span> Wishlist & Offers</div>
+            </div>
+          </div>
 
-        {/* Forgot Password */}
-        <div style={{ textAlign: "right", marginBottom: "15px" }}>
-          <Link to="/forgot-password" className="forgot-link">
-            Forgot Password?
-          </Link>
+          <div className="login-right">
+            <h2>Login</h2>
+            <p className="login-subtitle">
+              Enter your credentials to access your account
+            </p>
+
+            <Form onFinish={handleLogin} layout="vertical">
+              <Form.Item
+                name="email"
+                label="Email"
+                rules={[
+                  { required: true, message: "Enter email" },
+                  { type: "email", message: "Enter valid email" },
+                ]}
+              >
+                <Input placeholder="Enter email" />
+              </Form.Item>
+
+              <Form.Item
+                name="password"
+                label="Password"
+                rules={[{ required: true, message: "Enter password" }]}
+              >
+                <Input.Password placeholder="Enter password" />
+              </Form.Item>
+
+              <div style={{ textAlign: "right", marginBottom: "15px" }}>
+                <Link to="/forgot-password" className="forgot-link">
+                  Forgot Password?
+                </Link>
+              </div>
+
+              <Button type="primary" htmlType="submit" block loading={loading}>
+                Login
+              </Button>
+            </Form>
+
+            <p className="login-register-text">
+              New user? <Link to="/register">Register here</Link>
+            </p>
+          </div>
         </div>
-
-        {/* Login Button */}
-        <Button type="primary" htmlType="submit" block loading={loading}>
-          Login
-        </Button>
-      </Form>
-
-      {/* Register Link */}
-      <p className="login-register-text">
-        New user? <Link to="/register">Register here</Link>
-      </p>
+      </div>
     </div>
+
   );
 }

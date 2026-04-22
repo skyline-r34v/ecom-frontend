@@ -22,7 +22,7 @@ export default function RestoreProduct() {
     } finally {
       setLoading(false);
     }
-  };
+  };  
 
   useEffect(() => {
     fetchDeletedProducts();

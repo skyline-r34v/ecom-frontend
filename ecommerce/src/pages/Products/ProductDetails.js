@@ -119,8 +119,11 @@ export default function ProductDetails() {
       <div className="product-card">
         {/* ================= IMAGE PANEL ================= */}
         <div className="image-panel">
-          <span className={`stock-badge ${product.isActive ? "in" : "out"}`}>
-            {product.isActive ? "In Stock" : "Out of Stock"}
+          <span
+            className={`stock-badge ${(detail?.stock ?? 0) > 0 ? "in" : "out"
+              }`}
+          >
+            {(detail?.stock ?? 0) > 0 ? "In Stock" : "Out of Stock"}
           </span>
 
           <img src={activeImage} alt={product.title} className="main-image" />
@@ -152,7 +155,6 @@ export default function ProductDetails() {
             </button>
           </div>
 
-          <p className="slug">Slug: {product.slug}</p>
           <p><strong>Brand:</strong> {product.brand.name}</p>
           <p><strong>Category:</strong> {product.category?.name}</p>
 

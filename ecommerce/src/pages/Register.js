@@ -1,7 +1,9 @@
 import React from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { message, Form, Input, Button } from "antd";
+import Navbar from "../components/NavbarL";
 import axios from "axios";
+import "../styles/register.css";
 
 export default function Register() {
   const navigate = useNavigate();
@@ -28,63 +30,80 @@ export default function Register() {
   };
 
   return (
-    <div style={styles.container}>
-      <h2>Register</h2>
+    <div className="register-page">
+      <Navbar />
 
-      <Form onFinish={handleRegister} layout="vertical">
-        <Form.Item
-          name="name"
-          label="Full Name"
-          rules={[{ required: true, message: "Enter name" }]}
-        >
-          <Input placeholder="Enter full name" />
-        </Form.Item>
+      <div className="register-wrapper">
+        <div className="register-container">
+          <div className="register-left">
+            <h1>Create Account</h1>
+            <p>
+              Join OneKart and explore premium products, fast delivery,
+              secure checkout, and exclusive shopping offers.
+            </p>
 
-        <Form.Item
-          name="email"
-          label="Email"
-          rules={[
-            { required: true, message: "Enter email" },
-            { type: "email", message: "Enter valid email" }
-          ]}
-        >
-          <Input placeholder="Enter email" />
-        </Form.Item>
+            <div className="register-features">
+              <div><span>✔</span> Premium Products</div>
+              <div><span>✔</span> Easy Checkout</div>
+              <div><span>✔</span> Secure Payments</div>
+              <div><span>✔</span> Fast Delivery</div>
+            </div>
+          </div>
 
-        <Form.Item
-          name="mobile"
-          label="mobile"
-          rules={[{ required: true, message: "Enter Number" }]}
-        >
-          <Input placeholder="Enter Number" />
-        </Form.Item>
-        <Form.Item
-          name="password"
-          label="password"
-          rules={[{ required: true, message: "Enter password" }]}
-        >
-          <Input.Password placeholder="Enter password" />
-        </Form.Item>
+          <div className="register-right">
+            <h2>Register</h2>
+            <p className="register-subtitle">
+              Create your account to start shopping
+            </p>
 
-        <Button type="primary" htmlType="submit" block>
-          Register
-        </Button>
-      </Form>
+            <Form onFinish={handleRegister} layout="vertical">
+              <Form.Item
+                name="name"
+                label="Full Name"
+                rules={[{ required: true, message: "Enter full name" }]}
+              >
+                <Input placeholder="Enter full name" />
+              </Form.Item>
 
-      <p style={{ marginTop: 10 }}>
-        Already have an account? <Link to="/">Login</Link>
-      </p>
+              <Form.Item
+                name="email"
+                label="Email"
+                rules={[
+                  { required: true, message: "Enter email" },
+                  { type: "email", message: "Enter valid email" }
+                ]}
+              >
+                <Input placeholder="Enter email" />
+              </Form.Item>
+
+              <Form.Item
+                name="mobile"
+                label="Mobile Number"
+                rules={[{ required: true, message: "Enter mobile number" }]}
+              >
+                <Input placeholder="Enter mobile number" />
+              </Form.Item>
+
+              <Form.Item
+                name="password"
+                label="Password"
+                rules={[{ required: true, message: "Enter password" }]}
+              >
+                <Input.Password placeholder="Enter password" />
+              </Form.Item>
+
+              <Button type="primary" htmlType="submit" block>
+                Register
+              </Button>
+            </Form>
+
+            <p className="register-login-text">
+              Already have an account? <Link to="/">Login</Link>
+            </p>
+          </div>
+        </div>
+      </div>
     </div>
+
   );
 }
-
-const styles = {
-  container: {
-    width: "350px",
-    margin: "80px auto",
-    padding: "25px",
-    borderRadius: "10px",
-    background: "#fff",
-    boxShadow: "0px 4px 12px rgba(0,0,0,0.1)",
-  },
-};

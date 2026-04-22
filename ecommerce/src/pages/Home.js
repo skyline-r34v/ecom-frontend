@@ -193,9 +193,9 @@ export default function Home() {
 
       {/* BRANDS */}
 
-      <section className="brands-row">
+      <section className="category-row">
         <h2>Top Brands</h2>
-        <div className="brand-slider">
+        <div className="category-slider">
           {brands.map((brand) => (
             <div
               key={brand._id}
