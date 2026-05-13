@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import api from "../api";
 import "../styles/orderDetails.css";
+import Navbar from "../components/Navbar";
 
 export default function OrderDetails() {
   const { id } = useParams();
@@ -19,7 +20,6 @@ export default function OrderDetails() {
     "Other",
   ];
 
-  // ================= FETCH ORDER =================
   useEffect(() => {
     api
       .get(`/orders/${id}`)
@@ -33,7 +33,6 @@ export default function OrderDetails() {
       .finally(() => setLoading(false));
   }, [id]);
 
-  // ================= CANCEL ORDER =================
   const handleCancel = async () => {
     let reason = cancelReason;
 
@@ -47,13 +46,14 @@ export default function OrderDetails() {
         alert("Please write your reason");
         return;
       }
+
       reason = customReason.trim();
     }
 
     try {
       await api.post(`/orders/${id}/cancel`, {
         reason,
-        pickingAddress: order?.detail?.pickUpaddresses,
+        pickingAddress: order?.pickingAddress,
       });
 
       alert("Order cancelled");
@@ -69,11 +69,10 @@ export default function OrderDetails() {
     }
   };
 
-  // ================= RETURN ORDER =================
   const handleReturn = async () => {
     try {
       await api.post(`/orders/${id}/return`, {
-        pickingAddress: order?.detail?.pickUpaddresses,
+        pickingAddress: order?.pickingAddress,
       });
 
       alert("Return requested");
@@ -88,108 +87,204 @@ export default function OrderDetails() {
     }
   };
 
-  if (loading) return <p>Loading...</p>;
-  if (!order) return <p>Order not found</p>;
+  const formatDate = (date) => {
+    return new Date(date).toLocaleDateString("en-IN", {
+      day: "numeric",
+      month: "long",
+      year: "numeric",
+    });
+  };
+
+  if (loading) return <p className="loading">Loading...</p>;
+
+  if (!order) return <p className="loading">Order not found</p>;
 
   return (
-    <div className="order-container">
-      <h2 className="order-title">Order Details</h2>
+    <div>
+      <Navbar />
+      <div className="order-page">
 
-      {/* ORDER INFO */}
-      <div className="order-info">
-        <p>
-          <strong>Order ID:</strong> {order._id}
-        </p>
+        {/* HEADER */}
+        <div className="order-top">
+          <div>
+            <h1>Order Details</h1>
 
-        <p>
-          <strong>Status:</strong> {order.orderStatus}
-        </p>
+            <p className="order-date">
+              Ordered on {formatDate(order.createdAt)}
+            </p>
+          </div>
 
-        {order.cancellationReason && (
-          <p>
-            <strong>Cancellation Reason:</strong> {order.cancellationReason}
-          </p>
-        )}
+          <div className={`status-badge ${order.orderStatus.toLowerCase()}`}>
+            {order.orderStatus}
+          </div>
+        </div>
 
-        <p>
-          <strong>Total:</strong> ₹{order.pricing?.grandTotal}
-        </p>
-      </div>
-
-      <hr />
-
-      {/* PRODUCTS */}
-      <h3>Items</h3>
-
-      {order.items?.map((item) => (
-        <div key={item.product} className="order-item">
-          <img src={item.thumbnail} alt={item.title} />
+        {/* ORDER SUMMARY */}
+        <div className="summary-card">
+          <div>
+            <span>Order ID</span>
+            <h4>{order._id}</h4>
+          </div>
 
           <div>
-            <p>{item.title}</p>
-            <p>Qty: {item.quantity}</p>
-            <p>₹{item.price}</p>
+            <span>Total Amount</span>
+            <h3>₹{order.pricing?.grandTotal}</h3>
+          </div>
+
+          <div>
+            <span>Payment</span>
+            <h4>{order.payment?.method}</h4>
+          </div>
+
+          <div>
+            <span>Payment Status</span>
+            <h4>{order.payment?.status}</h4>
           </div>
         </div>
-      ))}
 
-      <hr />
+        {/* ITEMS */}
+        <div className="section">
+          <h2>Ordered Items</h2>
 
-      {/* PICKUP ADDRESS */}
-      {order?.detail?.pickUpaddresses && (
-        <div className="pickup-address">
-          <h3>Pickup Address</h3>
+          <div className="items-list">
+            {order.items?.map((item, index) => (
+              <div className="item-card" key={index}>
+                <img src={item.thumbnail} alt={item.title} />
 
-          <p>{order.detail.pickUpaddresses.street}</p>
-          <p>{order.detail.pickUpaddresses.city}</p>
-          <p>{order.detail.pickUpaddresses.state}</p>
-          <p>{order.detail.pickUpaddresses.country}</p>
-          <p>{order.detail.pickUpaddresses.postalCode}</p>
+                <div className="item-details">
+                  <h3>{item.title}</h3>
+
+                  <p>Quantity: {item.quantity}</p>
+
+                  <p>Price: ₹{item.price}</p>
+
+                  <p className="subtotal">
+                    Subtotal: ₹{item.subtotal}
+                  </p>
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
-      )}
 
-      <hr />
+        {/* ADDRESS SECTION */}
+        <div className="address-grid">
+          {/* SHIPPING */}
+          <div className="address-card">
+            <h2>Shipping Address</h2>
 
-      {/* ACTION BUTTONS */}
-      <div className="order-actions">
-        {order.orderStatus === "PLACED" && (
-          <div className="cancel-container">
-            <select
-              className="cancel-select"
-              value={cancelReason}
-              onChange={(e) => setCancelReason(e.target.value)}
-            >
-              <option value="">Select Reason</option>
+            <p>{order.shippingAddress?.fullName}</p>
 
-              {reasonOptions.map((reason, idx) => (
-                <option key={idx} value={reason}>
-                  {reason}
-                </option>
-              ))}
-            </select>
+            <p>{order.shippingAddress?.phone}</p>
 
-            {cancelReason === "Other" && (
-              <input
-                type="text"
-                placeholder="Write your reason"
-                value={customReason}
-                onChange={(e) => setCustomReason(e.target.value)}
-                className="cancel-input"
-              />
-            )}
+            <p>{order.shippingAddress?.street}</p>
 
-            <button className="cancel-btn" onClick={handleCancel}>
-              Cancel Order
+            <p>
+              {order.shippingAddress?.city},{" "}
+              {order.shippingAddress?.state}
+            </p>
+
+            <p>{order.shippingAddress?.postalCode}</p>
+
+            <p>{order.shippingAddress?.country}</p>
+          </div>
+
+          {/* PICKUP */}
+          <div className="address-card">
+            <h2>Pickup Address</h2>
+
+            <p>{order.pickingAddress?.street}</p>
+
+            <p>
+              {order.pickingAddress?.city},{" "}
+              {order.pickingAddress?.state}
+            </p>
+
+            <p>{order.pickingAddress?.postalCode}</p>
+
+            <p>{order.pickingAddress?.country}</p>
+          </div>
+        </div>
+
+        {/* PRICE BREAKDOWN */}
+        <div className="pricing-card">
+          <h2>Price Details</h2>
+
+          <div className="price-row">
+            <span>Items Total</span>
+            <span>₹{order.pricing?.itemsTotal}</span>
+          </div>
+
+          <div className="price-row">
+            <span>Shipping Fee</span>
+            <span>₹{order.pricing?.shippingFee}</span>
+          </div>
+
+          <div className="price-row">
+            <span>Tax</span>
+            <span>₹{order.pricing?.tax}</span>
+          </div>
+
+          <div className="price-row">
+            <span>Discount</span>
+            <span>- ₹{order.pricing?.discount}</span>
+          </div>
+
+          <div className="price-row total">
+            <span>Grand Total</span>
+            <span>₹{order.pricing?.grandTotal}</span>
+          </div>
+        </div>
+
+        {/* CANCEL REASON */}
+        {order.cancellationReason && (
+          <div className="cancelled-box">
+            <h3>Cancellation Reason</h3>
+
+            <p>{order.cancellationReason}</p>
+          </div>
+        )}
+
+        {/* ACTIONS */}
+        <div className="actions">
+          {order.orderStatus === "PLACED" && (
+            <div className="cancel-section">
+              <select
+                value={cancelReason}
+                onChange={(e) => setCancelReason(e.target.value)}
+              >
+                <option value="">Select cancellation reason</option>
+
+                {reasonOptions.map((reason, index) => (
+                  <option key={index} value={reason}>
+                    {reason}
+                  </option>
+                ))}
+              </select>
+
+              {cancelReason === "Other" && (
+                <input
+                  type="text"
+                  placeholder="Write your reason"
+                  value={customReason}
+                  onChange={(e) => setCustomReason(e.target.value)}
+                />
+              )}
+
+              <button className="cancel-btn" onClick={handleCancel}>
+                Cancel Order
+              </button>
+            </div>
+          )}
+
+          {order.orderStatus === "DELIVERED" && (
+            <button className="return-btn" onClick={handleReturn}>
+              Request Return
             </button>
-          </div>
-        )}
-
-        {order.orderStatus === "DELIVERED" && (
-          <button className="return-btn" onClick={handleReturn}>
-            Request Return
-          </button>
-        )}
+          )}
+        </div>
       </div>
     </div>
+
   );
 }

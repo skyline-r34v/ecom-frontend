@@ -5,8 +5,12 @@ import Navbar from "../../components/Navbar";
 
 export default function ProfilePage() {
   const [profile, setProfile] = useState(null);
+  const [orders, setOrders] = useState([]);
+
   const [error, setError] = useState("");
   const [isEditing, setIsEditing] = useState(false);
+
+  const [activeTab, setActiveTab] = useState("profile");
 
   const [showAddressForm, setShowAddressForm] = useState(false);
 
@@ -45,6 +49,16 @@ export default function ProfilePage() {
       })
       .catch(() => setError("Failed to fetch profile."));
   }, []);
+
+  // LOAD ORDERS
+  useEffect(() => {
+    if (activeTab === "orders") {
+      api
+        .post("/orders/my")
+        .then((res) => setOrders(res.data.data || []))
+        .catch((err) => console.error(err));
+    }
+  }, [activeTab]);
 
   // PROFILE INPUT CHANGE
   const handleChange = (e) => {
@@ -132,7 +146,9 @@ export default function ProfilePage() {
   const handleDeleteAddress = async (index) => {
     if (!window.confirm("Delete this address?")) return;
 
-    const updatedAddresses = profile.addresses.filter((_, i) => i !== index);
+    const updatedAddresses = profile.addresses.filter(
+      (_, i) => i !== index
+    );
 
     const userId = localStorage.getItem("userId");
 
@@ -188,268 +204,388 @@ export default function ProfilePage() {
         {/* SIDEBAR */}
         <div className="account-sidebar">
           <h3>Your Account</h3>
+
           <ul>
-            <li className="active">Profile</li>
-            <li>Addresses</li>
-            <li>Security</li>
-            <li>Orders</li>
+            <li
+              className={activeTab === "profile" ? "active" : ""}
+              onClick={() => setActiveTab("profile")}
+            >
+              Profile
+            </li>
+
+            <li
+              className={activeTab === "addresses" ? "active" : ""}
+              onClick={() => setActiveTab("addresses")}
+            >
+              Addresses
+            </li>
+
+            <li
+              className={activeTab === "security" ? "active" : ""}
+              onClick={() => setActiveTab("security")}
+            >
+              Security
+            </li>
+
+            <li
+              className={activeTab === "orders" ? "active" : ""}
+              onClick={() => setActiveTab("orders")}
+            >
+              Orders
+            </li>
           </ul>
         </div>
 
         {/* CONTENT */}
         <div className="account-content">
 
-          {/* PROFILE */}
-          <div className="account-card">
-            <div className="card-header">
-              <h2>Profile Information</h2>
+          {/* PROFILE TAB */}
+          {activeTab === "profile" && (
+            <>
+              {/* PROFILE */}
+              <div className="account-card">
+                <div className="card-header">
+                  <h2>Profile Information</h2>
 
-              <button
-                className="link-btn"
-                onClick={() => setIsEditing(!isEditing)}
-              >
-                {isEditing ? "Cancel" : "Edit"}
-              </button>
-            </div>
-
-            <div className="profile-section">
-              <img
-                src={
-                  profile.avatar ||
-                  "https://cdn-icons-png.flaticon.com/512/149/149071.png"
-                }
-                alt="avatar"
-                className="avatar"
-              />
-
-              <div className="profile-details">
-                {isEditing ? (
-                  <input
-                    type="text"
-                    name="name"
-                    value={form.name || ""}
-                    onChange={handleChange}
-                  />
-                ) : (
-                  <h3>{profile.name}</h3>
-                )}
-
-                <p>{profile.email}</p>
-                <span className="role-badge">{profile.role}</span>
-              </div>
-            </div>
-          </div>
-
-          {/* BASIC DETAILS */}
-          <div className="account-card">
-            <h3 className="section-title">Basic Details</h3>
-
-            <div className="info-grid">
-              <div>
-                <label>Phone</label>
-
-                {isEditing ? (
-                  <input
-                    type="text"
-                    name="phone"
-                    value={form.phone || ""}
-                    onChange={handleChange}
-                  />
-                ) : (
-                  <p>{profile.phone || "Not added"}</p>
-                )}
-              </div>
-
-              <div>
-                <label>Gender</label>
-
-                {isEditing ? (
-                  <select
-                    name="gender"
-                    value={form.gender || ""}
-                    onChange={handleChange}
+                  <button
+                    className="link-btn"
+                    onClick={() => setIsEditing(!isEditing)}
                   >
-                    <option value="">Select</option>
-                    <option value="male">Male</option>
-                    <option value="female">Female</option>
-                  </select>
-                ) : (
-                  <p>{profile.gender || "Not added"}</p>
-                )}
-              </div>
+                    {isEditing ? "Cancel" : "Edit"}
+                  </button>
+                </div>
 
-              <div>
-                <label>Date of Birth</label>
-
-                {isEditing ? (
-                  <input
-                    type="date"
-                    name="dateOfBirth"
-                    value={
-                      form.dateOfBirth
-                        ? form.dateOfBirth.substring(0, 10)
-                        : ""
+                <div className="profile-section">
+                  <img
+                    src={
+                      profile.avatar ||
+                      "https://cdn-icons-png.flaticon.com/512/149/149071.png"
                     }
-                    onChange={handleChange}
+                    alt="avatar"
+                    className="avatar"
                   />
-                ) : (
-                  <p>
-                    {profile.dateOfBirth
-                      ? profile.dateOfBirth.substring(0, 10)
-                      : "Not added"}
-                  </p>
-                )}
-              </div>
-            </div>
 
-            {isEditing && (
-              <button className="primary-btn" onClick={handleSave}>
-                Save Changes
-              </button>
-            )}
-          </div>
-
-          {/* ADDRESSES */}
-          <div className="account-card">
-            <div className="card-header">
-              <h3>Saved Addresses</h3>
-
-              <button
-                className="primary-btn small"
-                onClick={() => {
-                  setAddressForm(emptyAddress);
-                  setEditAddressIndex(null);
-                  setShowAddressForm(true);
-                }}
-              >
-                + Add Address
-              </button>
-            </div>
-
-            <div className="address-grid">
-              {(profile.addresses || []).map((addr, i) => (
-                <div key={i} className="address-card">
-                  <h4>
-                    {addr.label}
-                    {addr.isDefault && (
-                      <span className="default-chip">Default</span>
+                  <div className="profile-details">
+                    {isEditing ? (
+                      <input
+                        type="text"
+                        name="name"
+                        value={form.name || ""}
+                        onChange={handleChange}
+                      />
+                    ) : (
+                      <h3>{profile.name}</h3>
                     )}
-                  </h4>
 
-                  <p>{addr.street}</p>
-                  <p>{addr.city}, {addr.state}</p>
-                  <p>{addr.country} - {addr.postalCode}</p>
+                    <p>{profile.email}</p>
 
-                  <div className="card-actions">
-                    <button onClick={() => handleEditAddress(i)}>
-                      Edit
-                    </button>
-
-                    <button onClick={() => handleDeleteAddress(i)}>
-                      Delete
-                    </button>
-
-                    {!addr.isDefault && (
-                      <button onClick={() => handleDefaultAddress(i)}>
-                        Set Default
-                      </button>
-                    )}
+                    <span className="role-badge">
+                      {profile.role}
+                    </span>
                   </div>
                 </div>
-              ))}
-            </div>
+              </div>
 
-            {/* ADDRESS FORM */}
-            {showAddressForm && (
-              <div className="address-form">
+              {/* BASIC DETAILS */}
+              <div className="account-card">
+                <h3 className="section-title">Basic Details</h3>
 
-                <h3>
-                  {editAddressIndex !== null
-                    ? "Edit Address"
-                    : "Add Address"}
-                </h3>
+                <div className="info-grid">
 
-                <input
-                  type="text"
-                  name="label"
-                  placeholder="Label (Home/Work)"
-                  value={addressForm.label}
-                  onChange={handleAddressChange}
-                />
+                  <div>
+                    <label>Phone</label>
 
-                <input
-                  type="text"
-                  name="street"
-                  placeholder="Street"
-                  value={addressForm.street}
-                  onChange={handleAddressChange}
-                />
+                    {isEditing ? (
+                      <input
+                        type="text"
+                        name="phone"
+                        value={form.phone || ""}
+                        onChange={handleChange}
+                      />
+                    ) : (
+                      <p>{profile.phone || "Not added"}</p>
+                    )}
+                  </div>
 
-                <input
-                  type="text"
-                  name="city"
-                  placeholder="City"
-                  value={addressForm.city}
-                  onChange={handleAddressChange}
-                />
+                  <div>
+                    <label>Gender</label>
 
-                <input
-                  type="text"
-                  name="state"
-                  placeholder="State"
-                  value={addressForm.state}
-                  onChange={handleAddressChange}
-                />
+                    {isEditing ? (
+                      <select
+                        name="gender"
+                        value={form.gender || ""}
+                        onChange={handleChange}
+                      >
+                        <option value="">Select</option>
+                        <option value="male">Male</option>
+                        <option value="female">Female</option>
+                      </select>
+                    ) : (
+                      <p>{profile.gender || "Not added"}</p>
+                    )}
+                  </div>
 
-                <input
-                  type="text"
-                  name="country"
-                  placeholder="Country"
-                  value={addressForm.country}
-                  onChange={handleAddressChange}
-                />
+                  <div>
+                    <label>Date of Birth</label>
 
-                <input
-                  type="text"
-                  name="postalCode"
-                  placeholder="Postal Code"
-                  value={addressForm.postalCode}
-                  onChange={handleAddressChange}
-                />
+                    {isEditing ? (
+                      <input
+                        type="date"
+                        name="dateOfBirth"
+                        value={
+                          form.dateOfBirth
+                            ? form.dateOfBirth.substring(0, 10)
+                            : ""
+                        }
+                        onChange={handleChange}
+                      />
+                    ) : (
+                      <p>
+                        {profile.dateOfBirth
+                          ? profile.dateOfBirth.substring(0, 10)
+                          : "Not added"}
+                      </p>
+                    )}
+                  </div>
 
-                <label>
-                  <input
-                    type="checkbox"
-                    name="isDefault"
-                    checked={addressForm.isDefault}
-                    onChange={handleAddressChange}
-                  />
-                  Set as Default
-                </label>
-
-                <div className="form-actions">
-                  <button
-                    className="primary-btn"
-                    onClick={handleSaveAddress}
-                  >
-                    Save Address
-                  </button>
-
-                  <button
-                    className="secondary-btn"
-                    onClick={() => {
-                      setShowAddressForm(false);
-                      setAddressForm(emptyAddress);
-                      setEditAddressIndex(null);
-                    }}
-                  >
-                    Cancel
-                  </button>
                 </div>
 
+                {isEditing && (
+                  <button
+                    className="primary-btn"
+                    onClick={handleSave}
+                  >
+                    Save Changes
+                  </button>
+                )}
               </div>
-            )}
-          </div>
+            </>
+          )}
+
+          {/* ADDRESS TAB */}
+          {activeTab === "addresses" && (
+            <div className="account-card">
+
+              <div className="card-header">
+                <h3>Saved Addresses</h3>
+
+                <button
+                  className="primary-btn small"
+                  onClick={() => {
+                    setAddressForm(emptyAddress);
+                    setEditAddressIndex(null);
+                    setShowAddressForm(true);
+                  }}
+                >
+                  + Add Address
+                </button>
+              </div>
+
+              <div className="address-grid">
+                {(profile.addresses || []).map((addr, i) => (
+                  <div key={i} className="address-card">
+
+                    <h4>
+                      {addr.label}
+
+                      {addr.isDefault && (
+                        <span className="default-chip">
+                          Default
+                        </span>
+                      )}
+                    </h4>
+
+                    <p>{addr.street}</p>
+                    <p>{addr.city}, {addr.state}</p>
+                    <p>
+                      {addr.country} - {addr.postalCode}
+                    </p>
+
+                    <div className="card-actions">
+
+                      <button
+                        onClick={() => handleEditAddress(i)}
+                      >
+                        Edit
+                      </button>
+
+                      <button
+                        onClick={() => handleDeleteAddress(i)}
+                      >
+                        Delete
+                      </button>
+
+                      {!addr.isDefault && (
+                        <button
+                          onClick={() => handleDefaultAddress(i)}
+                        >
+                          Set Default
+                        </button>
+                      )}
+
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              {/* ADDRESS FORM */}
+              {showAddressForm && (
+                <div className="address-form">
+
+                  <h3>
+                    {editAddressIndex !== null
+                      ? "Edit Address"
+                      : "Add Address"}
+                  </h3>
+
+                  <input
+                    type="text"
+                    name="label"
+                    placeholder="Label (Home/Work)"
+                    value={addressForm.label}
+                    onChange={handleAddressChange}
+                  />
+
+                  <input
+                    type="text"
+                    name="street"
+                    placeholder="Street"
+                    value={addressForm.street}
+                    onChange={handleAddressChange}
+                  />
+
+                  <input
+                    type="text"
+                    name="city"
+                    placeholder="City"
+                    value={addressForm.city}
+                    onChange={handleAddressChange}
+                  />
+
+                  <input
+                    type="text"
+                    name="state"
+                    placeholder="State"
+                    value={addressForm.state}
+                    onChange={handleAddressChange}
+                  />
+
+                  <input
+                    type="text"
+                    name="country"
+                    placeholder="Country"
+                    value={addressForm.country}
+                    onChange={handleAddressChange}
+                  />
+
+                  <input
+                    type="text"
+                    name="postalCode"
+                    placeholder="Postal Code"
+                    value={addressForm.postalCode}
+                    onChange={handleAddressChange}
+                  />
+
+                  <label>
+                    <input
+                      type="checkbox"
+                      name="isDefault"
+                      checked={addressForm.isDefault}
+                      onChange={handleAddressChange}
+                    />
+                    Set as Default
+                  </label>
+
+                  <div className="form-actions">
+
+                    <button
+                      className="primary-btn"
+                      onClick={handleSaveAddress}
+                    >
+                      Save Address
+                    </button>
+
+                    <button
+                      className="secondary-btn"
+                      onClick={() => {
+                        setShowAddressForm(false);
+                        setAddressForm(emptyAddress);
+                        setEditAddressIndex(null);
+                      }}
+                    >
+                      Cancel
+                    </button>
+
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* ORDERS TAB */}
+          {activeTab === "orders" && (
+            <div className="account-card">
+
+              <div className="card-header">
+                <h2>My Orders</h2>
+              </div>
+
+              {orders.length === 0 ? (
+                <p className="no-orders">
+                  No orders found
+                </p>
+              ) : (
+                <div className="orders-list">
+
+                  {orders.map((order) => (
+                    <div
+                      key={order._id}
+                      className="order-card"
+                      onClick={() =>
+                        window.location.href = `/orders/${order._id}`
+                      }
+                    >
+                      <div className="order-info">
+
+                        <p>
+                          <strong>Order ID:</strong>{" "}
+                          {order._id}
+                        </p>
+
+                        <p>
+                          <strong>Total:</strong> ₹
+                          {order.pricing?.grandTotal}
+                        </p>
+
+                        <p>
+                          <strong>Date:</strong>{" "}
+                          {new Date(
+                            order.createdAt
+                          ).toLocaleDateString()}
+                        </p>
+
+                      </div>
+
+                      <div
+                        className={`status-badge status-${order.orderStatus}`}
+                      >
+                        {order.orderStatus.replace("_", " ")}
+                      </div>
+                    </div>
+                  ))}
+
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* SECURITY TAB */}
+          {activeTab === "security" && (
+            <div className="account-card">
+              <h2>Security</h2>
+              <p>Security settings coming soon.</p>
+            </div>
+          )}
 
         </div>
       </div>
