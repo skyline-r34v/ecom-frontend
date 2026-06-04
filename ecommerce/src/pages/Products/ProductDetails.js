@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import api from "../../api";
 import "../../styles/productDetails.css";
+import Navbar from "../../components/Navbar";
 
 export default function ProductDetails() {
   const { id } = useParams();
@@ -115,193 +116,198 @@ export default function ProductDetails() {
   const { detail } = product;
 
   return (
-    <div className="product-details-page">
-      <div className="product-card">
-        {/* ================= IMAGE PANEL ================= */}
-        <div className="image-panel">
-          <span
-            className={`stock-badge ${(detail?.stock ?? 0) > 0 ? "in" : "out"
-              }`}
-          >
-            {(detail?.stock ?? 0) > 0 ? "In Stock" : "Out of Stock"}
-          </span>
+    <div>
+      <Navbar />
+      <div className="product-details-page">
 
-          <img src={activeImage} alt={product.title} className="main-image" />
+        <div className="product-card">
+          {/* ================= IMAGE PANEL ================= */}
+          <div className="image-panel">
+            <span
+              className={`stock-badge ${(detail?.stock ?? 0) > 0 ? "in" : "out"
+                }`}
+            >
+              {(detail?.stock ?? 0) > 0 ? "In Stock" : "Out of Stock"}
+            </span>
 
-          <div className="image-gallery">
-            {[product.thumbnail, ...(product.images || [])]
-              .filter(Boolean)
-              .map((img, index) => (
-                <img
-                  key={index}
-                  src={img}
-                  alt={`product-${index}`}
-                  className={activeImage === img ? "active" : ""}
-                  onClick={() => setActiveImage(img)}
-                />
-              ))}
+            <img src={activeImage} alt={product.title} className="main-image" />
+
+            <div className="image-gallery">
+              {[product.thumbnail, ...(product.images || [])]
+                .filter(Boolean)
+                .map((img, index) => (
+                  <img
+                    key={index}
+                    src={img}
+                    alt={`product-${index}`}
+                    className={activeImage === img ? "active" : ""}
+                    onClick={() => setActiveImage(img)}
+                  />
+                ))}
+            </div>
+          </div>
+
+          <div className="info-panel">
+
+            <div className="title-row">
+              <h1>{product.title}</h1>
+              <button
+                className={`wishlist-btn ${isWishlisted ? "active" : ""}`}
+                onClick={toggleWishlist}
+              >
+                {isWishlisted ? "❤️" : "🤍"}
+              </button>
+            </div>
+
+            <p><strong>Brand:</strong> {product.brand.name}</p>
+            <p><strong>Category:</strong> {product.category?.name}</p>
+
+            {/* Ratings */}
+            <div className="rating">
+              {product.reviews?.length
+                ? `⭐ ${(
+                  product.reviews.reduce((a, r) => a + r.rating, 0) /
+                  product.reviews.length
+                ).toFixed(1)} (${product.reviews.length} reviews)`
+                : "No Ratings"}
+            </div>
+
+            {/* Price */}
+            <div className="price">
+              ₹{product.discountPrice ?? product.price}
+              {product.discountPrice && <del> ₹{product.price}</del>}
+            </div>
+
+            <p className="short-desc">{detail?.description}</p>
+
+            <div className="cta-group">
+              <button
+                className="add-cart-btn"
+                onClick={handleAddToCart}
+                disabled={!product.isActive}
+              >
+                Add to Cart
+              </button>
+              <button
+                className="buy-now-btn"
+                onClick={handleBuyNow}
+                disabled={!product.isActive}
+              >
+                Buy Now
+              </button>
+            </div>
+
+            <div className="meta">
+              <p><strong>Status:</strong> {product.isActive ? "Available" : "Unavailable"}</p>
+              <p><strong>Stock:</strong> {detail?.stock ?? "N/A"}</p>
+              <p><strong>Warranty:</strong> {detail?.warranty ?? "N/A"}</p>
+              <p><strong>Shipping:</strong> {detail?.shippingInfo ?? "N/A"}</p>
+              <p><strong>Return Policy:</strong> {detail?.returnPolicy ?? "N/A"}</p>
+            </div>
           </div>
         </div>
 
-        <div className="info-panel">
+        {isPaymentOpen && (
+          <div className="drawer-backdrop" onClick={() => setIsPaymentOpen(false)}>
+            <div className="drawer" onClick={(e) => e.stopPropagation()}>
+              <h2>Complete Your Order</h2>
 
-          <div className="title-row">
-            <h1>{product.title}</h1>
-            <button
-              className={`wishlist-btn ${isWishlisted ? "active" : ""}`}
-              onClick={toggleWishlist}
-            >
-              {isWishlisted ? "❤️" : "🤍"}
-            </button>
-          </div>
-
-          <p><strong>Brand:</strong> {product.brand.name}</p>
-          <p><strong>Category:</strong> {product.category?.name}</p>
-
-          {/* Ratings */}
-          <div className="rating">
-            {product.reviews?.length
-              ? `⭐ ${(
-                product.reviews.reduce((a, r) => a + r.rating, 0) /
-                product.reviews.length
-              ).toFixed(1)} (${product.reviews.length} reviews)`
-              : "No Ratings"}
-          </div>
-
-          {/* Price */}
-          <div className="price">
-            ₹{product.discountPrice ?? product.price}
-            {product.discountPrice && <del> ₹{product.price}</del>}
-          </div>
-
-          <p className="short-desc">{detail?.description}</p>
-
-          <div className="cta-group">
-            <button
-              className="add-cart-btn"
-              onClick={handleAddToCart}
-              disabled={!product.isActive}
-            >
-              Add to Cart
-            </button>
-            <button
-              className="buy-now-btn"
-              onClick={handleBuyNow}
-              disabled={!product.isActive}
-            >
-              Buy Now
-            </button>
-          </div>
-
-          <div className="meta">
-            <p><strong>Status:</strong> {product.isActive ? "Available" : "Unavailable"}</p>
-            <p><strong>Stock:</strong> {detail?.stock ?? "N/A"}</p>
-            <p><strong>Warranty:</strong> {detail?.warranty ?? "N/A"}</p>
-            <p><strong>Shipping:</strong> {detail?.shippingInfo ?? "N/A"}</p>
-            <p><strong>Return Policy:</strong> {detail?.returnPolicy ?? "N/A"}</p>
-          </div>
-        </div>
-      </div>
-
-      {isPaymentOpen && (
-        <div className="drawer-backdrop" onClick={() => setIsPaymentOpen(false)}>
-          <div className="drawer" onClick={(e) => e.stopPropagation()}>
-            <h2>Complete Your Order</h2>
-
-            <div className="drawer-product">
-              <img src={activeImage} alt={product.title} />
-              <div className="drawer-product-info">
-                <h3>{product.title}</h3>
-                <p>Price: ₹{product.discountPrice ?? product.price}</p>
-                <div className="quantity-selector">
-                  <button onClick={() => setQuantity(q => Math.max(1, q - 1))}>-</button>
-                  <span>{quantity}</span>
-                  <button onClick={() => setQuantity(q => q + 1)}>+</button>
+              <div className="drawer-product">
+                <img src={activeImage} alt={product.title} />
+                <div className="drawer-product-info">
+                  <h3>{product.title}</h3>
+                  <p>Price: ₹{product.discountPrice ?? product.price}</p>
+                  <div className="quantity-selector">
+                    <button onClick={() => setQuantity(q => Math.max(1, q - 1))}>-</button>
+                    <span>{quantity}</span>
+                    <button onClick={() => setQuantity(q => q + 1)}>+</button>
+                  </div>
                 </div>
               </div>
-            </div>
 
-            <div className="payment-options">
-              <h4>Select Payment Method</h4>
-              <label>
-                <input
-                  type="radio"
-                  value="credit-card"
-                  checked={paymentMethod === "credit-card"}
-                  onChange={(e) => setPaymentMethod(e.target.value)}
-                /> Credit Card
-              </label>
-              <label>
-                <input
-                  type="radio"
-                  value="upi"
-                  checked={paymentMethod === "upi"}
-                  onChange={(e) => setPaymentMethod(e.target.value)}
-                /> UPI
-              </label>
-              <label>
-                <input
-                  type="radio"
-                  value="cod"
-                  checked={paymentMethod === "cod"}
-                  onChange={(e) => setPaymentMethod(e.target.value)}
-                /> Cash on Delivery
-              </label>
-            </div>
+              <div className="payment-options">
+                <h4>Select Payment Method</h4>
+                <label>
+                  <input
+                    type="radio"
+                    value="credit-card"
+                    checked={paymentMethod === "credit-card"}
+                    onChange={(e) => setPaymentMethod(e.target.value)}
+                  /> Credit Card
+                </label>
+                <label>
+                  <input
+                    type="radio"
+                    value="upi"
+                    checked={paymentMethod === "upi"}
+                    onChange={(e) => setPaymentMethod(e.target.value)}
+                  /> UPI
+                </label>
+                <label>
+                  <input
+                    type="radio"
+                    value="cod"
+                    checked={paymentMethod === "cod"}
+                    onChange={(e) => setPaymentMethod(e.target.value)}
+                  /> Cash on Delivery
+                </label>
+              </div>
 
-            <button className="checkout-btn" onClick={handlePayNow}>
-              Pay Now ₹{(product.discountPrice ?? product.price) * quantity}
-            </button>
-            <button className="close-drawer" onClick={() => setIsPaymentOpen(false)}>✕</button>
+              <button className="checkout-btn" onClick={handlePayNow}>
+                Pay Now ₹{(product.discountPrice ?? product.price) * quantity}
+              </button>
+              <button className="close-drawer" onClick={() => setIsPaymentOpen(false)}>✕</button>
+            </div>
           </div>
-        </div>
-      )}
-
-      {/* ================= DESCRIPTION & SPECIFICATIONS ================= */}
-      {detail?.description && (
-        <section className="details-section">
-          <h3>Product Description</h3>
-          <p>{detail.description}</p>
-        </section>
-      )}
-
-      {detail?.specifications && (
-        <section className="details-section">
-          <h3>Specifications</h3>
-          <table className="spec-table">
-            <tbody>
-              {Object.entries(detail.specifications).map(([key, value]) => (
-                <tr key={key}>
-                  <td className="spec-key">{key}</td>
-                  <td className="spec-value">{value}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </section>
-      )}
-
-      {/* CATEGORY & CREATOR */}
-      <section className="details-section">
-        <h3>Category Details</h3>
-        <ul>
-          <li><strong>Name:</strong> {product.category?.name}</li>
-          <li><strong>Description:</strong> {product.category?.description}</li>
-          <li><strong>Active:</strong> {product.category?.isActive ? "Yes" : "No"}</li>
-        </ul>
-        {product.category?.image && (
-          <img src={product.category.image} alt={product.category.name} className="category-image" />
         )}
-      </section>
 
-      <section className="details-section">
-        <h3>Created By</h3>
-        <ul>
-          <li><strong>Name:</strong> {product.createdBy?.name}</li>
-          <li><strong>Email:</strong> {product.createdBy?.email}</li>
-          <li><strong>Role:</strong> {product.createdBy?.role}</li>
-        </ul>
-      </section>
+        {/* ================= DESCRIPTION & SPECIFICATIONS ================= */}
+        {detail?.description && (
+          <section className="details-section">
+            <h3>Product Description</h3>
+            <p>{detail.description}</p>
+          </section>
+        )}
+
+        {detail?.specifications && (
+          <section className="details-section">
+            <h3>Specifications</h3>
+            <table className="spec-table">
+              <tbody>
+                {Object.entries(detail.specifications).map(([key, value]) => (
+                  <tr key={key}>
+                    <td className="spec-key">{key}</td>
+                    <td className="spec-value">{value}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </section>
+        )}
+
+        {/* CATEGORY & CREATOR */}
+        <section className="details-section">
+          <h3>Category Details</h3>
+          <ul>
+            <li><strong>Name:</strong> {product.category?.name}</li>
+            <li><strong>Description:</strong> {product.category?.description}</li>
+            <li><strong>Active:</strong> {product.category?.isActive ? "Yes" : "No"}</li>
+          </ul>
+          {product.category?.image && (
+            <img src={product.category.image} alt={product.category.name} className="category-image" />
+          )}
+        </section>
+
+        <section className="details-section">
+          <h3>Created By</h3>
+          <ul>
+            <li><strong>Name:</strong> {product.createdBy?.name}</li>
+            <li><strong>Email:</strong> {product.createdBy?.email}</li>
+            <li><strong>Role:</strong> {product.createdBy?.role}</li>
+          </ul>
+        </section>
+      </div>
     </div>
+
   );
 }

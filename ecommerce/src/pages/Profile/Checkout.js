@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import api from "../../api";
 import "../../styles/checkout.css";
+import Navbar from "../../components/Navbar";
 
 export default function Checkout() {
   const navigate = useNavigate();
@@ -38,12 +39,19 @@ export default function Checkout() {
     finalItems = cartItems;
   }
 
-  const finalTotal = finalItems.reduce(
+  const itemsTotal = finalItems.reduce(
     (sum, item) =>
       sum +
       (item.product?.discountPrice ?? item.product?.price) *
       item.quantity,
     0
+  );
+
+  const shippingFee = 50;
+  const tax = Number((itemsTotal * 0.18).toFixed(2));
+
+  const grandTotal = Number(
+    (itemsTotal + shippingFee + tax).toFixed(2)
   );
 
   /* ===================== STATE ===================== */
@@ -189,7 +197,7 @@ export default function Checkout() {
       }
 
       const { data } = await api.post("/payments/create-order", {
-        amount: finalTotal
+        amount: grandTotal
       });
 
       const order = data.order;
@@ -301,95 +309,119 @@ export default function Checkout() {
   };
 
   return (
-    <div className="checkout-container">
-      <h2 className="checkout-title">Checkout</h2>
+    <div>
+      <Navbar />
+      <div className="checkout-container">
+        <h2 className="checkout-title">Checkout</h2>
 
-      <div className="checkout-layout">
+        <div className="checkout-layout">
 
-        {/* ================= ORDER SUMMARY ================= */}
+          {/* ================= ORDER SUMMARY ================= */}
 
-        <div className="checkout-summary">
-          <h3>Order Summary</h3>
+          <div className="checkout-summary">
+            <h3>Order Summary</h3>
 
-          {finalItems.map((item, index) => (
-            <div key={item.product?._id || index} className="summary-item">
-              <img
-                src={item.product?.thumbnail}
-                alt={item.product?.title}
-              />
+            {finalItems.map((item, index) => (
+              <div key={item.product?._id || index} className="summary-item">
+                <img
+                  src={item.product?.thumbnail}
+                  alt={item.product?.title}
+                />
 
-              <div className="summary-info">
-                <h4>{item.product?.title}</h4>
+                <div className="summary-info">
+                  <h4>{item.product?.title}</h4>
 
-                <p>₹ {item.product?.discountPrice ?? item.product?.price}</p>
-                <p>Qty: {item.quantity}</p>
+                  <p>₹ {item.product?.discountPrice ?? item.product?.price}</p>
+                  <p>Qty: {item.quantity}</p>
 
-                <p className="subtotal">
-                  ₹
-                  {(item.product?.discountPrice ??
-                    item.product?.price) * item.quantity}
-                </p>
+                  <p className="subtotal">
+                    ₹
+                    {(item.product?.discountPrice ??
+                      item.product?.price) * item.quantity}
+                  </p>
+                </div>
+              </div>
+            ))}
+
+            <div className="summary-total">
+              <div>
+                <span>Items Total</span>
+                <span>₹ {itemsTotal}</span>
+              </div>
+
+              <div>
+                <span>Shipping</span>
+                <span>₹ {shippingFee}</span>
+              </div>
+
+              <div>
+                <span>Tax (18%)</span>
+                <span>₹ {tax}</span>
+              </div>
+
+              <hr />
+
+              <div>
+                <strong>Grand Total</strong>
+                <strong>₹ {grandTotal}</strong>
               </div>
             </div>
-          ))}
-
-          <div className="summary-total">
-            <span>Total</span>
-            <span>₹ {finalTotal}</span>
           </div>
-        </div>
 
-        {/* ================= ADDRESS + PAYMENT ================= */}
+          {/* ================= ADDRESS + PAYMENT ================= */}
 
-        <div className="checkout-form">
+          <div className="checkout-form">
 
-          <h3>Shipping Address</h3>
+            <h3>Shipping Address</h3>
 
-          {addresses.map((addr) => (
-            <div
-              key={addr._id}
-              className={`address-card ${selectedAddressId === addr._id ? "selected" : ""
-                }`}
-              onClick={() => handleSelectAddress(addr._id)}
+            {addresses.map((addr) => (
+              <div
+                key={addr._id}
+                className={`address-card ${selectedAddressId === addr._id ? "selected" : ""
+                  }`}
+                onClick={() => handleSelectAddress(addr._id)}
+              >
+                <p><b>{addr.label}</b> | {addr.fullName}</p>
+                <p>{addr.street}</p>
+                <p>{addr.city}</p>
+              </div>
+            ))}
+
+            <button
+              className="checkout-btn"
+              onClick={() => setAddingNew(true)}
             >
-              <p><b>{addr.label}</b> | {addr.fullName}</p>
-              <p>{addr.street}</p>
-              <p>{addr.city}</p>
-            </div>
-          ))}
+              + Add Address
+            </button>
 
-          <button
-            className="checkout-btn"
-            onClick={() => setAddingNew(true)}
-          >
-            + Add Address
-          </button>
-
-          <select
-            value={payment.method}
-            onChange={(e) =>
-              setPayment({ method: e.target.value })
-            }
-          >
-            <option value="COD">COD</option>
-            <option value="RAZORPAY">Pay Online</option>
-          </select>
-
-          <button
-            className="checkout-btn"
-            disabled={loadingPayment}
-            onClick={() => {
-              if (payment.method === "COD") {
-                placeOrder();
-              } else {
-                handleRazorpayPayment();
+            <select
+              className="checkout-select"
+              value={payment.method}
+              onChange={(e) =>
+                setPayment({ method: e.target.value })
               }
-            }}
-          >
-            {loadingPayment ? "Processing..." : "Place Order"}
-          </button>
+            >
+              <option value="COD">Cash on Delivery</option>
+              <option value="RAZORPAY">Pay Online</option>
+            </select>
+
+            <button
+              className="checkout-btn"
+              disabled={loadingPayment}
+              onClick={() => {
+                if (payment.method === "COD") {
+                  placeOrder();
+                } else {
+                  handleRazorpayPayment();
+                }
+              }}
+            >
+              {loadingPayment ? "Processing..." : "Place Order"}
+            </button>
+          </div>
         </div>
       </div>
     </div>
+
   );
 }

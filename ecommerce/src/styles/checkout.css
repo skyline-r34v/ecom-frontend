@@ -1,3 +1,4 @@
+
 /* ================= CONTAINER ================= */
 .checkout-container {
   max-width: 1100px;
@@ -86,18 +87,51 @@
 
 .subtotal {
   font-weight: 600;
-  color: #1e293b;
+  color: #16a34a;
   margin-top: 6px;
 }
 
-/* ================= TOTAL ================= */
+/* ================= PRICE BREAKDOWN ================= */
 .summary-total {
+  margin-top: 24px;
+  padding-top: 18px;
+  border-top: 2px solid #e5e7eb;
+
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.summary-total > div {
   display: flex;
   justify-content: space-between;
-  font-size: 20px;
-  font-weight: 700;
-  margin-top: 24px;
+  align-items: center;
+  font-size: 15px;
+  color: #4b5563;
+}
+
+.summary-total > div span:last-child {
+  font-weight: 600;
   color: #111827;
+}
+
+.summary-total hr {
+  border: none;
+  border-top: 1px dashed #d1d5db;
+  margin: 8px 0;
+}
+
+.summary-total > div:last-child {
+  background: linear-gradient(135deg, #eff6ff, #dbeafe);
+  padding: 14px 16px;
+  border-radius: 12px;
+  margin-top: 8px;
+  font-size: 20px;
+  color: #111827;
+}
+
+.summary-total > div:last-child strong {
+  font-weight: 700;
 }
 
 /* ================= FORM ================= */
@@ -121,6 +155,7 @@
 /* ================= INPUT & SELECT ================= */
 .checkout-form input,
 .checkout-select {
+  width: 100%;
   padding: 14px 16px;
   border-radius: 12px;
   border: 1px solid #cbd5e1;
@@ -140,8 +175,34 @@
 .checkout-select {
   cursor: pointer;
   appearance: none;
-  background: #f1f5f9 url("data:image/svg+xml,%3Csvg width='12' height='7' viewBox='0 0 12 7' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1L6 6L11 1' stroke='%23374751' stroke-width='2'/%3E%3C/svg%3E") no-repeat right 16px center;
-  background-size: 12px 7px;
+}
+
+/* ================= ADDRESS CARD ================= */
+.address-card {
+  border: 2px solid #e5e7eb;
+  background: #f9fafb;
+  padding: 16px;
+  margin-bottom: 12px;
+  border-radius: 14px;
+  cursor: pointer;
+  transition: all 0.25s ease;
+}
+
+.address-card:hover {
+  transform: translateY(-2px);
+  border-color: #2563eb;
+  box-shadow: 0 8px 20px rgba(37, 99, 235, 0.12);
+}
+
+.address-card.selected {
+  border-color: #2563eb;
+  background: #eff6ff;
+  box-shadow: 0 8px 20px rgba(37, 99, 235, 0.15);
+}
+
+.address-card p {
+  margin: 4px 0;
+  color: #334155;
 }
 
 /* ================= BUTTON ================= */
@@ -161,6 +222,11 @@
 .checkout-btn:hover {
   transform: translateY(-3px);
   box-shadow: 0 12px 30px rgba(37, 99, 235, 0.35);
+}
+
+.checkout-btn:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
 }
 
 /* ================= RESPONSIVE ================= */
@@ -190,21 +256,8 @@
   .summary-info {
     margin-top: 12px;
   }
-}
-.address-card {
-  border: 1px solid #ccc;
-  padding: 12px;
-  margin-bottom: 12px;
-  border-radius: 6px;
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
 
-.address-card:hover {
-  border-color: #007bff;
-}
-
-.address-card.selected {
-  border-color: #007bff;
-  background-color: #e6f0ff;
+  .checkout-title {
+    font-size: 28px;
+  }
 }
