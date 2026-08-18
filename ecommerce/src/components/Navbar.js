@@ -55,9 +55,9 @@ export default function Navbar() {
   };
 
   const handleLogout = () => {
-    localStorage.removeItem("token");
+    localStorage.clear();
     setIsLoggedIn(false);
-    navigate("/");
+    navigate("/login");
   };
 
   return (

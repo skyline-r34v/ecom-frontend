@@ -15,7 +15,7 @@ export default function ForgotPassword() {
       setLoading(true);
 
       const res = await axios.post(
-        "https://s657g66h-7045.inc1.devtunnels.ms/api/users/forget-password",
+        "https://92hktjzx-7045.inc1.devtunnels.ms/api/users/forget-password",
         { email: values.email }
       );
 
@@ -40,7 +40,7 @@ export default function ForgotPassword() {
       setLoading(true);
 
       const res = await axios.post(
-        "https://s657g66h-7045.inc1.devtunnels.ms/api/users/reset-password",
+        "https://92hktjzx-7045.inc1.devtunnels.ms/api/users/reset-password",
         {
           email,
           otp: values.otp,

@@ -1,51 +1,33 @@
 /* =========================
-   ROOT VARIABLES
-========================= */
-:root {
-  --primary: #f68b1e;
-  --primary-hover: #ff9f43;
-  --dark-bg: #0f0f0f;
-  --dark-bg-2: #161616;
-  --light: #ffffff;
-  --muted: #b5b5b5;
-  --danger: #ff4d4d;
-  --glass: rgba(255, 255, 255, 0.08);
-}
-
-/* =========================
    NAVBAR BASE
 ========================= */
 .noon-navbar {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 14px 28px;
-  background: linear-gradient(
-    135deg,
-    var(--dark-bg),
-    var(--dark-bg-2)
-  );
-  backdrop-filter: blur(10px);
-  color: var(--light);
+  padding: 16px 40px;
+  background: rgba(15, 23, 42, 0.95); /* Slate 900 with subtle opacity */
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
   position: sticky;
   top: 0;
   z-index: 1000;
-  border-bottom: 1px solid var(--glass);
-  transition: all 0.3s ease;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 /* =========================
    MENU ICON
 ========================= */
 .menu-icon {
-  font-size: 22px;
+  font-size: 20px;
   cursor: pointer;
-  color: var(--light);
-  transition: transform 0.3s ease, color 0.3s ease;
+  color: var(--text-muted);
+  transition: all 0.3s ease;
 }
 
 .menu-icon:hover {
-  color: var(--primary);
+  color: var(--primary-light);
   transform: rotate(90deg) scale(1.1);
 }
 
@@ -53,64 +35,19 @@
    LOGO
 ========================= */
 .logo {
-  font-size: 28px;
+  font-size: 26px;
   font-weight: 800;
-  letter-spacing: 1.2px;
+  letter-spacing: -0.5px;
   cursor: pointer;
-  background: linear-gradient(
-    45deg,
-    var(--primary),
-    var(--primary-hover)
-  );
+  background: var(--grad-primary);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   transition: transform 0.3s ease;
 }
 
 .logo:hover {
-  transform: scale(1.08);
+  transform: translateY(-1px) scale(1.02);
 }
-
-/* =========================
-   SEARCH BAR
-========================= 
-.nav-search {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  background: rgba(255, 255, 255, 0.12);
-  padding: 8px 18px;
-  border-radius: 30px;
-  width: 42%;
-  max-width: 460px;
-  border: 1px solid transparent;
-  transition: all 0.3s ease;
-}
-
-.nav-search:hover,
-.nav-search:focus-within {
-  background: rgba(255, 255, 255, 0.18);
-  border-color: var(--primary);
-  box-shadow: 0 0 12px rgba(246, 139, 30, 0.35);
-}
-
-.nav-search svg {
-  color: var(--muted);
-  font-size: 16px;
-}
-
-.nav-search input {
-  background: transparent;
-  border: none;
-  outline: none;
-  color: var(--light);
-  width: 100%;
-  font-size: 14px;
-}
-
-.nav-search input::placeholder {
-  color: var(--muted);
-}  */
 
 /* =========================
    NAV ACTIONS
@@ -118,188 +55,196 @@
 .nav-actions {
   display: flex;
   align-items: center;
-  gap: 20px;
+  gap: 24px;
 }
 
 /* ICON STYLE */
 .nav-icon,
 .logout-icon {
-  font-size: 19px;
+  font-size: 20px;
   cursor: pointer;
+  color: var(--text-muted);
   position: relative;
   transition: all 0.3s ease;
-}
-
-.nav-icon::after {
-  content: "";
-  position: absolute;
-  width: 0%;
-  height: 2px;
-  background: var(--primary);
-  left: 50%;
-  bottom: -6px;
-  transition: all 0.3s ease;
-  transform: translateX(-50%);
-}
-
-.nav-icon:hover::after {
-  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .nav-icon:hover {
-  color: var(--primary);
-  transform: translateY(-3px);
+  color: var(--bg-secondary);
+  transform: translateY(-2px);
 }
 
 /* LOGOUT */
 .logout-icon:hover {
   color: var(--danger);
-  transform: scale(1.15);
+  transform: scale(1.1) translateY(-2px);
 }
 
 /* =========================
    LOGIN BUTTON
 ========================= */
 .login-link {
-  background: linear-gradient(
-    135deg,
-    var(--primary),
-    var(--primary-hover)
-  );
-  color: var(--light);
+  background: var(--grad-primary);
+  color: #ffffff;
   border: none;
-  padding: 8px 20px;
-  border-radius: 25px;
+  padding: 8px 24px;
+  border-radius: var(--radius-full);
   font-size: 14px;
-  font-weight: 700;
+  font-weight: 600;
   cursor: pointer;
-  box-shadow: 0 6px 18px rgba(246, 139, 30, 0.45);
+  box-shadow: 0 4px 14px rgba(79, 70, 229, 0.25);
   transition: all 0.3s ease;
 }
 
 .login-link:hover {
-  transform: translateY(-2px) scale(1.05);
-  box-shadow: 0 10px 24px rgba(246, 139, 30, 0.6);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(79, 70, 229, 0.4);
 }
 
 /* =========================
-   ACTIVE STATE
+   CART CONTAINER (Amazon/Premium style)
 ========================= */
-.nav-icon.active {
-  color: var(--primary);
-}
-
-.nav-icon.active::after {
-  width: 100%;
-}
-
-/* =========================
-   RESPONSIVE
-========================= */
-@media (max-width: 900px) {
-  .nav-search {
-    width: 55%;
-  }
-}
-
-@media (max-width: 768px) {
-  .nav-search {
-    display: none;
-  }
-
-  .logo {
-    font-size: 24px;
-  }
-
-  .nav-actions {
-    gap: 16px;
-  }
-}
-
-@media (max-width: 480px) {
-  .menu-icon {
-    font-size: 20px;
-  }
-
-  .nav-icon,
-  .logout-icon {
-    font-size: 17px;
-  }
-
-  .login-link {
-    padding: 6px 16px;
-    font-size: 13px;
-  }
-}
-/* Cart *//* NAVBAR BASE (optional upgrade) */
-.noon-navbar {
-  background: #131921; /* Amazon dark */
-  color: white;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 10px 20px;
-}
-
-/* NAV ACTIONS */
-.nav-actions {
-  display: flex;
-  align-items: center;
-  gap: 20px;
-}
-
-/* CART CONTAINER */
 .cart-container {
   position: relative;
   display: flex;
   align-items: center;
-  gap: 5px;
+  gap: 8px;
   cursor: pointer;
-  padding: 5px 10px;
-  border-radius: 4px;
-  transition: 0.2s;
+  padding: 6px 12px;
+  border-radius: var(--radius-md);
+  background: rgba(255, 255, 255, 0.05);
+  transition: all 0.2s ease;
 }
 
 .cart-container:hover {
   background: rgba(255, 255, 255, 0.1);
+  transform: translateY(-2px);
 }
 
-/* CART ICON */
 .cart-main-icon {
-  font-size: 22px;
-  color: #ffffff;
+  font-size: 20px;
+  color: var(--text-muted);
+  transition: color 0.2s ease;
 }
 
-/* CART TEXT */
-.cart-text {
-  font-size: 14px;
-  font-weight: 500;
+.cart-container:hover .cart-main-icon {
+  color: #fff;
 }
 
 /* BADGE */
 .cart-count {
   position: absolute;
-  top: -5px;
-  left: 14px; /* 👈 Amazon style (not right!) */
-
-  background: #f08804; /* Amazon orange */
-  color: black;
-
-  font-size: 11px;
+  top: -6px;
+  left: 22px;
+  background: var(--danger);
+  color: #ffffff;
+  font-size: 10px;
   font-weight: 700;
-
   min-width: 18px;
   height: 18px;
-
   display: flex;
   align-items: center;
   justify-content: center;
-
-  border-radius: 50%;
+  border-radius: var(--radius-full);
+  border: 2px solid rgba(15, 23, 42, 0.95);
+  box-shadow: var(--shadow-sm);
 }
 
-/* ICONS */
-.nav-icon {
-  font-size: 18px;
+/* =========================
+   CATEGORIES LIST BELOW NAVBAR
+========================= */
+.navbar-categories {
+  display: flex;
+  gap: 28px;
+  padding: 12px 40px;
+  background: var(--bg-secondary);
+  border-bottom: 1px solid var(--border-light);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.02);
+  align-items: center;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.navbar-categories::-webkit-scrollbar {
+  display: none;
+}
+
+.nav-item {
+  position: relative;
+}
+
+.nav-link {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-secondary);
   cursor: pointer;
+  transition: all 0.2s ease;
+  padding: 4px 0;
+  white-space: nowrap;
+}
+
+.nav-link:hover {
+  color: var(--primary);
+}
+
+/* DROPDOWN BOX */
+.dropdown {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  background: var(--bg-secondary);
+  min-width: 200px;
+  box-shadow: var(--shadow-lg);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-light);
+  padding: 8px 0;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(8px);
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  z-index: 1000;
+}
+
+/* SHOW ON HOVER */
+.nav-item:hover .dropdown {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+}
+
+/* SUBCATEGORY ITEM */
+.dropdown p {
+  padding: 10px 16px;
+  cursor: pointer;
+  font-size: 13.5px;
+  color: var(--text-secondary);
+  transition: all 0.2s ease;
+  margin: 0;
+}
+
+.dropdown p:hover {
+  background: var(--bg-tertiary);
+  color: var(--primary);
+  padding-left: 20px;
+}
+
+/* =========================
+   RESPONSIVE
+========================= */
+@media (max-width: 768px) {
+  .noon-navbar {
+    padding: 14px 20px;
+  }
+  .navbar-categories {
+    padding: 10px 20px;
+    gap: 20px;
+  }
+  .logo {
+    font-size: 22px;
+  }
+  .nav-actions {
+    gap: 16px;
+  }
 }

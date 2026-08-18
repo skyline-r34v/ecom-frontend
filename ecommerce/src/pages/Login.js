@@ -14,7 +14,7 @@ export default function Login() {
       setLoading(true);
 
       const res = await axios.post(
-        "https://s657g66h-7045.inc1.devtunnels.ms/api/users/login",
+        "https://92hktjzx-7045.inc1.devtunnels.ms/api/users/login",
         {
           email: values.email,
           password: values.password,
@@ -23,8 +23,17 @@ export default function Login() {
 
       const data = res?.data?.data;
 
-      if (!data || !data.token) {
+      // Check login response
+      if (!data || !data.token || !data.user) {
         message.error("Invalid login response");
+        return;
+      }
+
+      // Check if account is inactive BEFORE storing user data
+      if (data.user?.isActive === false) {
+        message.error(
+          "Your account is inactive. Please contact support."
+        );
         return;
       }
 
@@ -35,17 +44,24 @@ export default function Login() {
       localStorage.setItem("email", data.user?.email || "");
       localStorage.setItem("userId", data.user?._id || "");
       localStorage.setItem("mobile", data.user?.mobile || "");
-      if (data.user?.isActive === false) {
-        message.error("Your account is inactive. Please contact support.");
-        return;
-      }
 
       message.success("Login successful");
-      navigate("/");
 
+      // Role-based navigation
+      if (data.user.role === "transporter") {
+        navigate("/transporter-dashboard");
+      } else if (data.user.role === "delivery") {
+        navigate("/driver-dashboard");
+      } else {
+        // Default route for other roles
+        navigate("/");
+      }
     } catch (err) {
-      console.error(err);
-      message.error(err.response?.data?.message || "Login failed");
+      console.error("Login Error:", err);
+
+      message.error(
+        err.response?.data?.message || "Login failed"
+      );
     } finally {
       setLoading(false);
     }
@@ -57,65 +73,117 @@ export default function Login() {
 
       <div className="login-wrapper">
         <div className="login-container">
+
+          {/* LEFT SECTION */}
           <div className="login-left">
             <h1>Welcome Back</h1>
+
             <p>
-              Login to continue shopping premium products, manage your orders,
-              wishlist, and enjoy exclusive offers.
+              Login to continue shopping premium products, manage your
+              orders, wishlist, and enjoy exclusive offers.
             </p>
 
             <div className="login-features">
-              <div><span>✔</span> Secure Login</div>
-              <div><span>✔</span> Fast Checkout</div>
-              <div><span>✔</span> Easy Order Tracking</div>
-              <div><span>✔</span> Wishlist & Offers</div>
+              <div>
+                <span>✔</span> Secure Login
+              </div>
+
+              <div>
+                <span>✔</span> Fast Checkout
+              </div>
+
+              <div>
+                <span>✔</span> Easy Order Tracking
+              </div>
+
+              <div>
+                <span>✔</span> Wishlist & Offers
+              </div>
             </div>
           </div>
 
+          {/* RIGHT SECTION */}
           <div className="login-right">
             <h2>Login</h2>
+
             <p className="login-subtitle">
               Enter your credentials to access your account
             </p>
 
-            <Form onFinish={handleLogin} layout="vertical">
+            <Form
+              onFinish={handleLogin}
+              layout="vertical"
+            >
+              {/* EMAIL */}
               <Form.Item
                 name="email"
                 label="Email"
                 rules={[
-                  { required: true, message: "Enter email" },
-                  { type: "email", message: "Enter valid email" },
+                  {
+                    required: true,
+                    message: "Enter email",
+                  },
+                  {
+                    type: "email",
+                    message: "Enter valid email",
+                  },
                 ]}
               >
                 <Input placeholder="Enter email" />
               </Form.Item>
 
+              {/* PASSWORD */}
               <Form.Item
                 name="password"
                 label="Password"
-                rules={[{ required: true, message: "Enter password" }]}
+                rules={[
+                  {
+                    required: true,
+                    message: "Enter password",
+                  },
+                ]}
               >
-                <Input.Password placeholder="Enter password" />
+                <Input.Password
+                  placeholder="Enter password"
+                />
               </Form.Item>
 
-              <div style={{ textAlign: "right", marginBottom: "15px" }}>
-                <Link to="/forgot-password" className="forgot-link">
+              {/* FORGOT PASSWORD */}
+              <div
+                style={{
+                  textAlign: "right",
+                  marginBottom: "15px",
+                }}
+              >
+                <Link
+                  to="/forgot-password"
+                  className="forgot-link"
+                >
                   Forgot Password?
                 </Link>
               </div>
 
-              <Button type="primary" htmlType="submit" block loading={loading}>
+              {/* LOGIN BUTTON */}
+              <Button
+                type="primary"
+                htmlType="submit"
+                block
+                loading={loading}
+              >
                 Login
               </Button>
             </Form>
 
+            {/* REGISTER */}
             <p className="login-register-text">
-              New user? <Link to="/register">Register here</Link>
+              New user?{" "}
+              <Link to="/register">
+                Register here
+              </Link>
             </p>
           </div>
         </div>
       </div>
     </div>
-
   );
 }

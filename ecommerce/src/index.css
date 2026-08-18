@@ -1,8 +1,67 @@
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');
+
+:root {
+  /* Brand colors */
+  --primary: #4f46e5; /* Premium Indigo */
+  --primary-hover: #4338ca;
+  --primary-light: #e0e7ff;
+  --secondary: #0ea5e9; /* Sky Blue */
+  --secondary-hover: #0284c7;
+  
+  /* Semantic Statuses */
+  --success: #10b981; /* Emerald */
+  --warning: #eab308; /* Amber/Gold */
+  --danger: #ef4444; /* Rose */
+  --info: #3b82f6; /* Blue */
+
+  /* Neutrals for modern light/slate interfaces */
+  --bg-primary: #f8fafc;
+  --bg-secondary: #ffffff;
+  --bg-tertiary: #f1f5f9;
+  --text-primary: #0f172a;
+  --text-secondary: #475569;
+  --text-muted: #94a3b8;
+  --border-color: #cbd5e1;
+  --border-light: #e2e8f0;
+
+  /* Premium Gradients */
+  --grad-primary: linear-gradient(135deg, #6366f1, #4f46e5);
+  --grad-accent: linear-gradient(135deg, #3b82f6, #0ea5e9);
+  --grad-dark: linear-gradient(135deg, #1e293b, #0f172a);
+  --grad-sunset: linear-gradient(135deg, #f59e0b, #d97706);
+  --gold-star: #eab308;
+
+  /* Shadows */
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.08), 0 4px 6px -4px rgba(0, 0, 0, 0.08);
+  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.05);
+
+  /* Shadows for Dark Mode or custom cards */
+  --glass: rgba(255, 255, 255, 0.08);
+
+  /* Borders & Radius */
+  --radius-sm: 6px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 24px;
+  --radius-full: 9999px;
+
+  /* Font Family */
+  --font-sans: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
 body {
   margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-    sans-serif;
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
@@ -10,4 +69,305 @@ body {
 code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--bg-primary);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--text-muted);
+  border-radius: var(--radius-full);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--text-secondary);
+}
+
+/* ==========================================================================
+   TRANSPORT & DRIVER DASHBOARD STYLING
+   ========================================================================== */
+.transport-container {
+  max-width: 1000px;
+  margin: 40px auto;
+  padding: 45px 36px;
+  background: var(--bg-secondary);
+  border-radius: var(--radius-xl);
+  border: 1px solid var(--border-light);
+  box-shadow: var(--shadow-md);
+  font-family: var(--font-sans);
+}
+
+@media (max-width: 768px) {
+  .transport-container {
+    padding: 24px 16px;
+    margin: 20px 16px;
+  }
+}
+
+.transport-title {
+  font-size: 28px;
+  font-weight: 800;
+  color: var(--text-primary);
+  margin-bottom: 28px;
+  letter-spacing: -0.5px;
+  border-bottom: 1px solid var(--border-light);
+  padding-bottom: 14px;
+}
+
+/* Create Transport Form */
+.transport-form {
+  background: var(--bg-primary);
+  border: 1px solid var(--border-light);
+  padding: 24px;
+  border-radius: var(--radius-lg);
+  margin-bottom: 30px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  max-width: 500px;
+  box-shadow: var(--shadow-sm);
+}
+
+.transport-form h3 {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.2px;
+}
+
+.transport-form input {
+  width: 100%;
+  padding: 12px 14px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-color);
+  background-color: var(--bg-secondary);
+  color: var(--text-primary);
+  font-size: 14px;
+  outline: none;
+  transition: all 0.2s ease;
+}
+
+.transport-form input:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px var(--primary-light);
+}
+
+.transport-form button {
+  padding: 12px;
+  border-radius: var(--radius-md);
+  border: none;
+  background: var(--grad-primary);
+  color: white;
+  font-size: 14.5px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  box-shadow: 0 4px 12px rgba(79, 70, 229, 0.15);
+}
+
+.transport-form button:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px rgba(79, 70, 229, 0.3);
+}
+
+/* Delivery Layout List */
+.transport-list-container {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  margin-top: 24px;
+}
+
+/* Delivery Card */
+.delivery-card {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-lg);
+  padding: 24px;
+  box-shadow: var(--shadow-sm);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 20px;
+  transition: all 0.25s ease;
+  margin: 14px 0;
+}
+
+.delivery-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+  border-color: rgba(79, 70, 229, 0.15);
+}
+
+@media (max-width: 640px) {
+  .delivery-card {
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 20px;
+  }
+}
+
+.delivery-info {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  flex: 1;
+}
+
+.delivery-info p {
+  margin: 0;
+  font-size: 14.5px;
+  color: var(--text-secondary);
+}
+
+.delivery-info p b {
+  color: var(--text-primary);
+}
+
+/* Status Pill Indicators */
+.delivery-status-pill {
+  padding: 5px 12px;
+  border-radius: var(--radius-full);
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  box-shadow: var(--shadow-sm);
+  display: inline-block;
+  width: fit-content;
+  margin-top: 4px;
+}
+
+.delivery-status-pill.pending {
+  background: #fef3c7;
+  color: #b45309;
+  border: 1px solid rgba(217, 119, 6, 0.2);
+}
+
+.delivery-status-pill.assigned {
+  background: #e0f2fe;
+  color: #0369a1;
+  border: 1px solid rgba(14, 165, 233, 0.2);
+}
+
+.delivery-status-pill.picked_up {
+  background: #fae8ff;
+  color: #86198f;
+  border: 1px solid rgba(217, 70, 239, 0.2);
+}
+
+.delivery-status-pill.out_for_delivery {
+  background: #e0e7ff;
+  color: #4338ca;
+  border: 1px solid rgba(79, 70, 229, 0.2);
+}
+
+.delivery-status-pill.delivered {
+  background: #dcfce7;
+  color: var(--success);
+  border: 1px solid rgba(16, 185, 129, 0.2);
+}
+
+/* Action Controls */
+.delivery-actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.delivery-actions button {
+  padding: 10px 18px;
+  border-radius: var(--radius-md);
+  border: none;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: var(--shadow-sm);
+}
+
+.delivery-btn-picked-up,
+.delivery-btn-out {
+  background: var(--bg-tertiary);
+  color: var(--text-primary);
+  border: 1px solid var(--border-color) !important;
+}
+
+.delivery-btn-picked-up:hover,
+.delivery-btn-out:hover {
+  background: var(--primary-light);
+  color: var(--primary);
+  border-color: var(--primary-light) !important;
+}
+
+.delivery-btn-delivered {
+  background: var(--grad-primary);
+  color: white;
+}
+
+.delivery-btn-delivered:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3);
+}
+
+/* Driver Assignment Box */
+.assign-driver-box {
+  background: var(--bg-primary);
+  border: 1px solid var(--border-light);
+  padding: 16px;
+  border-radius: var(--radius-md);
+  margin-top: 14px;
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  max-width: 400px;
+}
+
+@media (max-width: 480px) {
+  .assign-driver-box {
+    flex-direction: column;
+    align-items: stretch;
+  }
+}
+
+.assign-driver-box input {
+  flex: 1;
+  padding: 10px 12px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-color);
+  background-color: var(--bg-secondary);
+  color: var(--text-primary);
+  font-size: 13.5px;
+  outline: none;
+  transition: all 0.2s ease;
+}
+
+.assign-driver-box input:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px var(--primary-light);
+}
+
+.assign-driver-box button {
+  padding: 10px 18px;
+  border-radius: var(--radius-md);
+  border: none;
+  background: var(--grad-primary);
+  color: white;
+  font-size: 13.5px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.25s ease;
+}
+
+.assign-driver-box button:hover {
+  transform: translateY(-1px);
 }

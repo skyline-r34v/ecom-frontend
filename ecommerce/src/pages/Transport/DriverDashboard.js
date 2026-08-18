@@ -22,16 +22,20 @@ export default function DriverDashboard() {
   return (
     <div>
       <Navbar />
-      <h2>Driver Dashboard</h2>
+      <div className="transport-container">
+        <h2 className="transport-title">Driver Dashboard</h2>
 
-      {deliveries.map((d) => (
-        <DeliveryCard
-          key={d._id}
-          delivery={d}
-          role="delivery"
-          refresh={fetchDeliveries}
-        />
-      ))}
+        <div className="transport-list-container">
+          {deliveries.map((d) => (
+            <DeliveryCard
+              key={d._id}
+              delivery={d}
+              role="delivery"
+              refresh={fetchDeliveries}
+            />
+          ))}
+        </div>
+      </div>
     </div>
   );
 }

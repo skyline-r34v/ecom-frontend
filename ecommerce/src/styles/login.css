@@ -1,37 +1,40 @@
-/* LOGIN PAGE */
-
+/* ==========================================================================
+   LOGIN PAGE BASE
+   ========================================================================== */
 .login-page {
   min-height: 100vh;
-  background: #f5f6fa;
+  background: var(--bg-primary);
+  font-family: var(--font-sans);
 }
 
-/* MAIN SECTION */
-
 .login-wrapper {
-  min-height: calc(100vh - 70px);
+  min-height: calc(100vh - 80px);
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, #f8f9fb, #eef1f5);
+  background: linear-gradient(135deg, var(--bg-primary), var(--bg-tertiary));
+  padding: 40px 20px;
 }
 
 .login-container {
   width: 100%;
-  max-width: 1050px;
+  max-width: 960px;
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  background: #fff;
-  border-radius: 24px;
+  grid-template-columns: 1.12fr 1fr;
+  background: var(--bg-secondary);
+  border-radius: var(--radius-xl);
   overflow: hidden;
-  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.08);
+  box-shadow: var(--shadow-xl);
+  border: 1px solid var(--border-light);
 }
 
-/* LEFT SIDE */
-
+/* ==========================================================================
+   LEFT BRAND DISPLAY AREA
+   ========================================================================== */
 .login-left {
-  background: linear-gradient(135deg, #ff9900, #ffb52e);
-  color: #fff;
-  padding: 60px 50px;
+  background: var(--grad-primary);
+  color: #ffffff;
+  padding: 60px 48px;
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -39,139 +42,160 @@
 }
 
 .login-left h1 {
-  font-size: 42px;
-  font-weight: 700;
+  font-size: 38px;
+  font-weight: 800;
   margin-bottom: 16px;
-  color: #fff;
+  color: #ffffff;
+  letter-spacing: -1px;
+  line-height: 1.15;
 }
 
 .login-left p {
-  font-size: 16px;
-  line-height: 1.8;
-  color: rgba(255, 255, 255, 0.95);
-  max-width: 420px;
-}
-
-.login-left .login-features {
-  margin-top: 35px;
-}
-
-.login-left .login-features div {
-  margin-bottom: 16px;
   font-size: 15px;
-  font-weight: 500;
+  line-height: 1.7;
+  color: rgba(255, 255, 255, 0.9);
+  max-width: 360px;
 }
 
-.login-left .login-features span {
-  margin-right: 10px;
+.login-features {
+  margin-top: 40px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.login-features div {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 14.5px;
+  font-weight: 600;
+  color: #ffffff;
+}
+
+.login-features span {
   font-size: 18px;
 }
 
-/* RIGHT SIDE */
-
+/* ==========================================================================
+   RIGHT FORM AREA
+   ========================================================================== */
 .login-right {
-  padding: 55px 45px;
-  background: #fff;
+  padding: 60px 48px;
+  background: var(--bg-secondary);
   display: flex;
   flex-direction: column;
   justify-content: center;
 }
 
 .login-right h2 {
-  font-size: 32px;
-  font-weight: 700;
-  color: #1f1f1f;
-  margin-bottom: 10px;
+  font-size: 28px;
+  font-weight: 800;
+  color: var(--text-primary);
+  margin-bottom: 8px;
+  letter-spacing: -0.5px;
 }
 
 .login-subtitle {
-  color: #777;
-  font-size: 15px;
-  margin-bottom: 30px;
+  color: var(--text-secondary);
+  font-size: 14.5px;
+  margin-bottom: 32px;
 }
 
+/* FORM LABELS */
 .login-right .ant-form-item-label > label {
-  font-size: 14px;
+  font-size: 13.5px;
   font-weight: 600;
-  color: #333;
+  color: var(--text-secondary);
 }
 
+/* FORM INPUTS */
 .login-right .ant-input,
 .login-right .ant-input-password {
-  height: 52px;
-  border-radius: 12px;
-  border: 1px solid #dcdfe4;
-  background: #fafafa;
-  font-size: 15px;
-  transition: all 0.3s ease;
+  height: 48px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-color);
+  background: var(--bg-primary);
+  font-size: 14px;
+  color: var(--text-primary);
+  padding: 0 16px;
+  transition: all 0.25s ease;
 }
 
 .login-right .ant-input:hover,
-.login-right .ant-input-password:hover,
+.login-right .ant-input-password:hover {
+  border-color: var(--text-secondary);
+}
+
 .login-right .ant-input:focus,
 .login-right .ant-input-password:focus,
 .login-right .ant-input-affix-wrapper-focused {
-  border-color: #ff9900;
-  box-shadow: 0 0 0 3px rgba(255, 153, 0, 0.12);
-  background: #fff;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px var(--primary-light);
+  background: var(--bg-secondary);
 }
 
+/* FORGOT PASSWORD LINK */
 .forgot-link {
-  color: #ff9900;
-  font-size: 14px;
-  font-weight: 500;
+  color: var(--primary);
+  font-size: 13.5px;
+  font-weight: 600;
   text-decoration: none;
+  transition: color 0.2s ease;
 }
 
 .forgot-link:hover {
-  color: #e68a00;
+  color: var(--primary-hover);
   text-decoration: underline;
 }
 
-/* BUTTON */
-
+/* PRIMARY BUTTON */
 .login-right .ant-btn-primary {
-  height: 52px;
-  border-radius: 12px;
-  background: #ff9900;
+  height: 48px;
+  border-radius: var(--radius-md);
+  background: var(--grad-primary) !important;
   border: none;
-  font-size: 16px;
-  font-weight: 600;
+  font-size: 15px;
+  font-weight: 700;
+  color: white;
   margin-top: 10px;
-  transition: all 0.3s ease;
+  width: 100%;
+  box-shadow: 0 4px 12px rgba(79, 70, 229, 0.2);
+  transition: all 0.25s ease;
 }
 
 .login-right .ant-btn-primary:hover,
 .login-right .ant-btn-primary:focus {
-  background: #e68a00 !important;
   transform: translateY(-1px);
-  box-shadow: 0 8px 18px rgba(255, 153, 0, 0.25);
+  box-shadow: 0 6px 18px rgba(79, 70, 229, 0.35);
 }
 
-/* REGISTER TEXT */
-
+/* REGISTER REDIRECT */
 .login-register-text {
   text-align: center;
-  margin-top: 22px;
+  margin-top: 24px;
   font-size: 14px;
-  color: #666;
+  color: var(--text-secondary);
 }
 
 .login-register-text a {
-  color: #ff9900;
+  color: var(--primary);
   font-weight: 600;
   text-decoration: none;
 }
 
 .login-register-text a:hover {
+  color: var(--primary-hover);
   text-decoration: underline;
 }
 
-/* RESPONSIVE */
-
+/* ==========================================================================
+   RESPONSIVE DESIGN
+   ========================================================================== */
 @media (max-width: 900px) {
   .login-container {
     grid-template-columns: 1fr;
+    max-width: 480px;
   }
 
   .login-left {
@@ -179,20 +203,16 @@
   }
 
   .login-right {
-    padding: 40px 25px;
+    padding: 40px 30px;
   }
 }
 
-@media (max-width: 500px) {
+@media (max-width: 480px) {
   .login-wrapper {
     padding: 20px 12px;
   }
 
   .login-right h2 {
-    font-size: 26px;
-  }
-
-  .login-right {
-    padding: 30px 20px;
+    font-size: 24px;
   }
 }

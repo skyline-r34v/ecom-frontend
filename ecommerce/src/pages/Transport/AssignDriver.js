@@ -20,7 +20,7 @@ export default function AssignDriver({ transportId, refresh }) {
   };
 
   return (
-    <div>
+    <div className="assign-driver-box">
       <input
         placeholder="Driver ID"
         value={driverId}

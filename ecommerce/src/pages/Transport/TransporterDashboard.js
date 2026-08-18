@@ -24,19 +24,23 @@ export default function TransporterDashboard() {
   return (
     <div>
       <Navbar />
-      <h2>Transporter Dashboard</h2>
+      <div className="transport-container">
+        <h2 className="transport-title">Transporter Dashboard</h2>
 
-      <CreateTransportForm refresh={fetchDeliveries} />
+        <CreateTransportForm refresh={fetchDeliveries} />
 
-      {deliveries.map((d) => (
-        <div key={d._id}>
-          <DeliveryCard delivery={d} role="transporter" refresh={fetchDeliveries} />
+        <div className="transport-list-container">
+          {deliveries.map((d) => (
+            <div key={d._id} className="delivery-card-wrapper">
+              <DeliveryCard delivery={d} role="transporter" refresh={fetchDeliveries} />
 
-          {!d.driver && (
-            <AssignDriver transportId={d._id} refresh={fetchDeliveries} />
-          )}
+              {!d.driver && (
+                <AssignDriver transportId={d._id} refresh={fetchDeliveries} />
+              )}
+            </div>
+          ))}
         </div>
-      ))}
+      </div>
     </div>
   );
 }

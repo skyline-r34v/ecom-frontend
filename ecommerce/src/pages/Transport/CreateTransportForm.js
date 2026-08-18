@@ -23,7 +23,7 @@ export default function CreateTransportForm({ refresh }) {
   };
 
   return (
-    <form onSubmit={handleSubmit}>
+    <form onSubmit={handleSubmit} className="transport-form">
       <h3>Create Transport</h3>
 
       <input
