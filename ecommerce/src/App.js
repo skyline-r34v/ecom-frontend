@@ -1,9 +1,11 @@
+import React, { useState, useEffect } from "react";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Home from "./pages/Home";
 import User from "./pages/User";
+import UserDetails from "./pages/UserDetails";
 
 // Products
 import Product from "./pages/Products/Products";
@@ -39,7 +41,16 @@ import TransporterDashboard from "./pages/Transport/TransporterDashboard";
 import DriverDashboard from "./pages/Transport/DriverDashboard";
 
 function App() {
-  const role = localStorage.getItem("role"); // admin / customer
+  const [role, setRole] = useState(localStorage.getItem("role"));
+
+  useEffect(() => {
+    const handleRoleChange = () => {
+      setRole(localStorage.getItem("role"));
+    };
+
+    window.addEventListener("roleChanged", handleRoleChange);
+    return () => window.removeEventListener("roleChanged", handleRoleChange);
+  }, []);
 
   return (
     <BrowserRouter>
@@ -68,6 +79,7 @@ function App() {
         {/* ================= USER ================= */}
         <Route path="/profile" element={<Profile />} />
         <Route path="/users" element={<User />} />
+        <Route path="/users/:id" element={<UserDetails />} />
 
         {/* ================= CART ================= */}
         <Route path="/cart" element={<Cart />} />
@@ -85,8 +97,6 @@ function App() {
         {/* ================= ADMIN ================= */}
         {role === "admin" && (
           <Route path="/admin/orders" element={<AdminOrders />} />
-
-
         )}
 
         {/*================= TRANSPORT ================= */}

@@ -47,6 +47,9 @@ export default function Login() {
 
       message.success("Login successful");
 
+      // Notify App.js to re-read role from localStorage
+      window.dispatchEvent(new Event("roleChanged"));
+
       // Role-based navigation
       if (data.user.role === "transporter") {
         navigate("/transporter-dashboard");
