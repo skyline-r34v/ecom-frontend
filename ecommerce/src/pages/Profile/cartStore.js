@@ -1,82 +1,74 @@
 import { create } from "zustand";
+import api from "../../api";
 
 const useCartStore = create((set, get) => ({
+  // ─── Navbar flat products (for cart count badge) ───
   products: [],
 
-  addToCart: (product) =>
-    set((state) => {
+  // ─── Full raw items from backend (for Cart page) ───
+  cartItems: [],
 
-      const pickingAddress =
-        product?.productDetail?.pickUpaddresses ||
-        product?.detail?.pickUpaddresses ||
-        null;
-
-      const exists = state.products.find(
-        (item) => item._id === product._id
-      );
-
-      if (exists) {
-        return {
-          products: state.products.map((item) =>
-            item._id === product._id
-              ? { ...item, quantity: item.quantity + 1 }
-              : item
-          ),
-        };
-      }
-
-      return {
-        products: [
-          ...state.products,
-          {
-            ...product,
-            quantity: 1,
-            pickingAddress,
-          },
-        ],
-      };
-    }),
-
-  removeFromCart: (id) =>
-    set((state) => ({
-      products: state.products.filter((item) => item._id !== id),
-    })),
-
-  updateQuantity: (id, qty) =>
-    set((state) => ({
-      products: state.products.map((item) =>
-        item._id === id ? { ...item, quantity: qty } : item
-      ),
-    })),
-
-  clearCart: () => set({ products: [] }),
-
-  totalPrice: () =>
-    get().products.reduce(
-      (sum, item) =>
-        sum +
-        (item.discountPrice ?? item.price) * item.quantity,
-      0
-    ),
-
-  cartCount: () =>
-    get().products.reduce((sum, item) => sum + item.quantity, 0),
-
-  setCart: (items) =>
+  // ─── Sync cartItems + products from backend response ───
+  // Pass in res.data.cart (the cart object with .items array)
+  syncCart: (cart) => {
+    const items = cart?.items || [];
     set({
+      cartItems: items,
       products: items.map((item) => ({
-        _id: item.product._id,                 // ✅ IMPORTANT
+        _id: item.product._id,
         title: item.product.title,
         price: item.product.price,
         discountPrice: item.product.discountPrice,
         images: item.product.images,
         thumbnail: item.product.thumbnail,
-
-        quantity: item.quantity,               // ✅ IMPORTANT
-
+        quantity: item.quantity,
         pickingAddress: item.productDetail?.pickUpaddresses,
       })),
-    }),
+    });
+  },
+
+  // ─── Fetch cart from backend & sync ───
+  fetchCart: async () => {
+    try {
+      const token = localStorage.getItem("token");
+      if (!token || token === "undefined" || token === "null") return;
+      const res = await api.post("/users/cart", {});
+      if (res.data?.success) {
+        get().syncCart(res.data.cart);
+      }
+    } catch (err) {
+      console.error("fetchCart error:", err);
+    }
+  },
+
+  // ─── Legacy: setCart from Navbar (items array) ───
+  setCart: (items) => {
+    if (!Array.isArray(items)) return;
+    set({
+      products: items.map((item) => ({
+        _id: item.product._id,
+        title: item.product.title,
+        price: item.product.price,
+        discountPrice: item.product.discountPrice,
+        images: item.product.images,
+        thumbnail: item.product.thumbnail,
+        quantity: item.quantity,
+        pickingAddress: item.productDetail?.pickUpaddresses,
+      })),
+    });
+  },
+
+  clearCart: () => set({ products: [], cartItems: [] }),
+
+  // ─── Computed ───
+  cartCount: () =>
+    get().products.reduce((sum, item) => sum + (item.quantity || 0), 0),
+
+  totalPrice: () =>
+    get().products.reduce(
+      (sum, item) => sum + (item.discountPrice ?? item.price ?? 0) * item.quantity,
+      0
+    ),
 }));
 
 export default useCartStore;

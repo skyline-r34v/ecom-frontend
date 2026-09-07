@@ -1,22 +1,42 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../../api";
+import useCartStore from "../Profile/cartStore";
 import "../../styles/cart.css";
 
 const Cart = () => {
-  const [cart, setCart] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const navigate = useNavigate();
 
-  /* ================= FETCH CART ================= */
+  // Read cart items directly from Zustand store (populated when Add to Cart was clicked)
+  const cartItems = useCartStore((state) => state.cartItems);
+  const syncCart = useCartStore((state) => state.syncCart);
+
+  /* ================= FETCH CART FROM BACKEND ================= */
   const fetchCart = async () => {
+    const token = localStorage.getItem("token");
+    if (!token || token === "undefined" || token === "null") {
+      navigate("/login");
+      return;
+    }
+
     try {
       const res = await api.post("/users/cart", {});
-      if (res.data.success) {
-        setCart(res.data.cart);
+      console.log("Cart fetch response:", res.data); // Debug
+
+      if (res.data?.success) {
+        syncCart(res.data.cart); // Sync into Zustand store
+      } else {
+        setError(res.data?.message || "Failed to load cart");
       }
-    } catch (error) {
-      console.error("Fetch cart error:", error);
+    } catch (err) {
+      console.error("Cart fetch error:", err);
+      if (err.response?.status === 401) {
+        navigate("/login");
+      } else {
+        setError("Unable to load cart. Please try again.");
+      }
     } finally {
       setLoading(false);
     }
@@ -33,14 +53,13 @@ const Cart = () => {
         productId,
         quantity: change,
       });
-
-      if (res.data.success) {
-        setCart(res.data.cart);
+      if (res.data?.success) {
+        syncCart(res.data.cart);
       } else {
-        alert(res.data.message);
+        alert(res.data?.message || "Failed to update quantity");
       }
-    } catch (error) {
-      console.error("Update cart error:", error);
+    } catch (err) {
+      console.error("Update cart error:", err);
       alert("Unable to update cart");
     }
   };
@@ -50,23 +69,48 @@ const Cart = () => {
     try {
       const res = await api.post("/users/cart", {
         productId,
-        quantity: -999, // backend removes item
+        quantity: -999,
       });
-
-      if (res.data.success) {
-        setCart(res.data.cart);
+      if (res.data?.success) {
+        syncCart(res.data.cart);
       } else {
-        alert(res.data.message);
+        // Fallback: remove locally from store
+        syncCart({
+          items: cartItems.filter(
+            (item) => item.product?._id !== productId
+          ),
+        });
       }
-    } catch (error) {
-      console.error("Remove item error:", error);
-      alert("Unable to remove item");
+    } catch (err) {
+      console.error("Remove error:", err);
+      // Fallback: remove locally
+      syncCart({
+        items: cartItems.filter(
+          (item) => item.product?._id !== productId
+        ),
+      });
     }
   };
 
-  if (loading) return <p className="empty-cart">Loading cart...</p>;
+  /* ================= STATES ================= */
+  if (loading)
+    return (
+      <div className="empty-cart">
+        <p>Loading your cart...</p>
+      </div>
+    );
 
-  if (!cart || cart.items.length === 0)
+  if (error)
+    return (
+      <div className="empty-cart">
+        <p style={{ color: "red" }}>{error}</p>
+        <button className="continue-shopping" onClick={fetchCart}>
+          Retry
+        </button>
+      </div>
+    );
+
+  if (!cartItems || cartItems.length === 0)
     return (
       <div className="empty-cart">
         <p>Your cart is empty.</p>
@@ -79,28 +123,25 @@ const Cart = () => {
       </div>
     );
 
-  /* ================= TOTAL PRICE ================= */
-  const totalPrice = cart.items.reduce(
-    (total, item) =>
-      total +
-      (item.product.discountPrice ?? item.product.price) *
-        item.quantity,
-    0
-  );
+  /* ================= HELPERS ================= */
+  const getProduct = (item) => item.product || item;
+  const getQty = (item) => item.quantity || 1;
+  const getPrice = (item) => {
+    const p = getProduct(item);
+    return p.discountPrice ?? p.price ?? 0;
+  };
 
-  /* ================= TOTAL QUANTITY ================= */
-  const totalQuantity = cart.items.reduce(
-    (total, item) => total + item.quantity,
+  /* ================= TOTALS ================= */
+  const totalPrice = cartItems.reduce(
+    (sum, item) => sum + getPrice(item) * getQty(item),
     0
   );
+  const totalQty = cartItems.reduce((sum, item) => sum + getQty(item), 0);
 
   /* ================= CHECKOUT ================= */
   const proceedToCheckout = () => {
     navigate("/checkout", {
-      state: {
-        cartItems: cart.items,
-        total: totalPrice,
-      },
+      state: { cartItems, total: totalPrice },
     });
   };
 
@@ -111,61 +152,54 @@ const Cart = () => {
       <div className="cart-layout">
         {/* ================= ITEMS ================= */}
         <div className="cart-items">
-          {cart.items.map((item) => (
-            <div className="cart-item" key={item._id}>
-              <img
-                src={item.product.thumbnail}
-                alt={item.product.title}
-              />
+          {cartItems.map((item, idx) => {
+            const product = getProduct(item);
+            const qty = getQty(item);
+            const price = getPrice(item);
+            const productId = product._id;
 
-              <div className="cart-info">
-                <h3>{item.product.title}</h3>
-                <p>
-                  Price: ₹
-                  {item.product.discountPrice ??
-                    item.product.price}
-                </p>
+            return (
+              <div className="cart-item" key={item._id || idx}>
+                <img
+                  src={product.thumbnail || product.images?.[0]}
+                  alt={product.title || "Product"}
+                  onError={(e) => {
+                    e.target.src =
+                      "https://via.placeholder.com/120x120?text=No+Image";
+                  }}
+                />
 
-                {/* Quantity Controls */}
-                <div className="qty-control">
+                <div className="cart-info">
+                  <h3>{product.title}</h3>
+                  <p>Price: ₹{price}</p>
+
+                  <div className="qty-control">
+                    <button
+                      onClick={() => updateQuantity(productId, -1)}
+                      disabled={qty <= 1}
+                    >
+                      -
+                    </button>
+                    <span>{qty}</span>
+                    <button onClick={() => updateQuantity(productId, 1)}>
+                      +
+                    </button>
+                  </div>
+
+                  <p style={{ marginTop: "10px" }}>
+                    Subtotal: ₹{price * qty}
+                  </p>
+
                   <button
-                    onClick={() =>
-                      updateQuantity(item.product._id, -1)
-                    }
-                    disabled={item.quantity <= 1}
+                    className="remove-btn"
+                    onClick={() => removeItem(productId)}
                   >
-                    -
-                  </button>
-
-                  <span>{item.quantity}</span>
-
-                  <button
-                    onClick={() =>
-                      updateQuantity(item.product._id, 1)
-                    }
-                  >
-                    +
+                    Remove
                   </button>
                 </div>
-
-                <p style={{ marginTop: "10px" }}>
-                  Subtotal: ₹
-                  {(item.product.discountPrice ??
-                    item.product.price) *
-                    item.quantity}
-                </p>
-
-                <button
-                  className="remove-btn"
-                  onClick={() =>
-                    removeItem(item.product._id)
-                  }
-                >
-                  Remove
-                </button>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
 
         {/* ================= SUMMARY ================= */}
@@ -174,7 +208,7 @@ const Cart = () => {
 
           <div className="summary-row">
             <span>Total Items:</span>
-            <span>{totalQuantity}</span>
+            <span>{totalQty}</span>
           </div>
 
           <div className="summary-row">
@@ -182,10 +216,7 @@ const Cart = () => {
             <span>₹{totalPrice}</span>
           </div>
 
-          <button
-            className="checkout-btn"
-            onClick={proceedToCheckout}
-          >
+          <button className="checkout-btn" onClick={proceedToCheckout}>
             Proceed to Checkout
           </button>
         </div>

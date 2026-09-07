@@ -1,119 +1,120 @@
 /* ================= ROOT VARIABLES ================= */
-
 :root {
   --primary: #2563eb;
   --primary-dark: #1e40af;
-
-  --border: #e5e7eb;
-  --bg: #f5f7fb;
-
-  --text: #111827;
-  --muted: #6b7280;
-
+  --border: #e2e8f0;
+  --bg: #f8fafc;
+  --text: #0f172a;
+  --muted: #64748b;
   --card: #ffffff;
 }
 
 /* ================= PAGE ================= */
-
 .add-product-container {
-  max-width: 1100px;
-  margin: auto;
-  padding: 40px 30px;
+  max-width: 800px; /* Reduced from 1100px so it's not too large */
+  margin: 64px auto;
+  padding: 48px;
+  background: var(--card);
+  border-radius: 24px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.03);
+  border: 1px solid var(--border);
+  font-family: 'Inter', system-ui, sans-serif;
+}
+
+@media (max-width: 768px) {
+  .add-product-container {
+    margin: 24px 16px;
+    padding: 24px;
+  }
 }
 
 /* ================= HEADER ================= */
-
 .add-product-header {
   display: flex;
   align-items: center;
-  gap: 15px;
-  margin-bottom: 30px;
+  gap: 16px;
+  margin-bottom: 40px;
+  padding-bottom: 24px;
+  border-bottom: 1px solid var(--border);
 }
 
 .add-product-header h2 {
-  font-size: 26px;
-  font-weight: 700;
+  font-size: 24px;
+  font-weight: 800;
   color: var(--text);
+  margin: 0;
 }
 
 /* ================= BACK BUTTON ================= */
-
 .back-btn {
-  padding: 8px 16px;
+  padding: 10px 16px;
   border-radius: 8px;
-
   border: 1px solid var(--border);
-  background: white;
-
+  background: var(--bg);
   font-weight: 600;
+  font-size: 14px;
+  color: var(--text);
   cursor: pointer;
-
-  transition: all .25s ease;
+  transition: all 0.2s ease;
 }
 
 .back-btn:hover {
-  background: var(--primary);
-  color: white;
-  border-color: var(--primary);
+  background: var(--border);
 }
 
 /* ================= FORM ================= */
-
 .add-product-form {
   display: flex;
   flex-direction: column;
-  gap: 30px;
+  gap: 32px;
 }
 
 /* ================= SECTION TITLE ================= */
-
 .section-title {
   font-size: 18px;
-  font-weight: 700;
+  font-weight: 800;
   color: var(--text);
-  border-bottom: 2px solid var(--border);
-  padding-bottom: 8px;
+  margin-bottom: -16px; /* pulls grid closer */
 }
 
 /* ================= GRID ================= */
-
 .grid-2 {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 20px;
+  gap: 24px;
+}
+
+@media (max-width: 600px) {
+  .grid-2 {
+    grid-template-columns: 1fr;
+  }
 }
 
 /* ================= FORM GROUP ================= */
-
 .form-group {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 8px;
 }
 
 .form-group label {
-  font-size: 13px;
+  font-size: 14px;
   font-weight: 600;
-  color: var(--muted);
+  color: var(--text);
 }
 
 /* ================= INPUTS ================= */
-
 .add-product-form input,
 .add-product-form textarea,
 .add-product-form select {
-  padding: 12px 14px;
-
-  border-radius: 8px;
+  padding: 14px 16px;
+  border-radius: 12px;
   border: 1px solid var(--border);
-
-  font-size: 14px;
-  background: white;
-
-  transition: all .2s ease;
+  font-size: 15px;
+  background: #ffffff;
+  transition: all 0.2s ease;
+  width: 100%;
 }
-
-/* INPUT HOVER */
 
 .add-product-form input:hover,
 .add-product-form textarea:hover,
@@ -121,109 +122,101 @@
   border-color: #cbd5e1;
 }
 
-/* INPUT FOCUS */
-
 .add-product-form input:focus,
 .add-product-form textarea:focus,
 .add-product-form select:focus {
   outline: none;
   border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
 
-  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+::placeholder {
+  color: #94a3b8;
 }
 
 /* ================= TEXTAREA ================= */
-
 textarea {
   min-height: 120px;
   resize: vertical;
 }
 
-/* ================= FILE INPUT ================= */
-
-input[type="file"] {
-  padding: 8px;
-  background: #f9fafb;
-  cursor: pointer;
+/* ================= SPECIFICATIONS ROW ================= */
+.spec-row {
+  display: flex;
+  gap: 16px;
+  align-items: center;
 }
 
-/* ================= IMAGE PREVIEW ================= */
+.spec-row input {
+  flex: 1;
+}
 
-.preview-img {
-  width: 100px;
-  height: 100px;
+.spec-row button {
+  background: #fee2e2;
+  border: none;
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: 0.2s;
+  font-size: 16px;
+}
 
-  margin-top: 10px;
+.spec-row button:hover {
+  background: #fca5a5;
+}
 
-  border-radius: 10px;
-  object-fit: cover;
-  border: 1px solid var(--border);
+.add-product-form > button[type="button"] {
+  align-self: flex-start;
+  padding: 12px 24px;
+  background: var(--bg);
+  border: 1px dashed #94a3b8;
+  border-radius: 12px;
+  font-weight: 600;
+  color: var(--muted);
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.add-product-form > button[type="button"]:hover {
+  background: #f1f5f9;
+  color: var(--text);
+  border-color: var(--text);
+}
+
+/* ================= FILE INPUT ================= */
+input[type="file"] {
+  padding: 12px;
+  background: var(--bg);
+  cursor: pointer;
+  border: 1px dashed var(--border);
 }
 
 /* ================= SUBMIT BUTTON ================= */
-
 .submit-btn {
-  margin-top: 20px;
-
+  margin-top: 16px;
   background: var(--primary);
   color: white;
-
-  padding: 14px;
-  border-radius: 8px;
-
+  padding: 16px;
+  border-radius: 30px;
   border: none;
-  font-size: 15px;
-  font-weight: 600;
-
+  font-size: 16px;
+  font-weight: 800;
   cursor: pointer;
-
-  transition: all .25s ease;
+  transition: all 0.2s ease;
 }
 
 .submit-btn:hover {
   background: var(--primary-dark);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 16px rgba(37, 99, 235, 0.2);
 }
 
 .submit-btn:disabled {
-  opacity: .6;
+  opacity: 0.6;
   cursor: not-allowed;
-}
-
-/* ================= CARD STYLE SECTIONS ================= */
-
-.add-product-form > div,
-.grid-2,
-textarea,
-.form-group {
-  background: var(--card);
-}
-
-/* ================= AMAZON STYLE CARD ================= */
-
-.grid-2,
-textarea {
-  padding: 20px;
-  border-radius: 10px;
-  border: 1px solid var(--border);
-}
-
-/* ================= INPUT PLACEHOLDER ================= */
-
-::placeholder {
-  color: #9ca3af;
-}
-
-/* ================= RESPONSIVE ================= */
-
-@media (max-width: 768px) {
-
-  .grid-2 {
-    grid-template-columns: 1fr;
-  }
-
-  .add-product-header {
-    flex-direction: column;
-    align-items: flex-start;
-  }
-
+  transform: none;
 }

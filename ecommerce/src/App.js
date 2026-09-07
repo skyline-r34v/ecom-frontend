@@ -22,6 +22,7 @@ import Profile from "./pages/Profile/Profile";
 
 // Cart & Orders
 import Cart from "./pages/Profile/Cart";
+import Wishlist from "./pages/Profile/Wishlist";
 import MyOrders from "./pages/Profile/MyOrders";
 import OrderDetails from "./pages/OrderDetails";
 import Checkout from "./pages/Profile/Checkout";   // ✅ ADD THIS
@@ -83,6 +84,7 @@ function App() {
 
         {/* ================= CART ================= */}
         <Route path="/cart" element={<Cart />} />
+        <Route path="/wishlist" element={<Wishlist />} />
 
         {/* ================= ORDERS ================= */}
         <Route path="/checkout" element={<Checkout />} />  {/* ✅ REQUIRED */}

@@ -21,9 +21,13 @@ export default function EditProduct() {
     stock: "",
     warranty: "",
     returnPolicy: "",
-    pickupAddresses: [
-      { street: "", city: "", state: "", country: "", postalCode: "" }
-    ],
+    pickUpaddresses: {
+      street: "",
+      city: "",
+      state: "",
+      country: "",
+      postalCode: "",
+    },
   });
 
   const [thumbnail, setThumbnail] = useState(null);
@@ -58,10 +62,13 @@ export default function EditProduct() {
         stock: product.stock || "",
         warranty: product.warranty || "",
         returnPolicy: product.returnPolicy || "",
-        pickupAddresses:
-          product.pickupAddresses?.length > 0
-            ? product.pickupAddresses
-            : [{ street: "", city: "", state: "", country: "", postalCode: "" }],
+        pickUpaddresses: product.pickUpaddresses || {
+          street: "",
+          city: "",
+          state: "",
+          country: "",
+          postalCode: "",
+        },
       });
     } catch (err) {
       message.error("Failed to load product");
@@ -145,11 +152,14 @@ export default function EditProduct() {
       const formData = new FormData();
 
       Object.keys(form).forEach((key) => {
-        if (key === "pickupAddresses") {
-          formData.append(
-            "pickupAddresses",
-            JSON.stringify(form.pickupAddresses)
-          );
+        if (key === "pickUpaddresses" && form.pickUpaddresses) {
+          formData.append("pickUpaddresses[street]", form.pickUpaddresses.street || "");
+          formData.append("pickUpaddresses[city]", form.pickUpaddresses.city || "");
+          formData.append("pickUpaddresses[state]", form.pickUpaddresses.state || "");
+          formData.append("pickUpaddresses[country]", form.pickUpaddresses.country || "");
+          formData.append("pickUpaddresses[postalCode]", form.pickUpaddresses.postalCode || "");
+        } else if (typeof form[key] === "object" && form[key] !== null) {
+          formData.append(key, JSON.stringify(form[key]));
         } else {
           formData.append(key, form[key]);
         }

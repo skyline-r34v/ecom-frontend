@@ -160,14 +160,14 @@
   color: white;
   margin-top: 10px;
   width: 100%;
-  box-shadow: 0 4px 12px rgba(79, 70, 229, 0.2);
-  transition: all 0.25s ease;
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.25);
+  transition: var(--transition-smooth);
 }
 
 .login-right .ant-btn-primary:hover,
 .login-right .ant-btn-primary:focus {
   transform: translateY(-1px);
-  box-shadow: 0 6px 18px rgba(79, 70, 229, 0.35);
+  box-shadow: 0 6px 18px rgba(37, 99, 235, 0.4);
 }
 
 /* REGISTER REDIRECT */

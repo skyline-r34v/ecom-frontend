@@ -4,7 +4,9 @@ import { useLocation, useNavigate } from "react-router-dom";
 import api from "../../api";
 import Sidebar from "../../components/Sidebar";
 import Navbar from "../../components/Navbar";
+import useCartStore from "../Profile/cartStore";
 import "../../styles/products.css";
+import "../../styles/home.css";
 
 export default function Product() {
   const navigate = useNavigate();
@@ -13,6 +15,7 @@ export default function Product() {
   const params = new URLSearchParams(location.search);
   const categoryId = params.get("category");
   const role = localStorage.getItem("role");
+  const syncCart = useCartStore((state) => state.syncCart);
 
   const PRODUCTS_PER_PAGE = 9;
 
@@ -23,6 +26,13 @@ export default function Product() {
   const [currency, setCurrency] = useState("INR");
   const [conversionRate, setConversionRate] = useState(0.012);
   const [searchTerm, setSearchTerm] = useState("");
+  // wishlist: array of product IDs — loaded from localStorage
+  const [wishlist, setWishlist] = useState(() => {
+    try {
+      const stored = JSON.parse(localStorage.getItem("wishlistIds") || "[]");
+      return Array.isArray(stored) ? stored : [];
+    } catch { return []; }
+  });
 
   const fetchProducts = async (pageNumber = 1, search = "") => {
     try {
@@ -67,7 +77,77 @@ export default function Product() {
   useEffect(() => {
     fetchProducts(1, searchTerm);
     fetchConversionRate();
+    fetchWishlist();
   }, [categoryId]);
+
+  /* ─── Fetch user's wishlist IDs from profile ─── */
+  const fetchWishlist = async () => {
+    const token = localStorage.getItem("token");
+    const userId = localStorage.getItem("userId");
+    if (!token || token === "undefined" || !userId) return;
+    try {
+      const res = await api.post("/users/profile", { userId });
+      const wishlistRaw = res.data?.data?.wishlist || [];
+      const ids = wishlistRaw.map((w) =>
+        typeof w === "string" ? w : w._id || w.product?._id
+      ).filter(Boolean);
+      if (ids.length > 0) setWishlist(ids);
+    } catch (err) {
+      console.error("Wishlist fetch error:", err);
+    }
+  };
+
+  /* ─── Toggle wishlist ─── */
+  const handleToggleWishlist = async (e, productId) => {
+    e.stopPropagation();
+    const token = localStorage.getItem("token");
+    if (!token || token === "undefined") {
+      message.warning("Please login to add to wishlist");
+      navigate("/login");
+      return;
+    }
+
+    const isWishlisted = wishlist.includes(productId);
+    // find the full product object from current products list
+    const product = products.find((p) => p._id === productId);
+
+    try {
+      // /wishlists/create toggles add/remove on the backend
+      await api.post("/wishlists/create", { productId });
+
+      if (isWishlisted) {
+        // Remove from state + localStorage
+        const updated = wishlist.filter((id) => id !== productId);
+        setWishlist(updated);
+        localStorage.setItem("wishlistIds", JSON.stringify(updated));
+        // Remove product from localStorage wishlist store
+        try {
+          const stored = JSON.parse(localStorage.getItem("wishlistProducts") || "[]");
+          localStorage.setItem("wishlistProducts", JSON.stringify(stored.filter((p) => p._id !== productId)));
+        } catch {}
+        message.success("Removed from wishlist 💔");
+      } else {
+        // Add to state + localStorage
+        const updated = [...wishlist, productId];
+        setWishlist(updated);
+        localStorage.setItem("wishlistIds", JSON.stringify(updated));
+        // Save full product data for Wishlist page to display
+        if (product) {
+          try {
+            const stored = JSON.parse(localStorage.getItem("wishlistProducts") || "[]");
+            const alreadyIn = stored.find((p) => p._id === productId);
+            if (!alreadyIn) {
+              localStorage.setItem("wishlistProducts", JSON.stringify([...stored, product]));
+            }
+          } catch {}
+        }
+        message.success("Added to wishlist ❤️");
+      }
+    } catch (err) {
+      console.error(err);
+      message.error("Wishlist action failed");
+    }
+  };
 
   const handleSearch = () => {
     fetchProducts(1, searchTerm);
@@ -91,36 +171,31 @@ export default function Product() {
   };
 
   const handleAddToCart = async (product) => {
+    const token = localStorage.getItem("token");
+
+    if (!token || token === "undefined" || token === "null") {
+      message.warning("Please login to add items to cart");
+      navigate("/login");
+      return;
+    }
+
     try {
-      const token = localStorage.getItem("token");
-
-      if (!token) {
-        message.warning("Please login to add items to cart");
-        navigate("/login");
-        return;
-      }
-
       const res = await api.post("/users/cart", {
         productId: product._id,
         quantity: 1,
       });
 
       if (res.data?.success) {
+        // Sync the full cart (with items) into Zustand store
+        syncCart(res.data.cart);
         message.success(`${product.title} added to cart 🛒`);
       } else {
         message.error(res.data?.message || "Failed to add product");
       }
 
     } catch (err) {
-      console.error(err);
-
-      if (err.response?.status === 401) {
-        message.warning("Session expired. Please login again.");
-        localStorage.removeItem("token");
-        navigate("/login");
-      } else {
-        message.error("Unable to add product to cart");
-      }
+      console.error("Add to cart error:", err);
+      message.error("Unable to add product to cart");
     }
   };
 
@@ -204,46 +279,64 @@ export default function Product() {
             <button onClick={handleSearch}>Search</button>
           </div>
 
-          <div className="home-product-grid">
+          <div className="product-grid">
             {products.length ? (
               products.map((p) => (
-                <div className="fk-card" key={p._id}>
+                <div className="product-card" key={p._id}>
+
+                  <div className="card-top">
+                    {p.discountPrice && (
+                      <span className="product-badge">
+                        -{Math.round(((p.price - p.discountPrice) / p.price) * 100)}%
+                      </span>
+                    )}
+                    <button
+                      className={`wishlist-icon ${wishlist.includes(p._id) ? "active" : ""}`}
+                      onClick={(e) => handleToggleWishlist(e, p._id)}
+                      title={wishlist.includes(p._id) ? "Remove from wishlist" : "Add to wishlist"}
+                    >
+                      {wishlist.includes(p._id) ? "❤️" : "🤍"}
+                    </button>
+                  </div>
 
                   <div
-                    className="fk-img-box"
+                    className="img-container"
                     onClick={() => navigate(`/products/${p._id}`)}
                   >
                     <img src={p.thumbnail} alt={p.title} />
                   </div>
 
-                  <div className="fk-info">
-                    <h3 className="fk-title">{p.title}</h3>
+                  <div className="card-details">
+                    <span className="brand-name">{p.brand?.name || "Brand"}</span>
+                    <h3 className="product-title" onClick={() => navigate(`/products/${p._id}`)} style={{ cursor: "pointer" }}>{p.title}</h3>
 
-                    <div className="fk-rating">
-                      ⭐ 4.5 <span>(100 reviews)</span>
+                    <div className="product-rating">
+                      ⭐⭐⭐⭐⭐ <span>(100)</span>
                     </div>
 
-                    <div className="fk-price">
-                      {formatPrice(p.discountPrice || p.price)}
+                    <div className="price-row">
+                      <span className="current-price">
+                        {formatPrice(p.discountPrice || p.price)}
+                      </span>
                       {p.discountPrice && (
-                        <>
+                        <span className="original-price">
                           <del>{formatPrice(p.price)}</del>
-                          <span className="fk-off">OFF</span>
-                        </>
+                        </span>
                       )}
                     </div>
 
                     {role !== "admin" && (
-                      <div className="product-actions">
+                      <div style={{ display: "flex", gap: "8px", marginTop: "auto" }}>
                         <button
-                          className="fk-cart-btn"
+                          className="add-to-cart-btn"
+                          style={{ opacity: 1, transform: "none", flex: 1, padding: "8px", fontSize: "13px" }}
                           onClick={() => handleAddToCart(p)}
                         >
                           Add to Cart
                         </button>
-
                         <button
-                          className="fk-buy-btn"
+                          className="add-to-cart-btn"
+                          style={{ opacity: 1, transform: "none", flex: 1, padding: "8px", fontSize: "13px", background: "var(--primary)", color: "white" }}
                           onClick={() => handleBuyNow(p)}
                         >
                           Buy Now
@@ -252,16 +345,13 @@ export default function Product() {
                     )}
 
                     {role === "admin" && (
-                      <div className="product-actions">
+                      <div className="product-actions" style={{ marginTop: "auto" }}>
                         <button
                           className="edit-btn"
-                          onClick={() =>
-                            navigate(`/products/edit/${p._id}`)
-                          }
+                          onClick={() => navigate(`/products/edit/${p._id}`)}
                         >
                           Edit
                         </button>
-
                         <button
                           className="delete-btn"
                           onClick={() => handleDelete(p._id)}

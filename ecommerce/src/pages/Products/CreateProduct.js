@@ -4,7 +4,7 @@ import api from "../../api";
 import { useNavigate } from "react-router-dom";
 import { message } from "antd";
 
-const MAX_IMAGE_SIZE = 100 * 1024; // 100KB
+const MAX_IMAGE_SIZE = 10000 * 1024; // 100KB
 
 export default function AddProduct() {
   const navigate = useNavigate();

@@ -36,6 +36,7 @@ export default function ProductDetails() {
     fetchProduct();
   }, [id, navigate]);
 
+
   const handleAddToCart = async () => {
     try {
       const token = localStorage.getItem("token");
@@ -63,12 +64,12 @@ export default function ProductDetails() {
 
   const toggleWishlist = async () => {
     try {
+      // /wishlists/create toggles: adds if not in list, removes if already there
+      await api.post("/wishlists/create", { productId: id });
       if (isWishlisted) {
-        await api.post(`/wishlists/delete`, { productId: id });
         setIsWishlisted(false);
         alert("Removed from wishlist 💔");
       } else {
-        await api.post("/wishlists/create", { productId: id });
         setIsWishlisted(true);
         alert("Added to wishlist ❤️");
       }
@@ -120,7 +121,7 @@ export default function ProductDetails() {
       <Navbar />
       <div className="product-details-page">
 
-        <div className="product-card">
+        <div className="product-details-card">
           {/* ================= IMAGE PANEL ================= */}
           <div className="image-panel">
             <span
@@ -159,8 +160,8 @@ export default function ProductDetails() {
               </button>
             </div>
 
-            <p><strong>Brand:</strong> {product.brand.name}</p>
-            <p><strong>Category:</strong> {product.category?.name}</p>
+            <p><strong>Brand:</strong> {product.brand?.name || "No Brand"}</p>
+            <p><strong>Category:</strong> {product.category?.name || "Uncategorized"}</p>
 
             {/* Ratings */}
             <div className="rating">
@@ -274,12 +275,19 @@ export default function ProductDetails() {
             <h3>Specifications</h3>
             <table className="spec-table">
               <tbody>
-                {Object.entries(detail.specifications).map(([key, value]) => (
-                  <tr key={key}>
-                    <td className="spec-key">{key}</td>
-                    <td className="spec-value">{value}</td>
-                  </tr>
-                ))}
+                {Array.isArray(detail.specifications) 
+                  ? detail.specifications.map((spec, index) => (
+                      <tr key={spec._id || index}>
+                        <td className="spec-key">{spec.key}</td>
+                        <td className="spec-value">{spec.value}</td>
+                      </tr>
+                    ))
+                  : Object.entries(detail.specifications).map(([key, value]) => (
+                      <tr key={key}>
+                        <td className="spec-key">{key}</td>
+                        <td className="spec-value">{value}</td>
+                      </tr>
+                    ))}
               </tbody>
             </table>
           </section>
