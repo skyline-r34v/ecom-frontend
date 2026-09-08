@@ -25,7 +25,7 @@ import Cart from "./pages/Profile/Cart";
 import Wishlist from "./pages/Profile/Wishlist";
 import MyOrders from "./pages/Profile/MyOrders";
 import OrderDetails from "./pages/OrderDetails";
-import Checkout from "./pages/Profile/Checkout";   // ✅ ADD THIS
+import Checkout from "./pages/Profile/Checkout";
 
 // Admin
 import AdminOrders from "./pages/Admin/User-Management/AdminOrders.js";
@@ -37,9 +37,19 @@ import BrandEdit from "./pages/Brands/Update";
 import ForgotPassword from "./pages/ForgotPassword.js";
 import EditProduct from "./pages/Products/EditProduct.js";
 
-//Transport
+// Transport
 import TransporterDashboard from "./pages/Transport/TransporterDashboard";
 import DriverDashboard from "./pages/Transport/DriverDashboard";
+
+// ================= FOOD DELIVERY & PARTNER SYSTEM =================
+import FoodBrowse from "./pages/FoodDelivery/Customer/FoodBrowse";
+import RestaurantDetail from "./pages/FoodDelivery/Customer/RestaurantDetail";
+import FoodCheckout from "./pages/FoodDelivery/Customer/FoodCheckout";
+import CustomerOrderTracking from "./pages/FoodDelivery/Customer/CustomerOrderTracking";
+import CustomerOrdersList from "./pages/FoodDelivery/Customer/CustomerOrdersList";
+import RestaurantDashboard from "./pages/FoodDelivery/Restaurant/RestaurantDashboard";
+import DriverApp from "./pages/FoodDelivery/Driver/DriverApp";
+import AdminFoodDashboard from "./pages/FoodDelivery/Admin/AdminFoodDashboard";
 
 function App() {
   const [role, setRole] = useState(localStorage.getItem("role"));
@@ -56,9 +66,7 @@ function App() {
   return (
     <BrowserRouter>
       <Routes>
-
         {/* ================= HOME ================= */}
-
         <Route path="/" element={<Home />} />
 
         {/* ================= AUTH ================= */}
@@ -87,7 +95,7 @@ function App() {
         <Route path="/wishlist" element={<Wishlist />} />
 
         {/* ================= ORDERS ================= */}
-        <Route path="/checkout" element={<Checkout />} />  {/* ✅ REQUIRED */}
+        <Route path="/checkout" element={<Checkout />} />
         <Route path="/my-orders" element={<MyOrders />} />
         <Route path="/orders/:id" element={<OrderDetails />} />
 
@@ -96,19 +104,37 @@ function App() {
         <Route path="/brands/create" element={<BrandCreate />} />
         <Route path="/brands/edit/:slug" element={<BrandEdit />} />
 
+        {/* ================= FOOD DELIVERY SYSTEM (4 CONNECTED ROLES) ================= */}
+        {/* 1. Customer Food Portal */}
+        <Route path="/food" element={<FoodBrowse />} />
+        <Route path="/food/restaurant-menu/:id" element={<RestaurantDetail />} />
+        <Route path="/food/checkout" element={<FoodCheckout />} />
+        <Route path="/food/track/:id" element={<CustomerOrderTracking />} />
+        <Route path="/food-orders" element={<CustomerOrdersList />} />
+
+        {/* 2. Restaurant / Vendor Panel */}
+        <Route path="/food/restaurant" element={<RestaurantDashboard />} />
+
+        {/* 3. Delivery Partner / Driver Mobile App */}
+        <Route path="/food/driver" element={<DriverApp />} />
+        <Route path="/food/delivery-partner" element={<DriverApp />} />
+
+        {/* 4. Admin Live Dispatch & Fleet Command Center */}
+        <Route path="/food/admin" element={<AdminFoodDashboard />} />
+        <Route path="/admin/food-delivery" element={<AdminFoodDashboard />} />
+
         {/* ================= ADMIN ================= */}
         {role === "admin" && (
           <Route path="/admin/orders" element={<AdminOrders />} />
         )}
 
-        {/*================= TRANSPORT ================= */}
+        {/* ================= TRANSPORT ================= */}
         {role === "transporter" && (
           <Route path="/transporter-dashboard" element={<TransporterDashboard />} />
         )}
         {role === "delivery" && (
           <Route path="/driver-dashboard" element={<DriverDashboard />} />
         )}
-
       </Routes>
     </BrowserRouter>
   );
