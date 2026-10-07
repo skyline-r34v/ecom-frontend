@@ -307,7 +307,7 @@ export default function Product() {
                   </div>
 
                   <div className="card-details">
-                    <span className="brand-name">{p.brand?.name || "Brand"}</span>
+                    <span className="brand-name">{p.brand?.name || "Brand1"}</span>
                     <h3 className="product-title" onClick={() => navigate(`/products/${p._id}`)} style={{ cursor: "pointer" }}>{p.title}</h3>
 
                     <div className="product-rating">

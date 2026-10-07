@@ -46,6 +46,8 @@ export default function Navbar() {
   const appMode = useAppStore((state) => state.appMode);
   const setAppMode = useAppStore((state) => state.setAppMode);
   const navigate = useNavigate();
+  const name = localStorage.getItem("name") || "User";
+  const fname = name.split(" ")[0] || "User";
   
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [isCartOpen, setIsCartOpen] = useState(false);
@@ -204,7 +206,7 @@ export default function Navbar() {
                   onMouseLeave={() => setIsAccountDropdownOpen(false)}
                 >
                   <div className="nav-action-text">
-                    <small>Hello, User</small>
+                    <small>Hello, {fname}</small>
                     <strong>Account & Lists <FaChevronDown size={10}/></strong>
                   </div>
 

@@ -97,8 +97,11 @@ function App() {
         <Route path="/brands/edit/:slug" element={<BrandEdit />} />
 
         {/* ================= ADMIN ================= */}
-        {role === "admin" && (
-          <Route path="/admin/orders" element={<AdminOrders />} />
+        {role === "admin" && ([
+           <Route path="/admin/orders" element={<AdminOrders />} />,
+          <Route path="/restaurants/create" element={<CreateRestaurant />} />
+        ]
+         
         )}
 
         {/*================= TRANSPORT ================= */}
@@ -108,6 +111,8 @@ function App() {
         {role === "delivery" && (
           <Route path="/driver-dashboard" element={<DriverDashboard />} />
         )}
+
+
 
       </Routes>
     </BrowserRouter>

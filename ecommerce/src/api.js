@@ -2,7 +2,7 @@
 import axios from "axios";
 
 const api = axios.create({
-  baseURL: "https://ecom-backend-i74i.onrender.com/api/",
+  baseURL: "https://92hktjzx-7045.inc1.devtunnels.ms/api/",
   timeout: 30000, // 30s for Render cold starts
 });
 
