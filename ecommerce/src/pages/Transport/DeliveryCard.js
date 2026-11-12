@@ -15,20 +15,70 @@ export default function DeliveryCard({ delivery, role, refresh }) {
     }
   };
 
+  const getStatusClass = (status) => {
+    switch (status) {
+      case "PICKED_UP":
+        return "status-pill picked";
+      case "OUT_FOR_DELIVERY":
+        return "status-pill out";
+      case "DELIVERED":
+        return "status-pill delivered";
+      default:
+        return "status-pill pending";
+    }
+  };
+
   return (
-    <div style={{ border: "1px solid gray", padding: 10, margin: 10 }}>
-      <p><b>Order:</b> {delivery.order?._id}</p>
-      <p><b>Status:</b> {delivery.status}</p>
-      <p><b>Tracking:</b> {delivery.trackingNumber}</p>
+    <div className="delivery-card">
+      <div className="delivery-card-header">
+        <div>
+          <span className="delivery-label">Order Reference</span>
+          <h4 className="delivery-order-id">
+            #{delivery.order?._id ? delivery.order._id.slice(-8).toUpperCase() : delivery._id?.slice(-8).toUpperCase()}
+          </h4>
+        </div>
+        <span className={getStatusClass(delivery.status)}>
+          {delivery.status?.replace(/_/g, " ") || "SCHEDULED"}
+        </span>
+      </div>
+
+      <div className="delivery-card-body">
+        <div className="delivery-meta-row">
+          <span className="meta-key">Tracking Code:</span>
+          <code className="meta-tracking">{delivery.trackingNumber || "TRK-" + delivery._id?.slice(-6).toUpperCase()}</code>
+        </div>
+        {delivery.driver && (
+          <div className="delivery-meta-row">
+            <span className="meta-key">Assigned Driver:</span>
+            <span className="meta-driver">
+              {typeof delivery.driver === "object" ? delivery.driver?.name || delivery.driver?._id : delivery.driver}
+            </span>
+          </div>
+        )}
+      </div>
 
       {role === "delivery" && (
-        <div>
-          <button onClick={() => updateStatus("PICKED_UP")}>Picked Up</button>
-          <button onClick={() => updateStatus("OUT_FOR_DELIVERY")}>
-            Out for Delivery
+        <div className="delivery-actions-row">
+          <button
+            type="button"
+            className="action-btn pickup"
+            onClick={() => updateStatus("PICKED_UP")}
+          >
+            📦 Picked Up
           </button>
-          <button onClick={() => updateStatus("DELIVERED")}>
-            Delivered
+          <button
+            type="button"
+            className="action-btn out"
+            onClick={() => updateStatus("OUT_FOR_DELIVERY")}
+          >
+            🚚 Out for Delivery
+          </button>
+          <button
+            type="button"
+            className="action-btn delivered"
+            onClick={() => updateStatus("DELIVERED")}
+          >
+            ✓ Delivered
           </button>
         </div>
       )}

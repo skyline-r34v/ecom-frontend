@@ -1,80 +1,33 @@
-import React, { useState, useEffect } from "react";
-import {
-  FaBars,
-  FaShoppingCart,
-  FaUser,
-  FaSignOutAlt,
-  FaInfoCircle,
-} from "react-icons/fa";
-import useCartStore from "../pages/Profile/cartStore";
+import React from "react";
+import { FaInfoCircle } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
-import api from "../api";
 import "../styles/navbar.css";
 
-export default function Navbar() {
+export default function NavbarL() {
   const navigate = useNavigate();
 
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-
-  // Zustand
-  const setCart = useCartStore((state) => state.setCart);
-  const products = useCartStore((state) => state.products);
-
-  // ✅ derive count from products (safe + reactive)
-  const cartCount = products.reduce(
-    (sum, item) => sum + (item.quantity || 0),
-    0
-  );
-
-  // ✅ check login + fetch cart
-  useEffect(() => {
-    const token = localStorage.getItem("token");
-
-    if (token && token !== "undefined" && token !== "null") {
-      setIsLoggedIn(true);
-
-      fetchCart();
-    } else {
-      setIsLoggedIn(false);
-    }
-  }, []);
-
-  // ✅ separate function (clean + reusable)
-  const fetchCart = async () => {
-    try {
-      const res = await api.post("/users/cart", {});
-
-      const items = res?.data?.cart?.items || [];
-
-      if (!Array.isArray(items)) return;
-
-      setCart(items); // 🔥 hydrate Zustand
-    } catch (err) {
-      console.log("Cart fetch error:", err);
-    }
-  };
-
-  const handleLogout = () => {
-    localStorage.removeItem("token");
-    setIsLoggedIn(false);
-    navigate("/");
-  };
-
   return (
-    <header className="noon-navbar">
-      <FaBars className="menu-icon" />
-
-      <div className="logo" onClick={() => navigate("/")}>
-        OneKart
+    <header className="main-header" style={{ background: '#ffffff', borderBottom: '1px solid #e2e8f0', padding: '12px 32px' }}>
+      <div className="navbar-brand-logo" onClick={() => navigate("/")}>
+        <div className="brand-icon-pill">🛍️</div>
+        <span className="brand-logo-text">
+          One<span className="brand-highlight">Cart</span><span className="brand-gold-spark">✦</span>
+        </span>
       </div>
 
-      <div className="nav-actions">
+      <div className="header-right">
+        <button 
+          className="btn-secondary" 
+          onClick={() => navigate("/")}
+          style={{ padding: '6px 14px', fontSize: '13px' }}
+        >
+          Return to Shop
+        </button>
         <FaInfoCircle
           title="About Us"
-          onClick={() => navigate("/about")}
-          className="nav-icon"
+          onClick={() => navigate("/")}
+          style={{ color: '#64748b', fontSize: '18px', cursor: 'pointer', marginLeft: '12px' }}
         />
-
       </div>
     </header>
   );

@@ -1,5 +1,5 @@
 import { Button, Form, Input, message } from "antd";
-import axios from "axios";
+import api from "../api";
 import React, { useState } from "react";
 import Navbar from "../components/NavbarL";
 import { Link, useNavigate } from "react-router-dom";
@@ -13,8 +13,8 @@ export default function Login() {
     try {
       setLoading(true);
 
-      const res = await axios.post(
-        "https://ecom-backend-i74i.onrender.com/api/users/login",
+      const res = await api.post(
+        "/users/login",
         {
           email: values.email,
           password: values.password,

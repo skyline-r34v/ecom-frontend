@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../../api";
 import "../../styles/createbrand.css";
+import { message } from "antd";
 
 export default function BrandCreate() {
   const navigate = useNavigate();
@@ -15,11 +16,26 @@ export default function BrandCreate() {
   const [logo, setLogo] = useState(null);
   const [loading, setLoading] = useState(false);
 
+  const token = localStorage.getItem("token");
+  const role = localStorage.getItem("role");
+
   const handleChange = (e) =>
     setForm({ ...form, [e.target.name]: e.target.value });
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    if (!token || token === "undefined" || token === "null") {
+      message.error("Please login as an Admin to create brands");
+      navigate("/login");
+      return;
+    }
+
+    if (role && role !== "admin") {
+      message.error("Access denied: You are signed in as a '" + role + "'. Admin privileges are required to create brands.");
+      return;
+    }
+
     setLoading(true);
 
     try {
@@ -32,15 +48,30 @@ export default function BrandCreate() {
 
       await api.post("/brands/create", fd);
 
-      alert("Brand created successfully ✅");
+      message.success("Brand created successfully! 🎉");
 
       setForm({ name: "", description: "", website: "" });
       setLogo(null);
 
       navigate("/brands"); // redirect to brand list page
     } catch (error) {
-      alert("Failed to create brand ❌");
-      console.error(error);
+      const errMsg = error.response?.data?.message || error.response?.data?.error || "Failed to create brand";
+      if (
+        errMsg.toLowerCase().includes("forbidden") ||
+        errMsg.toLowerCase().includes("insufficient permissions")
+      ) {
+        message.error("Access denied: Admin privileges required to create brands.");
+      } else if (
+        errMsg.toLowerCase().includes("access denied") ||
+        errMsg.toLowerCase().includes("no token") ||
+        errMsg.toLowerCase().includes("invalid token")
+      ) {
+        message.error("Session expired or not logged in. Please log in as Admin.");
+        navigate("/login");
+      } else {
+        message.error(errMsg);
+      }
+      console.error("Brand creation error:", error);
     } finally {
       setLoading(false);
     }

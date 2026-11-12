@@ -85,7 +85,17 @@ export default function EditCategory() {
 
   return (
     <div className="category-container">
-      <h2 className="cat-title">Edit Category</h2>
+      <div className="cat-header-wrap">
+        <button className="back-btn" onClick={() => navigate("/category")}>
+          ← Back to Categories
+        </button>
+        <div className="section-eyebrow">
+          <span className="eyebrow-dot" />
+          <span>EDIT DEPARTMENT</span>
+        </div>
+        <h1 className="cat-title">Edit <span className="highlight-text">{form.name || "Category"}</span></h1>
+        <p className="cat-subtitle">Update department details, slug identifier, or banner imagery.</p>
+      </div>
 
       <form className="category-form" onSubmit={handleSubmit}>
         <input

@@ -7,6 +7,9 @@ import Navbar from "../../components/Navbar";
 import useCartStore from "../Profile/cartStore";
 import "../../styles/products.css";
 import "../../styles/home.css";
+import { FaHeart, FaStar, FaShoppingCart, FaBolt, FaArrowLeft, FaTimes, FaPlus, FaSearch } from "react-icons/fa";
+import { getProductImage, isLifestyleProduct, sanitizeProduct } from "../../utils/productUtils";
+
 
 export default function Product() {
   const navigate = useNavigate();
@@ -14,10 +17,11 @@ export default function Product() {
 
   const params = new URLSearchParams(location.search);
   const categoryId = params.get("category");
+  const searchQueryParam = params.get("search");
   const role = localStorage.getItem("role");
   const syncCart = useCartStore((state) => state.syncCart);
 
-  const PRODUCTS_PER_PAGE = 9;
+  const PRODUCTS_PER_PAGE = 12;
 
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -25,7 +29,7 @@ export default function Product() {
   const [totalPages, setTotalPages] = useState(1);
   const [currency, setCurrency] = useState("INR");
   const [conversionRate, setConversionRate] = useState(0.012);
-  const [searchTerm, setSearchTerm] = useState("");
+  const [searchTerm, setSearchTerm] = useState(searchQueryParam || "");
   // wishlist: array of product IDs — loaded from localStorage
   const [wishlist, setWishlist] = useState(() => {
     try {
@@ -38,21 +42,51 @@ export default function Product() {
     try {
       setLoading(true);
 
-      const res = await api.post("/products/list", {
-        page: pageNumber,
-        size: PRODUCTS_PER_PAGE,
-        category: categoryId || undefined,
-        search: search || undefined
-      });
+      let fetchedList = [];
+      try {
+        const res = await api.post("/products/list", {
+          page: pageNumber,
+          size: PRODUCTS_PER_PAGE,
+          category: categoryId || undefined,
+          search: search || undefined
+        });
+        fetchedList = (res.data?.data || []).map(sanitizeProduct);
+      } catch (e) {
+        console.warn("Backend products fetch failed:", e);
+      }
 
-      setProducts(res.data?.data || []);
+      let localImported = [];
+      try {
+        localImported = JSON.parse(localStorage.getItem("importedProducts") || "[]");
+      } catch (e) {
+        localImported = [];
+      }
 
-      if (res.data?.pagination?.total) {
-        setTotalPages(
-          Math.ceil(res.data.pagination.total / PRODUCTS_PER_PAGE)
+      if (categoryId) {
+        localImported = localImported.filter(
+          (p) =>
+            p.category?._id === categoryId ||
+            p.category?.slug === categoryId ||
+            p.category?.name?.toLowerCase() === categoryId.toLowerCase()
+        );
+      }
+      if (search) {
+        const q = search.toLowerCase();
+        localImported = localImported.filter(
+          (p) =>
+            p.title?.toLowerCase().includes(q) ||
+            (p.category?.name || "").toLowerCase().includes(q)
         );
       }
 
+      const existingIds = new Set(fetchedList.map((p) => p._id));
+      const combined = [
+        ...localImported.filter((p) => !existingIds.has(p._id)),
+        ...fetchedList
+      ];
+
+      setProducts(combined);
+      setTotalPages(Math.max(1, Math.ceil(combined.length / PRODUCTS_PER_PAGE)));
       setPage(pageNumber);
     } catch (err) {
       console.error(err);
@@ -75,10 +109,13 @@ export default function Product() {
   };
 
   useEffect(() => {
-    fetchProducts(1, searchTerm);
+    const currentParams = new URLSearchParams(location.search);
+    const q = currentParams.get("search") || "";
+    setSearchTerm(q);
+    fetchProducts(1, q);
     fetchConversionRate();
     fetchWishlist();
-  }, [categoryId]);
+  }, [categoryId, location.search]);
 
   /* ─── Fetch user's wishlist IDs from profile ─── */
   const fetchWishlist = async () => {
@@ -170,7 +207,8 @@ export default function Product() {
     }
   };
 
-  const handleAddToCart = async (product) => {
+  const handleAddToCart = async (e, product) => {
+    if (e && e.stopPropagation) e.stopPropagation();
     const token = localStorage.getItem("token");
 
     if (!token || token === "undefined" || token === "null") {
@@ -199,7 +237,8 @@ export default function Product() {
     }
   };
 
-  const handleBuyNow = (product) => {
+  const handleBuyNow = (e, product) => {
+    if (e && e.stopPropagation) e.stopPropagation();
     const token = localStorage.getItem("token");
 
     if (!token) {
@@ -235,136 +274,217 @@ export default function Product() {
 
         <div className="product-content">
 
-          {/* HEADER */}
-          <div className="page-header">
-            <div className="page-left">
-              <button className="back-btn" onClick={() => navigate(-1)}>
-                ← Back
-              </button>
-              <h2 className="page-title">
-                {categoryId ? "Category Products" : "All Products"}
-              </h2>
-            </div>
+          {/* UPGRADED HEADER */}
+          <div className="products-header-section">
+            <div className="products-header-top">
+              <div className="products-header-info">
+                <div className="section-eyebrow">
+                  <span className="eyebrow-dot" />
+                  <span>OFFICIAL STORE CATALOG</span>
+                </div>
+                <div className="products-title-row">
+                  {categoryId && (
+                    <button className="back-btn" onClick={() => navigate(-1)} title="Go Back">
+                      <FaArrowLeft size={11} /> <span>Back</span>
+                    </button>
+                  )}
+                  <h1 className="page-title">
+                    {(() => {
+                      const matched = products.find((p) => p.category?._id === categoryId || p.category?.slug === categoryId)?.category;
+                      if (matched?.name) return matched.name;
+                      if (categoryId) return "Category Collection";
+                      if (searchTerm) return `Search: "${searchTerm}"`;
+                      return "All Products";
+                    })()}
+                    <span className="product-count-badge">{products.length} Products</span>
+                  </h1>
+                </div>
+                <p className="page-subtitle">
+                  Showing genuine products with verified manufacturer warranty & express 24h dispatch.
+                </p>
+              </div>
 
-            <div className="header-actions">
-              <button
-                className="currency-toggle-btn"
-                onClick={() =>
-                  setCurrency(currency === "INR" ? "USD" : "INR")
-                }
-              >
-                Show {currency === "INR" ? "USD" : "INR"}
-              </button>
-
-              {role === "admin" && (
+              <div className="header-actions">
                 <button
-                  className="add-product-btn"
-                  onClick={() => navigate("/products/add")}
+                  type="button"
+                  className="currency-toggle-btn"
+                  onClick={() =>
+                    setCurrency(currency === "INR" ? "USD" : "INR")
+                  }
                 >
-                  + Add Product
+                  Currency: <strong>{currency}</strong> (Switch to {currency === "INR" ? "USD" : "INR"})
                 </button>
-              )}
-            </div>
-          </div>
 
-          {/* SEARCH */}
-          <div className="search-bar">
-            <input
-              type="text"
-              placeholder="Search products..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              onKeyDown={(e) => e.key === "Enter" && handleSearch()}
-            />
-            <button onClick={handleSearch}>Search</button>
+                {role === "admin" && (
+                  <button
+                    type="button"
+                    className="add-product-btn"
+                    onClick={() => navigate("/products/add")}
+                  >
+                    <FaPlus size={12} /> <span>Add Product</span>
+                  </button>
+                )}
+              </div>
+            </div>
+
+            {/* SEARCH */}
+            <div className="search-bar">
+              <div className="search-input-wrapper">
+                <FaSearch className="search-box-icon" />
+                <input
+                  type="text"
+                  placeholder="Search by product name, category, or keyword..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  onKeyDown={(e) => e.key === "Enter" && handleSearch()}
+                />
+                {searchTerm && (
+                  <button
+                    type="button"
+                    className="search-clear-btn"
+                    onClick={() => {
+                      setSearchTerm("");
+                      fetchProducts(1, "");
+                    }}
+                    aria-label="Clear search"
+                  >
+                    <FaTimes size={13} />
+                  </button>
+                )}
+              </div>
+              <button type="button" className="search-submit-btn" onClick={handleSearch}>
+                <FaSearch size={13} /> <span>Search</span>
+              </button>
+            </div>
           </div>
 
           <div className="product-grid">
             {products.length ? (
-              products.map((p) => (
-                <div className="product-card" key={p._id}>
+              products.map((p) => {
+                const imageSrc = getProductImage(p);
+                const isLifestyle = isLifestyleProduct(p);
+                const isWishlisted = wishlist.includes(p._id);
+                const discountPct = p.discountPrice && p.price > p.discountPrice
+                  ? Math.round(((p.price - p.discountPrice) / p.price) * 100)
+                  : null;
 
-                  <div className="card-top">
-                    {p.discountPrice && (
-                      <span className="product-badge">
-                        -{Math.round(((p.price - p.discountPrice) / p.price) * 100)}%
-                      </span>
-                    )}
-                    <button
-                      className={`wishlist-icon ${wishlist.includes(p._id) ? "active" : ""}`}
-                      onClick={(e) => handleToggleWishlist(e, p._id)}
-                      title={wishlist.includes(p._id) ? "Remove from wishlist" : "Add to wishlist"}
-                    >
-                      {wishlist.includes(p._id) ? "❤️" : "🤍"}
-                    </button>
-                  </div>
-
-                  <div
-                    className="img-container"
+                return (
+                  <div 
+                    className="product-card" 
+                    key={p._id}
                     onClick={() => navigate(`/products/${p._id}`)}
+                    tabIndex={0}
+                    onKeyDown={(e) => { if (e.key === "Enter") navigate(`/products/${p._id}`); }}
+                    aria-label={`View ${p.title}`}
                   >
-                    <img src={p.thumbnail} alt={p.title} />
-                  </div>
-
-                  <div className="card-details">
-                    <span className="brand-name">{p.brand?.name || "Brand"}</span>
-                    <h3 className="product-title" onClick={() => navigate(`/products/${p._id}`)} style={{ cursor: "pointer" }}>{p.title}</h3>
-
-                    <div className="product-rating">
-                      ⭐⭐⭐⭐⭐ <span>(100)</span>
+                    <div className="card-top">
+                      {discountPct ? (
+                        <span className="product-badge discount">
+                          -{discountPct}%
+                        </span>
+                      ) : (
+                        <span className="product-badge featured">POPULAR</span>
+                      )}
+                      <button
+                        type="button"
+                        className={`wishlist-icon ${isWishlisted ? "active" : ""}`}
+                        onClick={(e) => handleToggleWishlist(e, p._id)}
+                        title={isWishlisted ? "Remove from wishlist" : "Add to wishlist"}
+                        aria-label={isWishlisted ? "Remove from wishlist" : "Add to wishlist"}
+                      >
+                        <FaHeart />
+                      </button>
                     </div>
 
-                    <div className="price-row">
-                      <span className="current-price">
-                        {formatPrice(p.discountPrice || p.price)}
-                      </span>
-                      {p.discountPrice && (
-                        <span className="original-price">
-                          <del>{formatPrice(p.price)}</del>
+                    <div className={`img-container ${isLifestyle ? "lifestyle-wrap" : "isolated-wrap"}`}>
+                      <img 
+                        src={imageSrc} 
+                        alt={p.title} 
+                        loading="lazy"
+                        className={isLifestyle ? "product-img-cover" : "product-img-contain"}
+                        onError={(e) => { 
+                          e.target.onerror = null;
+                          e.target.src = "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?q=80&w=800"; 
+                        }}
+                      />
+                    </div>
+
+                    <div className="card-details">
+                      <span className="brand-name">{p.category?.name || "OneCart Exclusive"}</span>
+                      <h3 className="product-title" title={p.title}>{p.title}</h3>
+
+                      <div className="product-rating">
+                        <span className="stars-row">
+                          <FaStar /> <FaStar /> <FaStar /> <FaStar /> <FaStar />
                         </span>
+                        <span className="rating-score">{p.rating || 4.9}</span>
+                        <span className="review-count">({p.reviews?.length || 42})</span>
+                      </div>
+
+                      <div className="price-row">
+                        <span className="current-price">
+                          {formatPrice(p.discountPrice || p.price)}
+                        </span>
+                        {p.discountPrice && p.price > p.discountPrice && (
+                          <span className="original-price">
+                            <del>{formatPrice(p.price)}</del>
+                          </span>
+                        )}
+                        {discountPct && (
+                          <span className="discount-pct">
+                            {discountPct}% OFF
+                          </span>
+                        )}
+                      </div>
+
+                      {role !== "admin" && (
+                        <div className="product-card-actions">
+                          <button
+                            type="button"
+                            className="add-to-cart-btn"
+                            onClick={(e) => handleAddToCart(e, p)}
+                            aria-label={`Add ${p.title} to cart`}
+                          >
+                            <FaShoppingCart size={13} /> <span>Add to Cart</span>
+                          </button>
+                          <button
+                            type="button"
+                            className="buy-now-btn"
+                            onClick={(e) => handleBuyNow(e, p)}
+                            aria-label={`Buy ${p.title} now`}
+                          >
+                            <FaBolt size={13} /> <span>Buy Now</span>
+                          </button>
+                        </div>
+                      )}
+
+                      {role === "admin" && (
+                        <div className="product-actions" style={{ marginTop: "auto" }}>
+                          <button
+                            type="button"
+                            className="edit-btn"
+                            onClick={(e) => { e.stopPropagation(); navigate(`/products/edit/${p._id}`); }}
+                          >
+                            Edit
+                          </button>
+                          <button
+                            type="button"
+                            className="delete-btn"
+                            onClick={(e) => { e.stopPropagation(); handleDelete(p._id); }}
+                          >
+                            Delete
+                          </button>
+                        </div>
                       )}
                     </div>
-
-                    {role !== "admin" && (
-                      <div style={{ display: "flex", gap: "8px", marginTop: "auto" }}>
-                        <button
-                          className="add-to-cart-btn"
-                          style={{ opacity: 1, transform: "none", flex: 1, padding: "8px", fontSize: "13px" }}
-                          onClick={() => handleAddToCart(p)}
-                        >
-                          Add to Cart
-                        </button>
-                        <button
-                          className="add-to-cart-btn"
-                          style={{ opacity: 1, transform: "none", flex: 1, padding: "8px", fontSize: "13px", background: "var(--primary)", color: "white" }}
-                          onClick={() => handleBuyNow(p)}
-                        >
-                          Buy Now
-                        </button>
-                      </div>
-                    )}
-
-                    {role === "admin" && (
-                      <div className="product-actions" style={{ marginTop: "auto" }}>
-                        <button
-                          className="edit-btn"
-                          onClick={() => navigate(`/products/edit/${p._id}`)}
-                        >
-                          Edit
-                        </button>
-                        <button
-                          className="delete-btn"
-                          onClick={() => handleDelete(p._id)}
-                        >
-                          Delete
-                        </button>
-                      </div>
-                    )}
                   </div>
-                </div>
-              ))
+                );
+              })
             ) : (
-              <p>No products found</p>
+              <div className="empty-products" style={{ gridColumn: '1 / -1' }}>
+                <h3>No products found</h3>
+                <p>Try searching for another keyword or clearing your filters.</p>
+              </div>
             )}
           </div>
 

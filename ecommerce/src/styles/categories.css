@@ -1,73 +1,194 @@
 /* ======================================
 GLOBAL LAYOUT
 ====================================== */
+/* ======================================
+GLOBAL LAYOUT
+====================================== */
 .category-page-row-container {
   display: flex;
-  background: #f8fafc;
+  background: var(--bg-primary, #ffffff);
   min-height: 100vh;
-  font-family: "Poppins", sans-serif;
+  max-width: var(--container-max, 1440px);
+  margin: 0 auto;
+  box-sizing: border-box;
 }
 
 .category-row-content {
   flex: 1;
-  padding: 35px 40px;
+  padding: 32px var(--section-px, 24px) 64px var(--section-px, 24px);
+  box-sizing: border-box;
 }
 
 /* ======================================
-HEADER
+   HEADER SECTION & DESIGN SYSTEM
 ====================================== */
-.category-header-row {
+.section-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
+  color: var(--primary, #245bdb);
+  background: rgba(36, 91, 219, 0.08);
+  border: 1px solid rgba(36, 91, 219, 0.16);
+  padding: 4px 10px;
+  border-radius: 9999px;
+  margin-bottom: 8px;
+  width: fit-content;
+}
+
+.highlight-text {
+  color: var(--primary, #245bdb);
+  background: linear-gradient(135deg, #245bdb 0%, #1948b8 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.category-header-section {
+  margin-bottom: 32px;
+}
+
+.category-header-top {
   display: flex;
   justify-content: space-between;
+  align-items: flex-end;
+  margin-bottom: 24px;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+.category-page-title {
+  font-family: var(--font-display, 'Outfit', sans-serif);
+  font-size: 32px;
+  font-weight: 800;
+  letter-spacing: -0.6px;
+  color: var(--text-primary, #0f172a);
+  margin: 0;
+  display: flex;
   align-items: center;
-  margin-bottom: 25px;
+  gap: 12px;
+  flex-wrap: wrap;
+  line-height: 1.2;
 }
 
-.category-header-row h1 {
-  font-size: 28px;
-  font-weight: 600;
-  color: #111827;
+.category-count-badge {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--primary, #245bdb);
+  background: #eff6ff;
+  border: 1px solid #bfdbfe;
+  padding: 4px 12px;
+  border-radius: 9999px;
+  letter-spacing: 0;
 }
 
-/* ======================================
-CREATE CATEGORY BUTTON
-====================================== */
-.create-category-btn {
-  padding: 10px 20px;
-  border-radius: 10px;
-  border: none;
-  font-size: 15px;
+.category-page-subtitle {
+  font-size: 14.5px;
+  color: var(--text-secondary, #64748b);
+  margin-top: 6px;
+  margin-bottom: 0;
   font-weight: 500;
-  background: #2563eb;
+  line-height: 1.5;
+}
+
+/* CREATE CATEGORY BUTTON */
+.create-category-btn {
+  padding: 10px 22px;
+  border-radius: 9999px;
+  border: none;
+  font-size: 14px;
+  font-weight: 700;
+  background: var(--primary, #245bdb);
   color: white;
   cursor: pointer;
   transition: all 0.25s ease;
-  box-shadow: 0 3px 8px rgba(37, 99, 235, 0.3);
+  box-shadow: 0 3px 10px rgba(36, 91, 219, 0.25);
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  white-space: nowrap;
 }
 
 .create-category-btn:hover {
-  background: #1d4ed8;
-  transform: translateY(-1px);
+  background: var(--primary-hover, #1948b8);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(36, 91, 219, 0.35);
 }
 
 /* ======================================
-SEARCH BAR
+   SEARCH BAR
 ====================================== */
-.category-search {
+.category-search-bar-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.category-search-input-box {
+  position: relative;
+  display: flex;
+  align-items: center;
   width: 100%;
-  padding: 14px 18px;
-  border-radius: 10px;
-  border: 1px solid #d1d5db;
-  margin-bottom: 30px;
-  font-size: 15px;
+}
+
+.category-search-icon {
+  position: absolute;
+  left: 18px;
+  color: #94a3b8;
+  font-size: 16px;
+  pointer-events: none;
+}
+
+.category-search-input {
+  width: 100%;
+  padding: 13px 44px 13px 48px;
+  border-radius: 12px;
+  border: 1.5px solid var(--border-color, #e2e8f0);
+  font-size: 14.5px;
   background: #ffffff;
+  color: var(--text-primary, #0f172a);
+  transition: all 0.2s ease;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04);
+}
+
+.category-search-input:focus {
+  outline: none;
+  border-color: var(--primary, #245bdb);
+  box-shadow: 0 0 0 3px rgba(36, 91, 219, 0.12);
+}
+
+.category-search-input::placeholder {
+  color: #94a3b8;
+}
+
+.category-search-clear {
+  position: absolute;
+  right: 14px;
+  background: #f1f5f9;
+  border: none;
+  border-radius: 50%;
+  width: 26px;
+  height: 26px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #64748b;
+  cursor: pointer;
   transition: all 0.2s ease;
 }
 
-.category-search:focus {
-  outline: none;
-  border-color: #2563eb;
-  box-shadow: 0 3px 10px rgba(37, 99, 235, 0.15);
+.category-search-clear:hover {
+  background: #e2e8f0;
+  color: #0f172a;
+}
+
+.category-search-indicator {
+  font-size: 13px;
+  color: var(--text-secondary, #64748b);
+  font-weight: 600;
+  padding-left: 4px;
 }
 
 /* ======================================
@@ -83,32 +204,36 @@ CATEGORY GRID
 CATEGORY CARD
 ====================================== */
 .category-card {
-  background: white;
-  border-radius: 12px;
-  padding: 20px 16px;
-  border: 1px solid #e5e7eb;
+  background: #ffffff;
+  border-radius: var(--radius-lg, 16px);
+  padding: 24px 18px;
+  border: 1px solid var(--border-color, #e5e7eb);
   text-align: center;
   cursor: pointer;
   transition: all 0.25s ease;
   position: relative;
+  box-shadow: var(--shadow-xs, 0 1px 3px rgba(15, 23, 42, 0.04));
 }
 
 .category-card:hover {
   transform: translateY(-4px);
-  box-shadow: 0 8px 20px rgba(0,0,0,0.08);
-  border-color: #dbeafe;
+  box-shadow: var(--shadow-md, 0 8px 20px rgba(0, 0, 0, 0.08));
+  border-color: var(--primary-border, #bfdbfe);
 }
 
 /* ======================================
 CATEGORY IMAGE
 ====================================== */
 .category-card-image {
-  width: 90px;
-  height: 90px;
-  object-fit: cover;
+  width: 96px;
+  height: 96px;
+  object-fit: contain;
+  background: var(--bg-secondary, #f8fafc);
+  padding: 8px;
   border-radius: 12px;
-  margin-bottom: 12px;
+  margin: 0 auto 14px auto;
   transition: transform 0.25s ease;
+  display: block;
 }
 
 .category-card:hover .category-card-image {
@@ -123,6 +248,7 @@ CATEGORY NAME
   font-weight: 600;
   color: #1f2937;
   margin-bottom: 10px;
+  word-break: break-word;
 }
 
 /* ======================================

@@ -2,7 +2,7 @@ import React from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { message, Form, Input, Button } from "antd";
 import Navbar from "../components/NavbarL";
-import axios from "axios";
+import api from "../api";
 import "../styles/register.css";
 
 export default function Register() {
@@ -10,8 +10,8 @@ export default function Register() {
 
   const handleRegister = async (values) => {
     try {
-      const res = await axios.post(
-        "https://ecom-backend-i74i.onrender.com/api/users/create",
+      await api.post(
+        "/users/create",
         {
           name: values.name,
           email: values.email,

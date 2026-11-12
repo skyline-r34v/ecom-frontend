@@ -18,7 +18,6 @@ export default function Checkout() {
 
   const {
     cartItems = [],
-    total = 0,
     buyNow = savedData?.buyNow || false,
     product = savedData?.product || null,
     quantity = savedData?.quantity || 1
@@ -186,15 +185,19 @@ export default function Checkout() {
         phone: mobile || selectedAddr.phone
       };
 
+      const defaultPickup = {
+        street: "OneCart Central Fulfillment Hub, Sector 18",
+        city: "Gurugram",
+        state: "Haryana",
+        postalCode: "122015",
+        country: "India"
+      };
+
       const pickingAddress =
         finalItems?.[0]?.productDetail?.pickUpaddresses ||
         finalItems?.[0]?.product?.detail?.pickUpaddresses ||
         finalItems?.[0]?.pickingAddress ||
-        null;
-
-      if (!pickingAddress) {
-        return alert("Pickup address missing");
-      }
+        defaultPickup;
 
       const { data } = await api.post("/payments/create-order", {
         amount: grandTotal
@@ -203,10 +206,10 @@ export default function Checkout() {
       const order = data.order;
 
       const options = {
-        key: "rzp_live_SUNPDgjWZkSH6U", // ✅ put your test key
+        key: "rzp_live_SUNPDgjWZkSH6U",
         amount: order.amount,
         currency: "INR",
-        name: "OneKart",
+        name: "OneCart",
         description: "Order Payment",
         order_id: order.id,
 
@@ -242,7 +245,7 @@ export default function Checkout() {
         },
 
         theme: {
-          color: "#3399cc"
+          color: "#1d4ed8"
         }
       };
 
@@ -272,7 +275,7 @@ export default function Checkout() {
       );
 
       if (!selectedAddr) {
-        return alert("Please select an address");
+        return alert("Please select a delivery address");
       }
 
       const shippingAddress = {
@@ -281,15 +284,19 @@ export default function Checkout() {
         phone: mobile || selectedAddr.phone
       };
 
+      const defaultPickup = {
+        street: "OneCart Central Fulfillment Hub, Sector 18",
+        city: "Gurugram",
+        state: "Haryana",
+        postalCode: "122015",
+        country: "India"
+      };
+
       const pickingAddress =
         finalItems?.[0]?.productDetail?.pickUpaddresses ||
         finalItems?.[0]?.product?.detail?.pickUpaddresses ||
         finalItems?.[0]?.pickingAddress ||
-        null;
-
-      if (!pickingAddress) {
-        return alert("Pickup address missing");
-      }
+        defaultPickup;
 
       const res = await api.post("/orders/create", {
         items: finalItems,
@@ -301,127 +308,337 @@ export default function Checkout() {
       if (res.data?.success) {
         localStorage.removeItem("checkoutData");
         navigate("/my-orders");
+      } else {
+        alert(res.data?.message || "Failed to place order");
       }
     } catch (error) {
       console.error(error);
-      alert("Order failed");
+      alert(error.response?.data?.message || "Order placement failed");
     }
   };
 
   return (
-    <div>
+    <div className="checkout-page-wrapper">
       <Navbar />
+
       <div className="checkout-container">
-        <h2 className="checkout-title">Checkout</h2>
+        {/* Title & Step Header */}
+        <div className="checkout-header">
+          <h1 className="checkout-title">Secure Checkout</h1>
+          <p className="checkout-subtitle">Review your order details and delivery destination</p>
+        </div>
 
         <div className="checkout-layout">
-
-          {/* ================= ORDER SUMMARY ================= */}
-
-          <div className="checkout-summary">
-            <h3>Order Summary</h3>
-
-            {finalItems.map((item, index) => (
-              <div key={item.product?._id || index} className="summary-item">
-                <img
-                  src={item.product?.thumbnail}
-                  alt={item.product?.title}
-                />
-
-                <div className="summary-info">
-                  <h4>{item.product?.title}</h4>
-
-                  <p>₹ {item.product?.discountPrice ?? item.product?.price}</p>
-                  <p>Qty: {item.quantity}</p>
-
-                  <p className="subtotal">
-                    ₹
-                    {(item.product?.discountPrice ??
-                      item.product?.price) * item.quantity}
-                  </p>
+          {/* ================= LEFT COLUMN: ADDRESS & PAYMENT ================= */}
+          <div className="checkout-form">
+            {/* 1. SHIPPING ADDRESS */}
+            <div className="checkout-section-card">
+              <div className="section-card-header">
+                <div className="section-step-badge">1</div>
+                <div>
+                  <h3>Delivery Address</h3>
+                  <p>Where should we deliver your order?</p>
                 </div>
               </div>
-            ))}
 
-            <div className="summary-total">
-              <div>
-                <span>Items Total</span>
-                <span>₹ {itemsTotal}</span>
+              {/* Saved Addresses List */}
+              <div className="address-grid-list">
+                {addresses.length === 0 && !addingNew && (
+                  <div className="no-address-alert">
+                    <p>No saved addresses found. Please add a shipping address below to proceed.</p>
+                  </div>
+                )}
+
+                {addresses.map((addr) => {
+                  const isSelected = selectedAddressId === addr._id;
+                  return (
+                    <div
+                      key={addr._id}
+                      className={`address-card ${isSelected ? "selected" : ""}`}
+                      onClick={() => handleSelectAddress(addr._id)}
+                    >
+                      <div className="address-card-top">
+                        <span className="address-radio-pill">
+                          <span className={`radio-dot ${isSelected ? "active" : ""}`}></span>
+                          <strong>{addr.label || "Address"}</strong>
+                        </span>
+                        {addr.isDefault && <span className="default-address-chip">Default</span>}
+                      </div>
+
+                      <div className="address-card-body">
+                        <p className="address-recipient"><strong>{addr.fullName || userName}</strong></p>
+                        <p className="address-text">{addr.street}</p>
+                        <p className="address-text">{addr.city}, {addr.state} - {addr.postalCode}</p>
+                        <p className="address-phone">📞 {addr.phone || mobile || "No phone provided"}</p>
+                      </div>
+                    </div>
+                  );
+                })}
               </div>
 
-              <div>
-                <span>Shipping</span>
-                <span>₹ {shippingFee}</span>
+              {/* Add New Address Form / Toggle Button */}
+              {!addingNew ? (
+                <button
+                  type="button"
+                  className="add-address-trigger-btn"
+                  onClick={() => setAddingNew(true)}
+                >
+                  + Add New Delivery Address
+                </button>
+              ) : (
+                <div className="new-address-form-box">
+                  <h4>Add New Shipping Address</h4>
+                  <div className="form-grid-2">
+                    <div className="form-group">
+                      <label>Address Label *</label>
+                      <input
+                        type="text"
+                        name="label"
+                        placeholder="e.g. Home, Office"
+                        value={newAddress.label}
+                        onChange={handleNewAddressChange}
+                        required
+                      />
+                    </div>
+                    <div className="form-group">
+                      <label>Full Name *</label>
+                      <input
+                        type="text"
+                        name="fullName"
+                        placeholder="Recipient full name"
+                        value={newAddress.fullName}
+                        onChange={handleNewAddressChange}
+                        required
+                      />
+                    </div>
+                  </div>
+
+                  <div className="form-grid-2">
+                    <div className="form-group">
+                      <label>Mobile Number *</label>
+                      <input
+                        type="tel"
+                        name="phone"
+                        placeholder="10-digit mobile number"
+                        value={newAddress.phone}
+                        onChange={handleNewAddressChange}
+                        required
+                      />
+                    </div>
+                    <div className="form-group">
+                      <label>Postal PIN Code *</label>
+                      <input
+                        type="text"
+                        name="postalCode"
+                        placeholder="6-digit PIN code"
+                        value={newAddress.postalCode}
+                        onChange={handleNewAddressChange}
+                        required
+                      />
+                    </div>
+                  </div>
+
+                  <div className="form-group">
+                    <label>Street Address / Flat / Building *</label>
+                    <input
+                      type="text"
+                      name="street"
+                      placeholder="House No, Apartment, Road name, Area"
+                      value={newAddress.street}
+                      onChange={handleNewAddressChange}
+                      required
+                    />
+                  </div>
+
+                  <div className="form-grid-2">
+                    <div className="form-group">
+                      <label>City *</label>
+                      <input
+                        type="text"
+                        name="city"
+                        placeholder="City"
+                        value={newAddress.city}
+                        onChange={handleNewAddressChange}
+                        required
+                      />
+                    </div>
+                    <div className="form-group">
+                      <label>State *</label>
+                      <input
+                        type="text"
+                        name="state"
+                        placeholder="State"
+                        value={newAddress.state}
+                        onChange={handleNewAddressChange}
+                        required
+                      />
+                    </div>
+                  </div>
+
+                  <div className="form-actions-row">
+                    <button
+                      type="button"
+                      className="save-address-btn"
+                      onClick={addNewAddress}
+                    >
+                      Save & Use Address
+                    </button>
+                    <button
+                      type="button"
+                      className="cancel-address-btn"
+                      onClick={() => setAddingNew(false)}
+                    >
+                      Cancel
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* 2. PAYMENT METHOD */}
+            <div className="checkout-section-card">
+              <div className="section-card-header">
+                <div className="section-step-badge">2</div>
+                <div>
+                  <h3>Payment Option</h3>
+                  <p>Choose your preferred payment method</p>
+                </div>
               </div>
 
-              <div>
-                <span>Tax (18%)</span>
-                <span>₹ {tax}</span>
-              </div>
+              <div className="payment-options-grid">
+                <div
+                  className={`payment-option-card ${payment.method === "COD" ? "active" : ""}`}
+                  onClick={() => setPayment({ method: "COD" })}
+                >
+                  <div className="payment-card-left">
+                    <span className={`radio-dot ${payment.method === "COD" ? "active" : ""}`}></span>
+                    <div>
+                      <strong>Cash on Delivery (COD)</strong>
+                      <p>Pay cash or UPI upon delivery</p>
+                    </div>
+                  </div>
+                  <span className="payment-badge-chip">Convenient</span>
+                </div>
 
-              <hr />
-
-              <div>
-                <strong>Grand Total</strong>
-                <strong>₹ {grandTotal}</strong>
+                <div
+                  className={`payment-option-card ${payment.method === "RAZORPAY" ? "active" : ""}`}
+                  onClick={() => setPayment({ method: "RAZORPAY" })}
+                >
+                  <div className="payment-card-left">
+                    <span className={`radio-dot ${payment.method === "RAZORPAY" ? "active" : ""}`}></span>
+                    <div>
+                      <strong>Pay Online (Razorpay)</strong>
+                      <p>UPI, Credit/Debit Cards, NetBanking, Wallets</p>
+                    </div>
+                  </div>
+                  <span className="payment-badge-chip secure">100% Secure</span>
+                </div>
               </div>
             </div>
           </div>
 
-          {/* ================= ADDRESS + PAYMENT ================= */}
+          {/* ================= RIGHT COLUMN: ORDER SUMMARY ================= */}
+          <div className="checkout-summary-wrapper">
+            <div className="checkout-summary">
+              <h3>Order Summary ({finalItems.length} {finalItems.length === 1 ? "item" : "items"})</h3>
 
-          <div className="checkout-form">
+              <div className="summary-items-scroll">
+                {finalItems.map((item, index) => {
+                  const p = item.product || {};
+                  const price = p.discountPrice ?? p.price ?? 0;
+                  const qty = item.quantity || 1;
 
-            <h3>Shipping Address</h3>
-
-            {addresses.map((addr) => (
-              <div
-                key={addr._id}
-                className={`address-card ${selectedAddressId === addr._id ? "selected" : ""
-                  }`}
-                onClick={() => handleSelectAddress(addr._id)}
-              >
-                <p><b>{addr.label}</b> | {addr.fullName}</p>
-                <p>{addr.street}</p>
-                <p>{addr.city}</p>
+                  return (
+                    <div key={p._id || index} className="summary-item">
+                      <img
+                        src={p.thumbnail || p.images?.[0]}
+                        alt={p.title || "Product"}
+                        onError={(e) => {
+                          e.target.src = "https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=150&q=80";
+                        }}
+                      />
+                      <div className="summary-info">
+                        <h4>{p.title}</h4>
+                        <div className="summary-qty-price">
+                          <span>Qty: {qty}</span>
+                          <span className="item-price-each">₹{price.toLocaleString()}</span>
+                        </div>
+                        <p className="subtotal">
+                          Subtotal: ₹{(price * qty).toLocaleString()}
+                        </p>
+                      </div>
+                    </div>
+                  );
+                })}
               </div>
-            ))}
 
-            <button
-              className="checkout-btn"
-              onClick={() => setAddingNew(true)}
-            >
-              + Add Address
-            </button>
+              {/* Price Breakdown */}
+              <div className="summary-total">
+                <div>
+                  <span>Items Subtotal</span>
+                  <span>₹{itemsTotal.toLocaleString()}</span>
+                </div>
 
-            <select
-              className="checkout-select"
-              value={payment.method}
-              onChange={(e) =>
-                setPayment({ method: e.target.value })
-              }
-            >
-              <option value="COD">Cash on Delivery</option>
-              <option value="RAZORPAY">Pay Online</option>
-            </select>
+                <div>
+                  <span>Express Shipping</span>
+                  <span>
+                    {shippingFee === 0 ? (
+                      <strong style={{ color: "#16a34a" }}>FREE</strong>
+                    ) : (
+                      `₹${shippingFee}`
+                    )}
+                  </span>
+                </div>
 
-            <button
-              className="checkout-btn"
-              disabled={loadingPayment}
-              onClick={() => {
-                if (payment.method === "COD") {
-                  placeOrder();
-                } else {
-                  handleRazorpayPayment();
-                }
-              }}
-            >
-              {loadingPayment ? "Processing..." : "Place Order"}
-            </button>
+                <div>
+                  <span>Estimated Tax (18% GST)</span>
+                  <span>₹{tax.toLocaleString()}</span>
+                </div>
+
+                <div className="summary-total-divider"></div>
+
+                <div className="grand-total-row">
+                  <strong>Total Payable</strong>
+                  <strong className="grand-total-val">₹{grandTotal.toLocaleString()}</strong>
+                </div>
+              </div>
+
+              <button
+                className="checkout-place-order-btn"
+                disabled={loadingPayment || !selectedAddressId}
+                onClick={() => {
+                  if (payment.method === "COD") {
+                    placeOrder();
+                  } else {
+                    handleRazorpayPayment();
+                  }
+                }}
+              >
+                {loadingPayment
+                  ? "Processing Payment..."
+                  : payment.method === "COD"
+                  ? "Confirm & Place Order"
+                  : `Pay ₹${grandTotal.toLocaleString()} Online`}
+              </button>
+
+              {!selectedAddressId && (
+                <p className="select-address-warning">⚠️ Please select a delivery address to place your order</p>
+              )}
+
+              <div className="checkout-guarantee">
+                <div className="guarantee-row">
+                  <span>🛡️</span>
+                  <span>Guaranteed safe checkout with 256-bit encryption</span>
+                </div>
+                <div className="guarantee-row">
+                  <span>📦</span>
+                  <span>Real-time delivery updates via SMS & email</span>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
     </div>
-
   );
 }

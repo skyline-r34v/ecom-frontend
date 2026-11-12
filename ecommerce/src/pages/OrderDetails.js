@@ -99,46 +99,83 @@ export default function OrderDetails() {
 
   if (!order) return <p className="loading">Order not found</p>;
 
+  const orderStatuses = ["PLACED", "SHIPPED", "OUT_FOR_DELIVERY", "DELIVERED"];
+  const currentStatusIdx = orderStatuses.indexOf(order.orderStatus);
+
   return (
-    <div>
+    <div className="order-details-page-wrapper">
       <Navbar />
       <div className="order-page">
+
+        {/* Back Link */}
+        <div className="order-back-row">
+          <button className="order-back-btn" onClick={() => window.history.back()}>
+            ← Back to Orders
+          </button>
+        </div>
 
         {/* HEADER */}
         <div className="order-top">
           <div>
             <h1>Order Details</h1>
-
             <p className="order-date">
-              Ordered on {formatDate(order.createdAt)}
+              Order placed on {formatDate(order.createdAt)}
             </p>
           </div>
 
-          <div className={`status-badge ${order.orderStatus.toLowerCase()}`}>
-            {order.orderStatus}
+          <div className={`status-badge ${order.orderStatus?.toLowerCase()}`}>
+            {order.orderStatus?.replace("_", " ")}
           </div>
         </div>
 
-        {/* ORDER SUMMARY */}
+        {/* PROGRESS TRACKER (if not cancelled) */}
+        {order.orderStatus !== "CANCELLED" && (
+          <div className="order-tracker-card">
+            <div className="tracker-steps">
+              {[
+                { label: "Order Placed", step: 0 },
+                { label: "Shipped", step: 1 },
+                { label: "Out for Delivery", step: 2 },
+                { label: "Delivered", step: 3 },
+              ].map((s) => {
+                const isPassed = currentStatusIdx >= s.step;
+                const isCurrent = currentStatusIdx === s.step;
+                return (
+                  <div
+                    key={s.label}
+                    className={`tracker-step ${isPassed ? "completed" : ""} ${
+                      isCurrent ? "current" : ""
+                    }`}
+                  >
+                    <div className="step-circle">{isPassed ? "✓" : s.step + 1}</div>
+                    <span className="step-label">{s.label}</span>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        )}
+
+        {/* ORDER SUMMARY METRICS */}
         <div className="summary-card">
           <div>
-            <span>Order ID</span>
-            <h4>{order._id}</h4>
+            <span>Order Reference</span>
+            <h4>#{order._id?.slice(-10).toUpperCase()}</h4>
           </div>
 
           <div>
-            <span>Total Amount</span>
-            <h3>₹{order.pricing?.grandTotal}</h3>
+            <span>Grand Total</span>
+            <h3 className="highlight-price">₹{order.pricing?.grandTotal?.toLocaleString()}</h3>
           </div>
 
           <div>
-            <span>Payment</span>
-            <h4>{order.payment?.method}</h4>
+            <span>Payment Method</span>
+            <h4>{order.payment?.method || "Online"}</h4>
           </div>
 
           <div>
             <span>Payment Status</span>
-            <h4>{order.payment?.status}</h4>
+            <h4 className="payment-status-pill">{order.payment?.status || "COMPLETED"}</h4>
           </div>
         </div>
 

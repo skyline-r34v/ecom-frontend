@@ -37,6 +37,9 @@ import BrandEdit from "./pages/Brands/Update";
 import ForgotPassword from "./pages/ForgotPassword.js";
 import EditProduct from "./pages/Products/EditProduct.js";
 
+// Food Delivery
+import RestaurantMenu from "./pages/FoodDelivery/RestaurantMenu";
+
 //Transport
 import TransporterDashboard from "./pages/Transport/TransporterDashboard";
 import DriverDashboard from "./pages/Transport/DriverDashboard";
@@ -89,7 +92,12 @@ function App() {
         {/* ================= ORDERS ================= */}
         <Route path="/checkout" element={<Checkout />} />  {/* ✅ REQUIRED */}
         <Route path="/my-orders" element={<MyOrders />} />
+        <Route path="/orders" element={<MyOrders />} />
+        <Route path="/food-orders" element={<MyOrders />} />
         <Route path="/orders/:id" element={<OrderDetails />} />
+
+        {/* ================= FOOD DELIVERY ================= */}
+        <Route path="/restaurant/:id" element={<RestaurantMenu />} />
 
         {/* ================= BRANDS ================= */}
         <Route path="/brands" element={<BrandList />} />
@@ -108,6 +116,9 @@ function App() {
         {role === "delivery" && (
           <Route path="/driver-dashboard" element={<DriverDashboard />} />
         )}
+
+        {/* ================= FALLBACK ================= */}
+        <Route path="*" element={<Home />} />
 
       </Routes>
     </BrowserRouter>

@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Form, Input, Button, message } from "antd";
 import { useNavigate } from "react-router-dom";
-import axios from "axios";
+import api from "../api";
 
 export default function ForgotPassword() {
   const [loading, setLoading] = useState(false);
@@ -14,8 +14,8 @@ export default function ForgotPassword() {
     try {
       setLoading(true);
 
-      const res = await axios.post(
-        "https://92hktjzx-7045.inc1.devtunnels.ms/api/users/forget-password",
+      const res = await api.post(
+        "/users/forget-password",
         { email: values.email }
       );
 
@@ -39,8 +39,8 @@ export default function ForgotPassword() {
     try {
       setLoading(true);
 
-      const res = await axios.post(
-        "https://92hktjzx-7045.inc1.devtunnels.ms/api/users/reset-password",
+      const res = await api.post(
+        "/users/reset-password",
         {
           email,
           otp: values.otp,

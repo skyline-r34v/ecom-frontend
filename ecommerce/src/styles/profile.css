@@ -1,19 +1,25 @@
 /* ==========================================================================
-   GLOBAL PROFILE ACCOUNT LAYOUT
+   GLOBAL PROFILE & ACCOUNT SETTINGS
+   OneCart Clean Minimalist Theme (White/Charcoal/Royal Blue/Gold)
    ========================================================================== */
+
 .account-wrapper {
   display: flex;
-  gap: 40px;
-  padding: 40px 60px;
-  background: var(--bg-primary);
-  min-height: 100vh;
+  gap: 36px;
+  padding: 36px var(--section-px, 24px) 80px var(--section-px, 24px);
+  background: var(--bg-primary, #ffffff);
+  min-height: calc(100vh - 80px);
   font-family: var(--font-sans);
+  max-width: var(--container-max, 1440px);
+  margin: 0 auto;
+  box-sizing: border-box;
 }
 
 @media (max-width: 900px) {
   .account-wrapper {
     flex-direction: column;
-    padding: 20px 16px;
+    padding: 20px 16px 60px;
+    gap: 24px;
   }
 }
 
@@ -21,15 +27,16 @@
    ACCOUNT SIDEBAR NAVIGATION
    ========================================================================== */
 .account-sidebar {
-  width: 250px;
-  background: var(--bg-secondary);
-  border-radius: var(--radius-lg);
-  border: 1px solid var(--border-light);
-  padding: 24px;
-  box-shadow: var(--shadow-sm);
+  width: 260px;
+  background: #ffffff;
+  border-radius: var(--radius-xl, 20px);
+  border: 1px solid var(--border-color, #e2e8f0);
+  padding: 24px 18px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
   height: fit-content;
   position: sticky;
   top: 90px;
+  flex-shrink: 0;
 }
 
 @media (max-width: 900px) {
@@ -40,77 +47,83 @@
 }
 
 .account-sidebar h3 {
-  font-size: 14px;
-  font-weight: 700;
-  margin-bottom: 18px;
-  color: var(--text-muted);
+  font-family: var(--font-heading);
+  font-size: 13px;
+  font-weight: 800;
+  margin: 0 0 16px 10px;
+  color: var(--text-secondary, #64748b);
   text-transform: uppercase;
-  letter-spacing: 0.2px;
+  letter-spacing: 0.5px;
 }
 
 .account-sidebar ul {
   list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
 }
 
 .account-sidebar li {
-  padding: 10px 14px;
-  border-radius: var(--radius-md);
+  padding: 11px 16px;
+  border-radius: var(--radius-md, 10px);
   cursor: pointer;
   font-size: 14px;
-  color: var(--text-secondary);
+  color: var(--text-secondary, #475569);
   transition: all 0.2s ease;
-  font-weight: 500;
-  margin-bottom: 4px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 10px;
 }
 
 .account-sidebar li:hover {
-  background: var(--bg-tertiary);
-  color: var(--primary);
-  padding-left: 18px;
+  background: #f1f5f9;
+  color: var(--primary, #245bdb);
+  padding-left: 20px;
 }
 
 .account-sidebar .active {
-  background: var(--primary-light);
-  color: var(--primary);
-  font-weight: 600;
+  background: var(--primary-light, #eff6ff) !important;
+  color: var(--primary, #245bdb) !important;
+  font-weight: 700 !important;
 }
 
 /* ==========================================================================
-   CONTENT LAYOUT
+   CONTENT AREA
    ========================================================================== */
 .account-content {
   flex: 1;
-  max-width: 960px;
+  min-width: 0;
 }
 
-/* ==========================================================================
-   CARDS & HEADERS
-   ========================================================================== */
 .account-card {
-  background: var(--bg-secondary);
+  background: #ffffff;
   padding: 30px;
-  border-radius: var(--radius-lg);
+  border-radius: var(--radius-xl, 20px);
   margin-bottom: 24px;
-  border: 1px solid var(--border-light);
-  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--border-color, #e2e8f0);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
 }
 
 .card-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  border-bottom: 1px solid var(--border-light);
+  border-bottom: 1px solid #f1f5f9;
   padding-bottom: 16px;
-  margin-bottom: 20px;
+  margin-bottom: 22px;
 }
 
 .card-header h2,
 .card-header h3 {
   margin: 0;
-  font-size: 18px;
-  font-weight: 700;
-  color: var(--text-primary);
-  letter-spacing: -0.2px;
+  font-family: var(--font-heading);
+  font-size: 19px;
+  font-weight: 800;
+  color: var(--text-primary, #0f172a);
+  letter-spacing: -0.3px;
 }
 
 /* ==========================================================================
@@ -130,36 +143,36 @@
 }
 
 .avatar {
-  width: 80px;
-  height: 80px;
-  border-radius: var(--radius-full);
+  width: 84px;
+  height: 84px;
+  border-radius: 50%;
   object-fit: cover;
-  border: 3px solid var(--border-light);
-  box-shadow: var(--shadow-sm);
+  border: 3px solid #e2e8f0;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
 }
 
 .profile-details h3 {
-  margin: 0;
-  font-size: 18px;
-  font-weight: 700;
-  color: var(--text-primary);
+  margin: 0 0 4px 0;
+  font-family: var(--font-heading);
+  font-size: 20px;
+  font-weight: 800;
+  color: var(--text-primary, #0f172a);
 }
 
 .profile-details p {
-  margin: 4px 0;
-  color: var(--text-secondary);
+  margin: 0 0 8px 0;
+  color: var(--text-secondary, #64748b);
   font-size: 14px;
 }
 
 .role-badge {
-  background: var(--text-primary);
+  background: var(--primary, #245bdb);
   color: #ffffff;
-  padding: 4px 12px;
+  padding: 3px 10px;
   font-size: 11px;
-  font-weight: 700;
-  border-radius: var(--radius-full);
+  font-weight: 800;
+  border-radius: 6px;
   display: inline-block;
-  margin-top: 6px;
   text-transform: uppercase;
   letter-spacing: 0.5px;
 }
@@ -168,10 +181,11 @@
    INFO GRIDS & INPUTS
    ========================================================================== */
 .section-title {
-  font-size: 15px;
-  font-weight: 700;
+  font-family: var(--font-heading);
+  font-size: 16px;
+  font-weight: 800;
   margin-bottom: 16px;
-  color: var(--text-secondary);
+  color: var(--text-primary, #0f172a);
 }
 
 .info-grid {
@@ -182,28 +196,28 @@
 }
 
 .info-grid label {
-  font-size: 13px;
+  font-size: 12.5px;
   font-weight: 600;
-  color: var(--text-secondary);
+  color: var(--text-secondary, #475569);
   display: block;
   margin-bottom: 6px;
 }
 
 .info-grid p {
   margin: 0;
-  color: var(--text-primary);
+  color: var(--text-primary, #0f172a);
   font-size: 14.5px;
-  font-weight: 500;
+  font-weight: 600;
 }
 
 .info-grid input,
 .info-grid select {
   width: 100%;
-  padding: 10px 12px;
-  border-radius: var(--radius-md);
-  border: 1px solid var(--border-color);
-  background-color: var(--bg-primary);
-  color: var(--text-primary);
+  padding: 10px 14px;
+  border-radius: var(--radius-md, 10px);
+  border: 1px solid #cbd5e1;
+  background-color: #ffffff;
+  color: var(--text-primary, #0f172a);
   font-size: 14px;
   outline: none;
   transition: all 0.2s ease;
@@ -211,33 +225,34 @@
 
 .info-grid input:focus,
 .info-grid select:focus {
-  border-color: var(--primary);
-  box-shadow: 0 0 0 3px var(--primary-light);
-  background-color: var(--bg-secondary);
+  border-color: var(--primary, #245bdb);
+  box-shadow: 0 0 0 3px rgba(36, 91, 219, 0.15);
 }
 
 /* ==========================================================================
-   BUTTONS STYLING
+   BUTTONS
    ========================================================================== */
 .primary-btn {
-  background: var(--grad-primary);
+  background: var(--primary, #245bdb);
   border: none;
   padding: 12px 24px;
-  border-radius: var(--radius-md);
-  color: white;
+  border-radius: var(--radius-md, 10px);
+  color: #ffffff;
   cursor: pointer;
+  font-family: var(--font-heading);
   font-size: 14px;
   font-weight: 700;
   transition: all 0.25s ease;
-  box-shadow: 0 4px 12px rgba(79, 70, 229, 0.15);
-  margin-top: 16px;
+  box-shadow: 0 4px 12px rgba(36, 91, 219, 0.25);
+  margin-top: 18px;
   display: inline-block;
   text-align: center;
 }
 
 .primary-btn:hover {
+  background: var(--primary-hover, #1948b8);
   transform: translateY(-1px);
-  box-shadow: 0 6px 16px rgba(79, 70, 229, 0.3);
+  box-shadow: 0 6px 16px rgba(36, 91, 219, 0.35);
 }
 
 .primary-btn.small {
@@ -246,11 +261,11 @@
 }
 
 .secondary-btn {
-  background: var(--bg-tertiary);
-  color: var(--text-secondary);
-  border: 1px solid var(--border-light);
+  background: #f1f5f9;
+  color: var(--text-primary, #0f172a);
+  border: 1px solid #e2e8f0;
   padding: 12px 24px;
-  border-radius: var(--radius-md);
+  border-radius: var(--radius-md, 10px);
   cursor: pointer;
   font-weight: 600;
   font-size: 14px;
@@ -258,23 +273,21 @@
 }
 
 .secondary-btn:hover {
-  background: var(--border-light);
-  color: var(--text-primary);
+  background: #e2e8f0;
 }
 
 .link-btn {
   border: none;
   background: none;
-  color: var(--primary);
+  color: var(--primary, #245bdb);
   cursor: pointer;
   font-size: 14px;
-  font-weight: 600;
+  font-weight: 700;
   transition: color 0.2s ease;
   padding: 0;
 }
 
 .link-btn:hover {
-  color: var(--primary-hover);
   text-decoration: underline;
 }
 
@@ -289,121 +302,39 @@
 }
 
 .address-card {
-  border: 1px solid var(--border-light);
-  border-radius: var(--radius-lg);
+  border: 1.5px solid #e2e8f0;
+  border-radius: var(--radius-lg, 14px);
   padding: 20px;
-  background: var(--bg-secondary);
+  background: #ffffff;
   transition: all 0.25s ease;
-  box-shadow: var(--shadow-sm);
   display: flex;
   flex-direction: column;
   justify-content: space-between;
 }
 
 .address-card:hover {
+  border-color: #cbd5e1;
   transform: translateY(-2px);
-  box-shadow: var(--shadow-md);
-  border-color: rgba(79, 70, 229, 0.1);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.05);
 }
 
-.address-card h4 {
-  margin: 0 0 8px 0;
-  font-size: 15px;
-  font-weight: 700;
-  color: var(--text-primary);
-  display: flex;
-  align-items: center;
-}
-
-.address-card p {
-  margin: 3px 0;
-  font-size: 13.5px;
-  color: var(--text-secondary);
-  line-height: 1.45;
-}
-
-/* CHIPS */
-.default-chip {
-  background: #dcfce7;
-  color: var(--success);
-  font-size: 10px;
+.address-badge {
+  font-size: 11px;
   font-weight: 700;
   padding: 2px 8px;
-  border-radius: var(--radius-full);
-  margin-left: 8px;
-  border: 1px solid rgba(16, 185, 129, 0.2);
+  border-radius: 4px;
   text-transform: uppercase;
 }
 
-.card-actions {
-  margin-top: 16px;
+.address-badge.default {
+  background: #dcfce7;
+  color: #15803d;
+}
+
+.address-actions {
   display: flex;
   gap: 8px;
-  border-top: 1px solid var(--border-light);
-  padding-top: 12px;
-}
-
-.card-actions button {
-  border: 1px solid var(--border-light);
-  background: var(--bg-primary);
-  padding: 6px 12px;
-  border-radius: var(--radius-sm);
-  cursor: pointer;
-  font-size: 12px;
-  font-weight: 600;
-  color: var(--text-secondary);
-  transition: all 0.2s ease;
-}
-
-.card-actions button:hover {
-  background: var(--bg-tertiary);
-  color: var(--text-primary);
-  border-color: var(--border-color);
-}
-
-/* ==========================================================================
-   ADDRESS ADD/EDIT FORM
-   ========================================================================== */
-.address-form {
-  margin-top: 30px;
-  border-top: 1px solid var(--border-light);
-  padding-top: 24px;
-}
-
-.address-form h3 {
-  font-size: 16px;
-  font-weight: 700;
-  margin-bottom: 16px;
-  color: var(--text-primary);
-}
-
-.address-form input {
-  width: 100%;
-  padding: 10px 12px;
-  margin-bottom: 12px;
-  border-radius: var(--radius-md);
-  border: 1px solid var(--border-color);
-  background-color: var(--bg-primary);
-  color: var(--text-primary);
-  font-size: 14px;
-  outline: none;
-  transition: all 0.2s ease;
-}
-
-.address-form input:focus {
-  border-color: var(--primary);
-  box-shadow: 0 0 0 3px var(--primary-light);
-  background-color: var(--bg-secondary);
-}
-
-.address-form label {
-  font-size: 13.5px;
-  font-weight: 600;
-  color: var(--text-secondary);
-}
-
-.form-actions {
-  display: flex;
-  gap: 12px;
   margin-top: 14px;
+  padding-top: 12px;
+  border-top: 1px solid #f1f5f9;
 }

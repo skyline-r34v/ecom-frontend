@@ -1,11 +1,16 @@
 /* ======================================
    LAYOUT
 ====================================== */
+/* ======================================
+   LAYOUT
+====================================== */
 .brand-layout {
   display: flex;
-  background: #eef2ff;
+  background: var(--bg-primary, #ffffff);
   min-height: 100vh;
-  font-family: "Poppins", sans-serif;
+  max-width: var(--container-max, 1440px);
+  margin: 0 auto;
+  box-sizing: border-box;
   gap: 20px;
 }
 
@@ -14,40 +19,110 @@
 ====================================== */
 .brand-container {
   flex: 1;
-  padding: 40px;
+  padding: 32px var(--section-px, 24px) 64px var(--section-px, 24px);
+  box-sizing: border-box;
 }
 
 /* ======================================
-   HEADER
+   HEADER & DESIGN SYSTEM
 ====================================== */
+.section-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
+  color: var(--primary, #245bdb);
+  background: rgba(36, 91, 219, 0.08);
+  border: 1px solid rgba(36, 91, 219, 0.16);
+  padding: 4px 10px;
+  border-radius: 9999px;
+  margin-bottom: 8px;
+  width: fit-content;
+}
+
+.section-eyebrow .eyebrow-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--primary, #245bdb);
+  box-shadow: 0 0 8px rgba(36, 91, 219, 0.6);
+  display: inline-block;
+}
+
+.highlight-text {
+  color: var(--primary, #245bdb);
+  background: linear-gradient(135deg, #245bdb 0%, #1948b8 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
 .brand-header {
   display: flex;
   justify-content: space-between;
-  align-items: center;
-  margin-bottom: 25px;
+  align-items: flex-end;
+  margin-bottom: 28px;
+  gap: 16px;
+  flex-wrap: wrap;
 }
 
 .brand-title {
+  font-family: var(--font-display, 'Outfit', sans-serif);
   font-size: 32px;
-  color: #1e3a8a;
-  font-weight: 600;
+  color: var(--text-primary, #0f172a);
+  font-weight: 800;
+  letter-spacing: -0.6px;
   margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  line-height: 1.2;
+}
+
+.brand-count-badge {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--primary, #245bdb);
+  background: #eff6ff;
+  border: 1px solid #bfdbfe;
+  padding: 3px 12px;
+  border-radius: 9999px;
+  letter-spacing: 0;
+}
+
+.brand-subtitle {
+  color: var(--text-secondary, #64748b);
+  font-size: 14.5px;
+  margin-top: 6px;
+  margin-bottom: 0;
+  font-weight: 500;
+  line-height: 1.5;
 }
 
 .add-brand-btn {
-  padding: 10px 18px;
-  background: #3b82f6;
+  padding: 10px 22px;
+  background: var(--primary, #245bdb);
   color: #ffffff;
   border: none;
-  border-radius: 12px;
-  font-size: 16px;
+  border-radius: 9999px;
+  font-size: 14px;
+  font-weight: 700;
   cursor: pointer;
-  transition: 0.25s ease;
+  transition: all 0.25s ease;
+  box-shadow: 0 3px 10px rgba(36, 91, 219, 0.25);
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  white-space: nowrap;
 }
 
 .add-brand-btn:hover {
-  background: #2563eb;
+  background: var(--primary-hover, #1948b8);
   transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(36, 91, 219, 0.35);
 }
 
 /* ======================================
@@ -55,50 +130,56 @@
 ====================================== */
 .brand-card-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-  gap: 28px;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 22px;
 }
 
 /* ======================================
    BRAND CARD
 ====================================== */
 .brand-card {
-  padding: 22px 20px;
-  border-radius: 16px;
-  border: 1px solid #e2e8f0;
+  padding: 24px 20px;
+  border-radius: var(--radius-lg, 16px);
+  border: 1px solid var(--border-color, #e5e7eb);
   background: #ffffff;
   text-align: center;
-  transition: 0.25s ease;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.06);
+  transition: all 0.25s ease;
+  box-shadow: var(--shadow-xs, 0 1px 3px rgba(15, 23, 42, 0.04));
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
 }
 
 .brand-card:hover {
-  transform: translateY(-6px);
-  box-shadow: 0 10px 25px rgba(59, 130, 246, 0.25);
-  border-color: #3b82f6;
-  background: #f4faff;
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-md, 0 8px 20px rgba(0, 0, 0, 0.08));
+  border-color: var(--primary-border, #bfdbfe);
 }
 
 /* ======================================
    BRAND LOGO
 ====================================== */
 .brand-logo {
-  width: 105px;
-  height: 105px;
-  border-radius: 14px;
+  width: 110px;
+  height: 80px;
+  border-radius: 12px;
   margin: 0 auto 14px;
-  border: 3px solid #dbeafe;
+  border: 1px solid var(--border-color, #e2e8f0);
+  background: var(--bg-secondary, #f8fafc);
   display: flex;
   align-items: center;
   justify-content: center;
+  padding: 10px;
+  box-sizing: border-box;
   transition: 0.25s ease;
 }
 
 .brand-logo img {
-  width: 100%;
-  height: 100%;
+  max-width: 100%;
+  max-height: 100%;
   object-fit: contain;
-  border-radius: 10px;
+  border-radius: 6px;
 }
 
 .brand-card:hover .brand-logo {

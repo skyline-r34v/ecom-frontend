@@ -4,6 +4,7 @@ import Navbar from "../../components/Navbar";
 import "../../styles/categories.css";
 import api from "../../api";
 import { useNavigate } from "react-router-dom";
+import { FaPlus, FaSearch, FaTimes, FaLayerGroup } from "react-icons/fa";
 
 export const fetchAllCategories = async (searchTerm = "", page = 1, size = 10) => {
   const data = { page, size, search: searchTerm };
@@ -18,15 +19,15 @@ export default function CategoryPage() {
   const [searchTerm, setSearchTerm] = useState("");
 
   const navigate = useNavigate();
-  const role =  localStorage.getItem("role")
-  console.log("role",role)
+
   const loadCategories = async () => {
     try {
       setLoading(true);
-      const data = await fetchAllCategories(searchTerm, 1, 10);
-      setCategories(data.data || []);
+      const data = await fetchAllCategories(searchTerm, 1, 50);
+      setCategories(Array.isArray(data?.data) ? data.data : []);
     } catch (err) {
       setError("Failed to load categories");
+      setCategories([]);
     } finally {
       setLoading(false);
     }
@@ -73,20 +74,56 @@ export default function CategoryPage() {
         </aside>
 
         <main className="category-row-content">
-          <div className="category-header-row">
-            <h1>Explore All Categories</h1>
-            <button className="create-category-btn" onClick={goToCreateCategory}>
-              + Create Category
-            </button>
-          </div>
+          <div className="category-header-section">
+            <div className="category-header-top">
+              <div>
+                <div className="section-eyebrow">
+                  <FaLayerGroup size={11} />
+                  <span>STORE DIRECTORY</span>
+                </div>
+                <h1 className="category-page-title">
+                  Explore All <span className="highlight-text">Categories</span>
+                  <span className="category-count-badge">{categories.length} Departments</span>
+                </h1>
+                <p className="category-page-subtitle">
+                  Browse authentic products across our verified department catalog or organize new listings.
+                </p>
+              </div>
 
-          <input
-            type="text"
-            className="category-search"
-            placeholder="Search category..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-          />
+              <button className="create-category-btn" onClick={goToCreateCategory}>
+                <FaPlus size={12} />
+                <span>Create Category</span>
+              </button>
+            </div>
+
+            <div className="category-search-bar-wrap">
+              <div className="category-search-input-box">
+                <FaSearch className="category-search-icon" />
+                <input
+                  type="text"
+                  className="category-search-input"
+                  placeholder="Search departments (e.g. Electronics, Fashion, Gourmet)..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                />
+                {searchTerm && (
+                  <button
+                    type="button"
+                    className="category-search-clear"
+                    onClick={() => setSearchTerm("")}
+                    aria-label="Clear search"
+                  >
+                    <FaTimes size={13} />
+                  </button>
+                )}
+              </div>
+              {searchTerm && (
+                <span className="category-search-indicator">
+                  Showing {categories.length} {categories.length === 1 ? "match" : "matches"}
+                </span>
+              )}
+            </div>
+          </div>
 
           <div className="category-grid">
             {loading ? (

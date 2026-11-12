@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import "../../styles/brandlist.css";
 import Sidebar from "../../components/Sidebar";
 import Navbar from "../../components/Navbar";
+import { FaPlus } from "react-icons/fa";
 
 export default function BrandList() {
   const [brands, setBrands] = useState([]);
@@ -20,6 +21,7 @@ export default function BrandList() {
       setBrands(res?.data?.data || []);
     } catch (err) {
       console.error("Failed to fetch brands", err);
+      setBrands([]);
     } finally {
       setLoading(false);
     }
@@ -50,12 +52,25 @@ export default function BrandList() {
         {/* Content */}
         <div className="brand-container">
           <div className="brand-header">
-            <h2 className="brand-title">Brands</h2>
+            <div>
+              <div className="section-eyebrow">
+                <span className="eyebrow-dot" />
+                <span>DIRECT PARTNERSHIPS</span>
+              </div>
+              <h1 className="brand-title">
+                Partner <span className="highlight-text">Brands</span>
+                <span className="brand-count-badge">{brands.length} Brands</span>
+              </h1>
+              <p className="brand-subtitle">
+                Official verified manufacturers and authorized distributors on OneCart.
+              </p>
+            </div>
             <button
               className="add-brand-btn"
               onClick={() => navigate("/brands/create")}
             >
-              + Add Brand
+              <FaPlus size={12} />
+              <span>Add Brand</span>
             </button>
           </div>
 
